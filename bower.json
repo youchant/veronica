@@ -14,8 +14,10 @@
         "jquery": "~1.10.x",
         "underscore": "~1.5.x",
         "eventemitter2": "~0.4.11",
-        "requirejs": "~2.1.4",
-        "requirejs-text": "~2.0.5",
-        "require-css": "~0.1.0"
+        "requirejs": "~2.1.4"
+    },
+    "devDependencies": {
+        "require-css": "latest",
+        "require-text": "latest"
     }
 }
