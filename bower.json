@@ -18,6 +18,6 @@
     },
     "devDependencies": {
         "require-css": "latest",
-        "require-text": "latest"
+        "requirejs-text": "latest"
     }
 }
