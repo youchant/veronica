@@ -1,10 +1,32 @@
-define(['chai', 'veronica'], function (chai, core) {
+define(['chai', 'sinon', 'veronica'], function (chai, sinon, core) {
 
     var should = chai.should();
 
-    describe('core', function () {
+    function once(fn) {
+        var returnValue, called = false;
+        return function () {
+            if (!called) {
+                called = true;
+                returnValue = fn.apply(this, arguments);
+            }
+            return returnValue;
+        };
+    }
 
-        describe('util', function () {
+    describe('sinon', function(){
+        it("calls the original function", function () {
+            var callback = sinon.spy();
+            var proxy = once(callback);
+
+            proxy();
+
+            assert(callback.called);
+        });
+    });
+
+    describe('Core', function () {
+
+        describe('Util', function () {
             describe('#decamelize', function () {
                 it('should work normal string', function () {
                     var r = core.util.decamelize('test');
@@ -50,14 +72,14 @@ define(['chai', 'veronica'], function (chai, core) {
             });
         });
 
-        describe('loader', function () {
+        describe('Loader', function () {
             describe('#loadWiget', function () {
-                it('base usage', function (done) {
+                it('should load success', function (done) {
                     core.loadWiget('widget1', {}).done(function () {
                         done();
                     });
                 });
-                it('with wrong page', function (done) {
+                it('should load fail if in wrong page', function (done) {
                     core.createApp('test');
                     core.loadWiget('widget1', {}, 'test-page').done(function () {
 
@@ -67,7 +89,7 @@ define(['chai', 'veronica'], function (chai, core) {
                 });
             });
             describe('#start', function () {
-                it('load widget array', function (done) {
+                it('should load widget array', function (done) {
                     core.start([
                             {name: 'widget1', options: {}},
                             {name: 'widget2'}
@@ -75,7 +97,7 @@ define(['chai', 'veronica'], function (chai, core) {
                             done();
                         });
                 });
-                it('load with callback', function (done) {
+                it('should load with callback', function (done) {
                     core.start([
                         {name: 'widget1'},
                         {name: 'widget2'}
@@ -85,6 +107,7 @@ define(['chai', 'veronica'], function (chai, core) {
                 })
             });
             describe('#stop', function () {
+                it('should work if ')
             });
             describe('#stopBySandbox', function () {
                 it('pure object', function () {

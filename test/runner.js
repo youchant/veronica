@@ -10,11 +10,13 @@ require.config({
         'text': '../bower_components/requirejs-text/text',
         'css':'../bower_components/require-css/css',
         'chai': '../node_modules/chai/chai',
+        'sinon': '../node_modules/sinon/pkg/sinon',
         'plugins': '../../lib/plugins'
     },
     shim: {
         'underscore': { 'exports': '_' },
-        'jquery': { 'exports': 'jquery' }
+        'jquery': { 'exports': 'jquery' },
+        'sinon': {'exports': 'sinon'}
     },
     packages: [{
         name: 'veronica',

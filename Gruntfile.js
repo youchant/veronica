@@ -24,11 +24,19 @@ module.exports = function (grunt) {
                     fileExclusionRegExp: /^\./
                 }
             }
+        },
+        clean: {
+            main: [
+            'dist/build.txt',
+            'dist/veronica.js',
+            'dist/text.js'
+            ]
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-requirejs');
+    grunt.loadNpmTasks('grunt-contrib-clean');
 
-    grunt.registerTask('default', ['requirejs:compile']);
+    grunt.registerTask('default', ['requirejs:compile', 'clean:main']);
 
 };
