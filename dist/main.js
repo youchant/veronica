@@ -2,10 +2,15 @@
 define('veronica/logger',[], function () {
     
 
+    if (!window.console) {
+        window.console = {};
+    }
+
     // thx aurajs
     // borrow from aura: https://github.com/aurajs/aura
 
     var noop = function () { },
+        DEFAULT_NAME = 'veronica',
         console = window.console || {};
 
     var isIE8 = function _isIE8() {
@@ -15,14 +20,16 @@ define('veronica/logger',[], function () {
     };
 
     function Logger(name) {
-        this.name = name;
+        this.name = name || DEFAULT_NAME;
         this._log = noop;
         this._warn = noop;
         this._error = noop;
+        this.time = noop;
         return this;
     }
 
     Logger.prototype.setName = function (name) {
+        name || (name = DEFAULT_NAME);
         this.name = name;
         return this;
     };
@@ -31,6 +38,7 @@ define('veronica/logger',[], function () {
         this._log = (console.log || noop);
         this._warn = (console.warn || this._log);
         this._error = (console.error || this._log);
+        this.time = this._time;
 
         if (Function.prototype.bind && typeof console === "object") {
             var logFns = ["log", "warn", "error"];
@@ -62,6 +70,11 @@ define('veronica/logger',[], function () {
 
     Logger.prototype.error = function () {
         this.write(this._error, arguments);
+    };
+
+    Logger.prototype._time = function (name, tag) {
+        tag || (tag = '');
+        console['time' + tag](name);
     };
 
     return Logger;
@@ -276,7 +289,7 @@ define('veronica/core',[
 
     core.aspect = aspect;
 
-    core.logger = new Logger('core');
+    core.logger = new Logger();
     if (core.getConfig().debug) {
         core.logger.enable();
     }
@@ -297,21 +310,27 @@ define('veronica/application',[], function () {
         }
 
         // 初始化应用程序
-        Application.prototype.start = function () {
+        Application.prototype.launch = function () {
             var promises = [];
-            var app = this;
-            _(app._extensions).each(function (ext) {
+            var me = this;
+
+            this.core.logger.time("appStart");
+            _(this._extensions).each(function (ext) {
                 var dfd = $.Deferred();
 
                 if (_.isString(ext)) {
+                    me.core.logger.log("extensionLoading", [ext]);
+                    me.core.logger.time("extensionLoad." + ext);
                     require([ext], function (fn) {
-                        _.isFunction(fn) && fn(app, Application);
+                        _.isFunction(fn) && me.ext(fn);
+                        me.core.logger.log("extensionLoaded", [ext]);
+                        me.core.logger.time("extensionLoad." + ext, 'End');
                         dfd.resolve();
                     }, function () {
                         dfd.reject();
                     });
                 } else {
-                    _.isFunction(fn) && fn(app, Application);
+                    _.isFunction(fn) && me.ext(fn);
                     dfd.resolve();
                 }
                 promises.push(dfd.promise());
@@ -332,14 +351,28 @@ define('veronica/application',[], function () {
 
         // 使用用户扩展
         Application.prototype.ext = function (ext) {
-            ext(this, Application.prototype);
+            ext(this, Application);
+            return this;
+        };
+
+        //
+        Application.prototype.mixin = function (mixin, isExtend) {
+            if (isExtend == null) {
+                isExtend = true;
+            }
+            if (isExtend) {
+                this.core.util.mixin(this, mixin);
+            } else {
+                this.core.util.mixin(Application, mixin);
+            }
             return this;
         };
 
         // 扩展方法：应用程序广播事件，自动附加应用程序名
         Application.prototype.emit = function () {
             var args = Array.prototype.slice.call(arguments);
-            args[0] = args[0] + '.' + this.name;
+            // args[0] = args[0] + '.' + this.name;
+            args.push(this.name);
             this.sandbox.emit.apply(this.sandbox, args);
         };
 
@@ -353,124 +386,169 @@ define('veronica/application',[], function () {
 
 define('veronica/plugins/page',[], function () {
 
-    return function (app, Application) {
-        var fn = Application.prototype;
-        var $ = app.sandbox.$;
-        var _ = app.sandbox._;
+    return function (app) {
+        var $ = app.core.$;
+        var _ = app.core._;
+        var PAGEVIEW_CLASS = 'page-view';
 
-        app._pages = {};
-        app._layouts = {};
-        app._pages.currPageName = '';
+        app.mixin({
+            _pages: {},
+            _layouts: {
+                'scaffold': '<div class="' + PAGEVIEW_CLASS + '"></div>'
+            },
+            _pages: {
+                currPageName: ''
+            }
+        });
 
-        fn._changeTitle = function () { };
-
-        fn.isCurrPage = function (page) {
-            return app._pages.currPageName === 'default' || app._pages.currPageName === page;
-        };
-
-        // 继承父级的插件配置
-        fn._inherit = function (pageConfig) {
-
-            var parentsWidgets = _(pageConfig.inherit).map(function (parentName) {
-                return app.getPage(parentName).widgets;
-            });
-            parentsWidgets.unshift(pageConfig.widgets);
-            return _.uniq(_.union.apply(_, parentsWidgets), false, function (item) {
-                if (item.options && item.options.el) return item.options.el;  // 确保一个元素上只有一个插件
-                return item.name + item.options.host;  // 确保一个父元素下，只有一个同样的插件
-            });
-
-        };
-
-        fn.getPage = function (name) {
-            var config = this._pages[name];
-            return config;
-        };
-
-        fn.getCurrPage = function () {
-            return this.getPage('currPageName');
-        };
-
-        fn.addPage = function (configs) {
-            _(configs).each(function (config, i) {
-                configs[i] = $.extend({
-                    name: '',
-                    layout: 'default',
-                    widgets: [],
-                    inherit: []
-                }, config);
-            });
-            $.extend(app._pages, configs);
-            return this;
-        };
-
-        fn.addLayout = function (layout) {
-            $.extend(app._layouts, layout);
-            return this;
-        };
-
-        fn.getLayout = function (name) {
-            return app._layouts[name];
-        };
-
-        fn.switchPage = function (name) {
-            var config = app.getPage(name);
-            var dfd;
-            var widgetsConfig;
-
-            if (!config) {
-                dfd = $.Deferred();
-                app.emit('pageNotFound', name);
-                dfd.resolve();
-                return dfd.promise();
-            } else {
-                widgetsConfig = fn._inherit(config);
-                app.emit('pageLoading', name);
-                app._pages.currPageName = name;
-                return app.sandbox.startWidgets(widgetsConfig, name).done(function () {
-                    // 切换页面后进行垃圾回收
-                    app.core.recycle();
-                    app.emit('pageLoaded', name);
+        app.mixin({
+            _changeTitle: function () { },
+            _inherit: function (pageConfig) {
+                var me = this;
+                var parentsWidgets = _(pageConfig.inherit).map(function (parentName) {
+                    return me.getPage(parentName).widgets;
                 });
+                parentsWidgets.unshift(pageConfig.widgets);
+                return _.uniq(_.union.apply(_, parentsWidgets), false, function (item) {
+                    if (item.options && item.options.el) return item.options.el;  // 确保一个元素上只有一个插件
+                    return item.name + item.options.host;  // 确保一个父元素下，只有一个同样的插件
+                });
+
+            },
+            isCurrPage: function (page) {
+                return this._pages.currPageName === 'default' || this._pages.currPageName === page;
+            },
+            getPage: function (name) {
+                var config = this._pages[name];
+                return config;
+            },
+            getCurrPage: function () {
+                return this.getPage('currPageName');
+            },
+            addPage: function (configs) {
+                _(configs).each(function (config, i) {
+                    configs[i] = $.extend({
+                        name: '',
+                        layout: 'default',
+                        widgets: [],
+                        inherit: []
+                    }, config);
+                });
+                $.extend(this._pages, configs);
+                return this;
+            },
+            addLayout: function (layout) {
+                $.extend(this._layouts, layout);
+                return this;
+            },
+            getLayout: function (name) {
+                return this._layouts[name];
+            },
+            switchPage: function (name) {
+                this.core.logger.time('pageLoad.' + name);
+                var config = this.getPage(name);
+                var dfd;
+                var widgetsConfig;
+                var me = this;
+
+                if (!config) {
+                    dfd = $.Deferred();
+                    this.emit('pageNotFound', name);
+                    dfd.resolve();
+                    return dfd.promise();
+                } else {
+                    widgetsConfig = this._inherit(config);
+                    this.emit('pageLoading', name);
+                    this._pages.currPageName = name;
+                    return this.sandbox.startWidgets(widgetsConfig, name).done(function () {
+                        // 切换页面后进行垃圾回收
+                        me.core.recycle();
+                        me.emit('pageLoaded', name);
+                        me.core.logger.time('pageLoad.' + name, 'End');
+                    });
+                }
+            },
+            startPage: function () {
+                var me = this;
+                this.initLayout();
+                return this.switchPage('default').done(function () {
+                    me.emit('appStarted');
+                    me.core.logger.time("appStart", 'End');
+                });
+            },
+            switchLayout: function (layout) {
+                var me = this;
+                var $pageView = $('.page-view');
+                this.emit('layoutSwitching', layout);
+
+                if ($pageView.length === 0) {
+                    $pageView = $('body');
+                }
+                _.each($pageView.find('.ver-widget'), function (el) {
+                    me.core.stop($(el));
+                });
+
+                $pageView.html(this.getLayout(layout));
+
+            },
+            initLayout: function () {
+                var scaffold = this.getLayout('scaffold');
+                if (scaffold) {
+                    $('body').prepend(scaffold);
+                }
             }
-        };
+        }, false);
 
-        fn.startPage = function () {
-            fn.initLayout();
-            return fn.switchPage('default').done(function () {
-                app.emit('appStarted');
-            });
-        };
-
-        // 切换布局（该方法可重写）
-        fn.switchLayout = function (layout) {
-
-            app.emit('layoutSwitching', layout);
-
-            _.each($('.page-view').find('.ver-widget'), function (el) {
-                app.core.stop($(el));
-            });
-
-            $('.page-view').html(app.getLayout(layout));
-
-        };
-
-        // 初始化布局
-        fn.initLayout = function () {
-            var scaffold = app.getLayout('scaffold');
-            if (scaffold) {
-                $('body').prepend(scaffold);
+        // TODO: API风格更改 
+        app.page = {
+            active: function (name) {
+                if (name) {
+                    return app.switchPage(name);
+                } else {
+                    name = app.getPage('currPageName');
+                }
+                return name;
+            },
+            // 获取页面配置
+            get: function (name) {
+                return app.getPage(name);
+            },
+            isActive: function (name) {
+                return app.isCurrPage(name);
+            },
+            add: function (configs) {
+                return app.addPage(configs);
+            },
+            start: function () {
+                return app.startPage();
             }
-        },
+        }
 
-        app.sandbox.on('pageLoading.' + app.name, function (name) {
-            // 在页面加载之前，进行布局的预加载
-            var config = app.getPage(name);
-            var currPageName = app.getCurrPage();
-            var currConfig;
-            if (currPageName === '' || (currConfig = app.getPage(currPageName)) && currConfig.layout !== config.layout) {
-                app.switchLayout(config.layout);
-                app.emit('layoutChanged', config.layout);
+        app.layout = {
+            add: function (layout) {
+                return app.addLayout(layout);
+            },
+            active: function (name) {
+                return app.switchLayout(name);
+            },
+            get: function (name) {
+                return app.getLayout(name);
+            },
+            init: function () {
+                return app.initLayout();
+            }
+        }
+
+        app.sandbox.on('pageLoading', function (name, appName) {
+            if (appName === app.name) {
+                // 在页面加载之前，进行布局的预加载
+                var config = app.getPage(name);
+                var currPageName = app.getCurrPage();
+                var currConfig;
+                if (currPageName === '' || (currConfig = app.getPage(currPageName)) && currConfig.layout !== config.layout) {
+                    app.switchLayout(config.layout);
+                    app.emit('layoutSwitched', config.layout);
+                }
             }
         });
 
@@ -483,7 +561,7 @@ define('veronica/sandbox',[
 ], function (core) {
 
     
-    
+
     var _ = core._;
 
     var Sandbox = (function () {
@@ -523,12 +601,17 @@ define('veronica/sandbox',[
         // 为每个沙盒记录日志
         Sandbox.prototype.log = function (msg, type) {
             type || (type = 'log');
-            core.logger.setName(this.name);
+            core.logger.setName(this._hostType + '(' + this.name + ')');
             if (_.isArray(msg)) {
-                core.logger[type].apply(core.logger, msg);
+                var info = [];
+                info.push(msg.shift());
+                info.push(msg.shift());
+                info.push(msg);
+                core.logger[type].apply(core.logger, info);
             } else {
                 core.logger[type](msg);
             }
+            core.logger.setName();
         };
 
         Sandbox.prototype.getConfig = core.getConfig;
@@ -559,7 +642,7 @@ define('veronica/sandbox',[
             var mediator = core.mediator;
             var emitQueue = core.emitQueue;
             var eventData = Array.prototype.slice.call(arguments);
-            var emitFunc = _.bind(function() {
+            var emitFunc = _.bind(function () {
                 mediator.emit.apply(mediator, eventData);
                 eventData.unshift('emitted');
                 this.log(eventData);
@@ -586,17 +669,15 @@ define('veronica/sandbox',[
         // 通过沙盒开启插件，所开启的插件成为该插件的子插件
         Sandbox.prototype.startWidgets = function (list, page) {
             return core.start(list, _.bind(function (widget) {
-                var sandbox = core.sandboxes.get(widget._sandboxRef);
+                var sandbox = widget.sandbox;
                 sandbox._parent = this._ref;
-                this._children.push(sandbox);
+                this._children.push(sandbox._ref);
             }, this), page);
         };
 
         // 清除各种引用，防止内存泄露
         Sandbox.prototype.clear = function () {
             this._widgetObj = null;
-            this._oldEl = null;
-
         };
 
         // 停止并销毁该沙箱
@@ -612,7 +693,7 @@ define('veronica/sandbox',[
     core.sandboxes._sandboxPool = {};
 
     // 创建沙盒
-    core.sandboxes.create = function (ref, widgetName) {
+    core.sandboxes.create = function (ref, widgetName, hostType) {
 
         var sandbox = new Sandbox;
         var sandboxPool = this._sandboxPool;  // 沙盒池
@@ -626,6 +707,7 @@ define('veronica/sandbox',[
 
         sandbox.name = widgetName;
         sandbox._ref = ref;
+        sandbox._hostType = hostType;
         sandbox.app = core.app;
 
         return sandbox;
@@ -661,9 +743,10 @@ define('veronica/loader',[
 
     
 
-    var WIDGETS_PATH = 'widgets'; // 默认的插件路径
+    var WIDGETS_PATH = '../widgets'; // 默认的插件路径
     var SANDBOX_REF_NAME = '__sandboxRef__';
     var WIDGET_CLASS = 'ver-widget';
+    var WIDGET_TYPE = 'widget';
     var _ = core._;
     var $ = core.$;
 
@@ -683,6 +766,7 @@ define('veronica/loader',[
     // 注册插件为package，以便在其他插件中引用该插件
     core.registerWidgets = function (widgetNames) {
         var config = { packages: [] };
+        widgetNames || (widgetNames = core.getConfig().controls);
         if (_.isString(widgetNames)) {
             widgetNames = [widgetNames];
         }
@@ -715,10 +799,13 @@ define('veronica/loader',[
 
     }
 
-    function initWidgetAttr(widgetObj, sandbox, name) {
+    function initWidgetAttr(widgetObj, options, name, widgetRef) {
+        var sandbox = options.sandbox;
+
         widgetObj._name = name;
-        widgetObj._sandboxRef = sandbox._ref;
-        // widgetObj.options = options;
+        widgetObj._ref = widgetRef;
+        widgetObj.sandbox = sandbox;
+        widgetObj.options || (widgetObj.options = options);
 
         widgetObj.$el && widgetObj.$el
             .addClass(sandbox.name)
@@ -729,7 +816,7 @@ define('veronica/loader',[
         sandbox._widgetObj = widgetObj;
     }
 
-    function executeWidget(func, options, name) {
+    function executeWidget(func, options, name, widgetRef) {
         var widgetObj;  // 插件主对象
         var funcResult;
         var dfd = $.Deferred();
@@ -748,12 +835,12 @@ define('veronica/loader',[
             if (funcResult.done && funcResult.fail) {
                 funcResult.done(function (callback) {
                     widgetObj = callback(options);
-                    initWidgetAttr(widgetObj, sandbox, name);
+                    initWidgetAttr(widgetObj, options, name, widgetRef);
                     dfd.resolve(widgetObj);
                 });
             } else {
                 widgetObj = funcResult;
-                initWidgetAttr(widgetObj, sandbox, name);
+                initWidgetAttr(widgetObj, options, name, widgetRef);
                 dfd.resolve(widgetObj);
             }
         }
@@ -767,7 +854,7 @@ define('veronica/loader',[
         var widgetPath = WIDGETS_PATH;
         var globalConfig = core.getConfig();
         var widgetName = core.util.decamelize(name);
-        var widgetSource = source || options.source || "default";
+        var widgetSource = source || options._source || "default";
 
         // 如果在全局配置中配置了插件路径，则采用该路径
         if (globalConfig.paths && globalConfig.paths.hasOwnProperty('widgets')) {
@@ -801,6 +888,38 @@ define('veronica/loader',[
         var widgetRef;
         var ref;
         var reqConfig = _.clone(options.require);
+        var callback = function (main, page, sandboxRef, name, widgetRef, options) {
+            if (!_.isUndefined(page) && core.app.isCurrPage && !core.app.isCurrPage(page)) {
+                dfd.reject();
+            } else {
+                core.logger.time('widgetInit.' + name);
+                var sandbox = core.sandboxes.create(sandboxRef, name, WIDGET_TYPE);
+                options.sandbox = sandbox;
+
+                // 当处于 debug 模式时，不捕获异常
+                if (core.getConfig().debug) {
+                    executeWidget(main, options, name, widgetRef).done(function (result) {
+                        core.logger.log('widgetLoaded ' + name);
+                        core.logger.time('widgetInit.' + name, 'End');
+
+                        dfd.resolve(result);
+                    })
+                } else {
+                    try {
+                        executeWidget(main, options, name, widgetRef).done(function (result) {
+                            core.logger.log('widgetLoaded ' + name);
+                            core.logger.time('widgetInit.' + name, 'End');
+
+                            dfd.resolve(result);
+                        }).fail(function (error) {
+                            console && console.error && console.error(error);
+                        });
+                    } catch (e) {
+                        console && console.error && console.error(e);
+                    }
+                }
+            }
+        };
 
         // 当是空引用时，则清理该父元素下的插件
         if (name === 'empty') {
@@ -817,32 +936,17 @@ define('veronica/loader',[
         reqConfig || (reqConfig = {});
         reqConfig.packages || (reqConfig.packages = []);
         reqConfig.packages.push({ name: name, location: widgetPath });
+
         require.config(reqConfig);
 
-        require([name], function (main) {
-            if (!_.isUndefined(page) && core.app.isCurrPage && !core.app.isCurrPage(page)) {
-                dfd.reject();
-            } else {
-                var sandbox = core.sandboxes.create(sandboxRef, name);
-                sandbox._widgetRef = widgetRef;  // 保存插件引用
-                options.sandbox = sandbox;
+        core.logger.log('widgetLoading ' + name);
+        core.logger.time('widgetTransfer.' + name);
 
-                if (core.getConfig().debug) {
-                    executeWidget(main, options, name).done(function (result) {
-                        dfd.resolve(result);
-                    })
-                } else {
-                    try {
-                        executeWidget(main, options, name).done(function (result) {
-                            dfd.resolve(result);
-                        }).fail(function (error) {
-                                console && console.error && console.error(error);
-                            });
-                    } catch (e) {
-                        console && console.error && console.error(e);
-                    }
-                }
-            }
+        require([name], function (main) {
+            core.logger.time('widgetTransfer.' + name, 'End');
+
+            callback(main, page, sandboxRef, name, widgetRef, options);
+
         }, function (err) {
             if (err.requireType === 'timeout') {
                 console && console.warn && console.warn('Could not load module ' + err.requireModules);
@@ -859,11 +963,6 @@ define('veronica/loader',[
 
     // 加载一个或一组插件
     core.start = function (list, callback, page) {
-        //if (core.widgetLoading) {  // 当插件正在加载时，不进行任何处理
-        //    var dfd = $.Deferred();
-        //    dfd.reject();
-        //    return dfd.promise();
-        //}
         var promises = [];
 
         // 传入单个对象时
@@ -879,9 +978,10 @@ define('veronica/loader',[
         currWidgetList = list;
         _(list).each(function (widgetConfig) {
             var options = widgetConfig.options || {};
+            options.host || (options.host = 'body');
             var widgetName = widgetConfig.name;
             // 检测该父元素下是否有同样的widget，如果没有，才加载
-            if (!options.host || $(options.host).find('.' + widgetName).length === 0) {
+            if (widgetName !== 'empty' && (!options.host || $(options.host).find('.' + widgetName).length === 0)) {
                 promises.push(core.loadWiget(widgetName, options, page));
             }
         });
@@ -889,7 +989,7 @@ define('veronica/loader',[
         _(promises).each(function (prom) {
             prom.done(function (widgetObj) {
                 widgetObj && callback && callback(widgetObj);
-                core.mediator.emit("widgetLoaded." + widgetObj.name);
+                core.mediator.emit("widgetLoaded." + widgetObj._name);
             });
         });
 
@@ -907,14 +1007,16 @@ define('veronica/loader',[
         }
         var widgetObj = sandbox._widgetObj;
         // 停用所有子插件
-        _.invoke(sandbox._children, 'stop');
+        _.invoke(_.map(sandbox._children, function (ref) {
+            return core.sandboxes.get(ref);
+        }), 'stop');
         core.sandboxes.destroy(sandbox._ref);
 
         // 从父元素中删除该沙盒
         var parentSandbox = core.sandboxes.get(sandbox._parent);
         if (parentSandbox) {
-            parentSandbox._children.splice(_(parentSandbox._children).indexOf2(function (sd) {
-                return sd._ref === sandbox._ref;
+            parentSandbox._children.splice(_(parentSandbox._children).indexOf2(function (sdRef) {
+                return sdRef === sandbox._ref;
             }), 1);
         }
 
@@ -925,12 +1027,14 @@ define('veronica/loader',[
         // 移除dom
         widgetObj.remove ? widgetObj.remove() : widgetObj.$el.remove();
         widgetObj.options && (widgetObj.options.sandbox = null);
-
+        widgetObj.sandbox = null;
 
         // 在 requirejs 中移除对该插件的引用
-        //core._unload(sandbox._widgetRef);
-        sandbox.clear();
+        // TODO: 该方法当前应该无效，应该使用如下写法
+        //core._unload(sandbox._widgetObj._ref);
         core._unload(sandbox._ref);
+
+        sandbox.clear();
     };
 
     core.stopByName = function (name) {
@@ -993,14 +1097,14 @@ define('veronica/loader',[
         var promises = [];
         _(dependency).each(function (name) {
             var widgetSandbox = core.sandboxes.getByName(name);
-            if (widgetSandbox && widgetSandbox._widgetRef) {
-
-            } else {
+            if (!(widgetSandbox && widgetSandbox._widgetObj)) {
                 var dfd = $.Deferred();
                 sandbox.once('widgetLoaded.' + widgetSandbox.name, function () {
                     dfd.resolve();
                 })
                 promises.push(dfd.promise());
+            } else {
+
             }
         });
         var mainDfd = $.Deferred();
@@ -1036,7 +1140,7 @@ define('veronica/main',[
         }, config);
         app.name = appName;
 
-        app.sandbox = core.sandboxes.create('app-' + appName, appName);
+        app.sandbox = core.sandboxes.create('app-' + appName, appName, 'app');
 
         _.isFunction(pageExt) && pageExt(app, Application);
 

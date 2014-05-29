@@ -1,10 +1,10 @@
 
 
-require(['./require-conf'], function (c) {
+require(['./require-conf'], function (conf) {
 
     var framePath = '../bower_components';
     // requirejs 的配置
-    require.config(c(framePath));
+    require.config(conf(framePath));
 
     require(['app']);
 

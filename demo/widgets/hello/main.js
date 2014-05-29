@@ -8,5 +8,6 @@ define([
         var $ = options.sandbox.$;
 
         $(options.host).html(_.template(tpl, options));
+        return { };
     };
 });

@@ -4,7 +4,7 @@ define([
 ], function (core) {
     var app = core.createApp('testApp');
 
-    app.init().done(function () {
+    app.launch().done(function () {
         app.addPage({
             'default': {
                 name: 'Default',

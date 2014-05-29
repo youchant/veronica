@@ -8,7 +8,7 @@ require.config({
         'jquery': '../bower_components/jquery/jquery',
         'eventemitter': '../bower_components/eventemitter2/lib/eventemitter2',
         'text': '../bower_components/requirejs-text/text',
-        'css':'../bower_components/require-css/css',
+        'css': '../bower_components/require-css/css',
         'chai': '../node_modules/chai/chai',
         'sinon': '../node_modules/sinon/pkg/sinon',
         'plugins': '../../lib/plugins'
@@ -16,7 +16,7 @@ require.config({
     shim: {
         'underscore': { 'exports': '_' },
         'jquery': { 'exports': 'jquery' },
-        'sinon': {'exports': 'sinon'}
+        'sinon': { 'exports': 'sinon' }
     },
     packages: [{
         name: 'veronica',
@@ -34,7 +34,10 @@ define(['chai'], function (chai) {
     window.should = chai.should();
     window.notrack = true;
 
-    mocha.setup('bdd');
+    mocha.setup({
+        ui: 'bdd',
+        timeout: 2000
+    });
 
     require([
         'main-spec'
