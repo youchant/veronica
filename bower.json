@@ -4,7 +4,11 @@
     "homepage": "",
     "version": "0.1.0",
     "main": [
-        "lib/core.js"
+        "lib/main.js"
+    ],
+    "ignore": [
+        "demo",
+        "test"
     ],
     "repository": {
         "type": "https",
@@ -14,8 +18,7 @@
         "jquery": "~1.10.x",
         "underscore": "~1.5.x",
         "eventemitter2": "~0.4.11",
-        "requirejs": "~2.1.4",
-		"log": "~0.1.x"
+        "requirejs": "~2.1.4"
     },
     "devDependencies": {
         "require-css": "latest",

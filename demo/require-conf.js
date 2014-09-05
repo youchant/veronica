@@ -22,10 +22,6 @@
                 'underscore': framePath + '/underscore/underscore',
                 'jquery': framePath + '/jquery/jquery',
                 'eventemitter': framePath + '/eventemitter2/lib/eventemitter2',
-                'backbone': framePath + '/backbone/backbone',
-                'bootstrap': framePath + '/bootstrap/js/bootstrap',
-                'kendo': framePath + '/kendo/js/kendo.web',
-
                 'text': framePath + '/requirejs-text/text',
                 'css': framePath + '/require-css/css',
                 'normalize': framePath + '/require-css/normalize',
