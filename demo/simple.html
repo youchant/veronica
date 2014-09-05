@@ -1,12 +1,19 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>veronica demo page</title>
+    <title>simpe page</title>
     <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <style>
+        /*为了避免界面一开始闪烁*/
+        [data-ver-role] {
+            display: none;
+        }
+    </style>
 </head>
+
 <body>
-    <div data-ver-role="test" data-options='{ "text": "Hello"  }'>
-        <%= text %>
+    <div data-ver-role="hello-veronica" data-options='{ "hi": "Hello", "name": "Veronica!"  }'>
+        {{= data.hi }} {{= data.name }}
     </div>
     <script src="../bower_components/requirejs/require.js"></script>
     <script>
@@ -16,14 +23,17 @@
 
             require(['veronica'], function (veronica) {
 
+                // 创建 app
                 var app = veronica.createApp();
 
-                app.widget.register('test', function (options) {
+                // 创建 widget: hello-veronica
+                app.widget.register('hello-veronica', function (options) {
                     var app = options.sandbox.app;
                     var View = app.view.define();
                     return new View(options);
                 });
 
+                // 解析界面
                 app.parser.parse();
             });
 

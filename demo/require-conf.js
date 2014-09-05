@@ -17,7 +17,6 @@
     return function (framePath) {
         require.config({
             debug: true,
-            baseUrl: '.',
             paths: {
                 'underscore': framePath + '/underscore/underscore',
                 'jquery': framePath + '/jquery/jquery',
@@ -29,13 +28,9 @@
             },
             shim: {
                 'underscore': { 'exports': '_' },
-                'jquery': { 'exports': 'jquery' },
-                'backbone': { deps: ['underscore', 'jquery'], 'exports': 'Backbone' }
+                'jquery': { 'exports': 'jquery' }
             },
-            packages: [{ name: 'veronica', location: '../lib' }],
-            sources: {
-                'default': './widgets'
-            }
+            packages: [{ name: 'veronica', location: '../lib' }]
         });
     }
 
