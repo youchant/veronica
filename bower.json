@@ -2,7 +2,7 @@
     "name": "veronica",
     "description": "A tiny web application library",
     "homepage": "",
-    "version": "0.1.0",
+    "version": "0.2.1",
     "main": [
         "lib/main.js"
     ],
@@ -16,9 +16,9 @@
     },
     "dependencies": {
         "jquery": "~1.10.x",
-        "underscore": "~1.5.x",
-        "eventemitter2": "~0.4.11",
-        "requirejs": "~2.1.4"
+        "underscore": "~1.7.x",
+        "eventemitter2": "~0.4.x",
+        "requirejs": "~2.1.x"
     },
     "devDependencies": {
         "require-css": "latest",
