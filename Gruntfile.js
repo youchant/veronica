@@ -6,37 +6,52 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         requirejs: {
-            compile: {
+            main: {
                 options: {
-                    baseUrl: "lib",
-                    dir: 'dist',
-                    modules: [{ name: 'veronica' }],
-                    packages: [{ name: 'veronica', location: '.' }],
-                    paths: {
-                        'underscore': 'empty:',
+                    "baseUrl": "lib",
+                    "paths": {
+                        "veronica": "main",
+                        'underscore': '../bower_components/underscore/underscore',
                         'jquery': 'empty:',
-                        'eventemitter': 'empty:',
-                        'text': '../bower_components/requirejs-text/text',
-                        'backbone': 'empty:'
+                        'eventemitter': '../bower_components/eventemitter2/lib/eventemitter2',
+                        'art-dialog': '../assets/artDialog/dist/dialog-plus',
+                        'text': '../bower_components/requirejs-text/text'
                     },
-                    optimize: "none",  // uglify
-                    removeCombined: true,
-                    fileExclusionRegExp: /^\./
+                    'shim':{
+                        'art-dialog': { 'exports': 'dialog', deps: ['jquery'] },
+                        'noty': { 'exports': 'noty' }
+                    },
+                    "include": ["../bower_components/almond/almond", "veronica"],
+                    "exclude": ["jquery", "underscore", "text"],
+                    "out": "dist/veronica.js",
+                    "wrap": {
+                        "startFile": "tools/wrap.start",
+                        "endFile": "tools/wrap.end"
+                    },
+                    "optimize": "none"
                 }
             }
         },
         clean: {
             main: [
             'dist/build.txt',
-            'dist/veronica.js',
             'dist/text.js'
             ]
+        },
+        uglify: {
+            main: {
+                files: {
+                    'dist/veronica.min.js': ['dist/veronica.js']
+                },
+                report: 'gzip'
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
 
-    grunt.registerTask('default', ['requirejs:compile', 'clean:main']);
+    grunt.registerTask('default', ['requirejs', 'clean', 'uglify']);
 
 };

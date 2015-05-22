@@ -1,16 +1,20 @@
 {
-    "name": "veronica",
-    "version": "0.2.2",
-    "homepage": "",
-    "description": "",
-    "url": "https://github.com/gochant/veronica",
-    "devDependencies": {
-        "underscore": "latest",
-        "chai": "~1.5.0",
-        "mocha": "1.9.0",
-        "sinon": "~1.9.x",
-        "grunt": "^0.4.3",
-		"grunt-contrib-clean": "^0.5.0",
-        "grunt-contrib-requirejs": "^0.4.3"
-    }
+  "name": "veronica",
+  "version": "0.2.1",
+  "homepage": "",
+  "description": "",
+  "url": "https://github.com/gochant/veronica",
+  "devDependencies": {
+    "underscore": "latest",
+    "chai": "~1.5.0",
+    "mocha": "1.9.0",
+    "sinon": "~1.9.x",
+    "grunt": "latest",
+    "grunt-contrib-clean": "latest",
+    "grunt-contrib-requirejs": "latest",
+    "grunt-contrib-uglify": "latest"
+  },
+  "dependencies": {
+    "maxmin": "^1.0.0"
+  }
 }

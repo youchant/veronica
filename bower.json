@@ -18,7 +18,9 @@
         "jquery": "~1.10.x",
         "underscore": "~1.7.x",
         "eventemitter2": "~0.4.x",
-        "requirejs": "~2.1.x"
+        "requirejs": "~2.1.x",
+        "almond": "latest",
+        "art-dialog": "latest"
     },
     "devDependencies": {
         "require-css": "latest",
