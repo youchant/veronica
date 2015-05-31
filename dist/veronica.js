@@ -12,7 +12,7 @@
 
 
 /**
- * @license almond 0.3.0 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
+ * @license almond 0.3.1 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -57,12 +57,6 @@ var requirejs, require, define;
             //otherwise, assume it is a top-level require that will
             //be relative to baseUrl in the end.
             if (baseName) {
-                //Convert baseName to array, and lop off the last part,
-                //so that . matches that "directory" and not name of the baseName's
-                //module. For instance, baseName of "one/two/three", maps to
-                //"one/two/three.js", but we want the directory, "one/two" for
-                //this normalization.
-                baseParts = baseParts.slice(0, baseParts.length - 1);
                 name = name.split('/');
                 lastIndex = name.length - 1;
 
@@ -71,7 +65,11 @@ var requirejs, require, define;
                     name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
                 }
 
-                name = baseParts.concat(name);
+                //Lop off the last part of baseParts, so that . matches the
+                //"directory" and not name of the baseName's module. For instance,
+                //baseName of "one/two/three", maps to "one/two/three.js", but we
+                //want the directory, "one/two" for this normalization.
+                name = baseParts.slice(0, baseParts.length - 1).concat(name);
 
                 //start trimDots
                 for (i = 0; i < name.length; i += 1) {
@@ -421,6 +419,9 @@ var requirejs, require, define;
     requirejs._defined = defined;
 
     define = function (name, deps, callback) {
+        if (typeof name !== 'string') {
+            throw new Error('See almond README: incorrect module build, no module name');
+        }
 
         //This module may not have dependencies
         if (!deps.splice) {
@@ -1022,7 +1023,7 @@ define("../bower_components/almond/almond", function(){});
 define('core/events',[
     'underscore'
 ], function (_) {
-    
+    'use strict';
 
     var Backbone = {};
     var array = [];
@@ -1207,7 +1208,7 @@ define('core/events',[
 // borrow frome Backbone 1.1.2
 define('core/extend',[
 ], function ($, Events) {
-    
+    'use strict';
 
     // Helpers
     // -------
@@ -1259,7 +1260,7 @@ define('core/view',[
     './events',
     './extend'
 ], function ($, _, Events, extend) {
-    
+    'use strict';
 
     var Backbone = {
         $: $
@@ -1408,7 +1409,7 @@ define('core/history',[
     './extend',
     'jquery'
 ], function (Events, extend, $) {
-    
+    'use strict';
 
     var Backbone = {
         $: $
@@ -1664,7 +1665,7 @@ define('core/router',[
     './extend',
     './history'
 ], function (_, Events, extend, history) {
-    
+    'use strict';
 
     var Backbone = { history: history };
 
@@ -1773,9 +1774,60 @@ define('core/router',[
     return Router;
 });
 
+// core
+define('core/loader',[
+    'jquery'
+], function ($) {
+
+    'use strict';
+
+    var loader = {};
+
+    loader.useGlobalRequire = function () {
+        return window.require ? window.require : require;
+    };
+
+    loader.useGlobalRequirejs = function () {
+        return window.requirejs ? window.requirejs : requirejs;
+    }
+
+    loader.require = function (modules, condition, requireConfig) {
+
+        var dfd = $.Deferred();
+        var require = loader.useGlobalRequire();
+
+        if (condition) {
+            if (!$.isArray(modules)) { modules = [modules]; }
+
+            if (requireConfig) {
+                require.config(requireConfig);
+            }
+
+            require(modules, function () {
+                var args;
+                if (arguments.length === 1) {
+                    args = arguments[0];
+                } else {
+                    args = Array.prototype.slice.call(arguments);
+                }
+                dfd.resolve(modules, args);
+            }, function (err) {
+                console.error(err);
+                dfd.reject(err);
+            });
+        } else {
+            dfd.resolve(modules, null);
+        }
+        return dfd.promise();
+    }
+
+    return loader;
+
+});
+
 
 define('util/logger',[], function () {
-    
+    'use strict';
 
     // thx h5-boilerplate
     // from: https://github.com/h5bp/html5-boilerplate/blob/master/src/js/plugins.js
@@ -1887,7 +1939,7 @@ define('util/util',[
     'underscore'
 ], function (_) {
 
-    
+    'use strict';
 
     function qsToJSON(str) {
         str || (str = location.search.slice(1));
@@ -2004,7 +2056,7 @@ define('util/aspect',[
     'exports'
 ], function (_, $, exports) {
 
-    
+    'use strict';
 
 
     // thx "aralejs"
@@ -2115,13 +2167,15 @@ define('core/core',[
     './view',
     './history',
     './router',
+    './loader',
     '../util/logger',
     '../util/util',
     '../util/aspect'
-], function ($, _, EventEmitter, Events,
-    View, history, Router, Logger, util, aspect) {
 
-    
+], function ($, _, EventEmitter, Events,
+    View, history, Router, loader, Logger, util, aspect) {
+
+    'use strict';
 
     var core = {
         $: $,
@@ -2134,47 +2188,25 @@ define('core/core',[
         Events: Events
     };
 
-    core.useGlobalRequire = function () {
-        if (window.require) {
-            return window.require;
-        } else {
-            return require;
-        }
-    };
-
-    core.useGlobalRequirejs = function () {
-        if (window.requirejs) {
-            return window.requirejs;
-        } else {
-            return requirejs;
-        }
-    }
-    // 从RequireJS中获取全局配置
-    var globalConfig = {};
-    var getConfig = function () {
-        var requirejs = core.useGlobalRequirejs();
-        if (requirejs.s) {
-            return requirejs.s.contexts._.config;
-        } else {
-            return globalConfig;
-        }
-    };
-
-    getConfig().sources || (getConfig().sources = {});
-
-
-    var emitterConfig = _.defaults(getConfig() || {}, {
-        wildcard: true,
-        delimiter: '.',
-        newListener: true,
-        maxListeners: 50
-    });
-
-    core.getConfig = getConfig;
-
+    core.loader = loader;
     core.util = util;
 
     core.aspect = aspect;
+
+
+    // 获取全局配置
+    core.getConfig = (function () {
+        var requirejs = core.loader.useGlobalRequirejs();
+        var globalConfig = requirejs.s ? requirejs.s.contexts._.config : {
+            sources: {}
+        };
+
+        globalConfig.sources || (globalConfig.sources = {});
+
+        return function () {
+            return globalConfig;
+        };
+    }());
 
     core.logger = new Logger();
     if (core.getConfig().debug) {
@@ -2182,6 +2214,13 @@ define('core/core',[
     }
 
     // 中介者
+    var emitterConfig = _.defaults(core.getConfig() || {}, {
+        wildcard: true,
+        delimiter: '.',
+        newListener: true,
+        maxListeners: 50
+    });
+
     core.mediator = new EventEmitter(emitterConfig);
 
     return core;
@@ -2191,7 +2230,7 @@ define('core/core',[
 define('core/application',[
     './core'
 ], function (core) {
-    
+    'use strict';
 
     var Application = (function () {
 
@@ -2213,70 +2252,26 @@ define('core/application',[
             var promises = [];
             var me = this;
 
-            var dms = me.config.module.defaultSource;
-            var require = core.useGlobalRequire();
-
-            this.core.logger.time("appStart");
-
             // 加载扩展
             _(this.config.extensions).each(function (ext) {
-                var dfd = $.Deferred();
 
+                var dfd = core.loader.require(ext, _.isString(ext)).done(function (ext, fn) {
+                    _.isFunction(fn) && me.use(fn);
+                });
 
-                if (_.isString(ext)) {
-                    require([ext], function (fn) {
-                        _.isFunction(fn) && me.addExtension(fn);
-                        dfd.resolve();
-                    }, function (err) {
-                        console.error(err);
-                        dfd.reject();
-                    });
-                } else {
-                    _.isFunction(ext) && me.addExtension(ext);
-                    dfd.resolve();
-                }
-                promises.push(dfd.promise());
+                promises.push(dfd);
             });
 
             // 加载模块
             _(this.config.modules).each(function (moduleConfig) {
-                var dfd = $.Deferred();
 
-                // 将字符类型的模块配置转换成对象
-                if (_.isString(moduleConfig)) {
-                    moduleConfig = {
-                        name: moduleConfig,
-                        source: dms
-                    };
-                }
+                var module = me.module.create(moduleConfig);
+                var dfd = core.loader.require(module.path + '/main', moduleConfig.hasEntry).done(function (m, fn) {
+                    module.execution = fn;
+                    me.module.add(module);
+                });
 
-                // 设置默认值
-                moduleConfig.multilevel = moduleConfig.multilevel || me.config.module.defaultMultilevel;
-                moduleConfig.hasEntry = moduleConfig.hasEntry == null ? me.config.module.defaultHasEntry : moduleConfig.hasEntry;
-
-                var source = me.core.getConfig().sources[moduleConfig.source] || moduleConfig.source || dms;
-                var path = source + '/' + moduleConfig.name;
-
-                me.module._modules[moduleConfig.name] = {
-                    name: moduleConfig.name,
-                    config: moduleConfig,
-                    path: path
-                };
-
-                if (moduleConfig.hasEntry) {
-                    // 加载模块主文件
-                    require([path + '/main'], function (fn) {
-                        me.module._modules[moduleConfig.name].execution = fn;
-                        dfd.resolve();
-                    }, function (err) {
-                        console.error(err);
-                        dfd.resolve();
-                    });
-                } else {
-                    dfd.resolve();
-                }
-
-                promises.push(dfd.promise());
+                promises.push(dfd);
             });
 
             return $.when.apply($, promises).done(function () {
@@ -2290,14 +2285,8 @@ define('core/application',[
             this.sandbox.stop();
         };
 
-        // 使用第三方组件（废弃）
-        Application.prototype.use = function (extension) {
-            this._extensions.push(extension);
-            return this;
-        };
-
         // 使用用户扩展
-        Application.prototype.addExtension = function (ext) {
+        Application.prototype.use = function (ext) {
             var me = this;
             if (!_.isArray(ext)) {
                 ext = [ext];
@@ -2339,7 +2328,7 @@ define('core/application',[
 define('app/emitQueue',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -2453,7 +2442,6 @@ define('app/page',[], function () {
                 return this;
             },
             switchPage: function (name, params) {
-                this.core.logger.time('pageLoad.' + name);
                 var config = this.getPage(name);
                 var dfd;
                 var widgetsConfig;
@@ -2518,7 +2506,6 @@ define('app/page',[], function () {
                             // 切换页面后进行垃圾回收
                             me.widget.recycle();
                             me.emit('pageLoaded', name);
-                            me.core.logger.time('pageLoad.' + name, 'End');
                             dfd.resolve();
                         });
 
@@ -2531,18 +2518,18 @@ define('app/page',[], function () {
                         // 切换页面后进行垃圾回收
                         me.widget.recycle();
                         me.emit('pageLoaded', name);
-                        me.core.logger.time('pageLoad.' + name, 'End');
                         dfd.resolve();
                     });
                 }
                 return dfd.promise();
             },
-            startPage: function () {
+            startPage: function (initLayout) {
                 var me = this;
                 me.startRouter();
-                this.initLayout();
+                if (initLayout) {
+                    this.initLayout();
+                }
                 me.emit('appStarted');
-                me.core.logger.time("appStart", 'End');
             }
 
         }, false);
@@ -2623,7 +2610,7 @@ define('app/page',[], function () {
 define('app/layout',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -2702,7 +2689,7 @@ define('app/layout',[
 define('app/module',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -2740,7 +2727,7 @@ define('app/module',[
                     app.addPage(page);
                 },
                 addExtension: function (extensions) {
-                    app.addExtension(extensions);
+                    app.use(extensions);
                 },
                 addLayout: function (layouts) {
                     app.addLayout(layouts);
@@ -2769,6 +2756,36 @@ define('app/module',[
                     module.execution && module.execution(module, app);
                 });
             },
+            create: function (config, execution) {
+                var dms = app.config.module.defaultSource;
+                var dmm = app.config.module.defaultMultilevel;
+                var dmh = app.config.module.defaultHasEntry;
+
+                // 将字符类型的模块配置转换成对象
+                if (_.isString(config)) {
+                    config = {
+                        name: config,
+                        source: dms
+                    };
+                }
+
+                // 设置默认值
+                config.multilevel = config.multilevel || dmm;
+                config.hasEntry = config.hasEntry == null ? dmh : config.hasEntry;
+
+                var source = app.core.getConfig().sources[config.source] || config.source || dms;
+                var path = source + '/' + config.name;
+
+                return {
+                    name: config.name,
+                    config: config,
+                    path: path,
+                    execution: execution
+                };
+            },
+            add: function (module) {
+                this._modules[module.name] = module;
+            },
             get: function (name) {
                 return this._modules[name];
             },
@@ -2784,7 +2801,7 @@ define('app/module',[
 define('app/navigation',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -2829,7 +2846,7 @@ define('app/navigation',[
 define('app/plugin',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -2838,8 +2855,14 @@ define('app/plugin',[
         app.plugin = {
             _plugins: {},
             _pluginCache: {},
+            getConfig: function (widgetName) {
+                var pluginRelations = app.config.plugins[widgetName];
+                if (pluginRelations == null) return [];
+                return pluginRelations;
+            },
             // 解析部件下所有插件请求路径
             resolvePath: function (widgetName) {
+       
                 var widgetPlugins = this._plugins[widgetName];
                 var globalConfig = app.core.getConfig();
                 if (_.isUndefined(widgetPlugins)) {
@@ -2903,6 +2926,7 @@ define('app/plugin',[
                 if (!this._pluginCache[widgetName]) {
                     return;
                 }
+                // 获取某个 widget 下的某个 _name 的 view
                 var plugins = this._pluginCache[widgetName][name];
                 _.each(plugins, function (plugin) {
                     plugin.call(viewObj);
@@ -2918,7 +2942,7 @@ define('core/sandbox',[
     './core'
 ], function (core) {
 
-    
+    'use strict';
 
     var _ = core._;
 
@@ -3082,7 +3106,7 @@ define('app/sandboxes',[
     '../core/sandbox'
 ], function (core, Sandbox) {
 
-    
+    'use strict';
 
     var _ = core._;
 
@@ -3137,7 +3161,7 @@ define('app/sandboxes',[
 // 加载模块
 define('app/widget',[],function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -3148,7 +3172,7 @@ define('app/widget',[],function () {
         var WIDGET_CLASS = 'ver-widget';
         var WIDGET_TAG = 'ver-tag';
         var WIDGET_TYPE = 'widget';
-        var require = core.useGlobalRequire();  // 使用 requirejs，而不是
+        var require = core.loader.useGlobalRequire();  // 使用 requirejs，而不是
 
         app.widget = {
             _localWidgetExes: {},  // 本地 widget 初始化器
@@ -3177,7 +3201,7 @@ define('app/widget',[],function () {
                 var ref = name.split('@');
                 config.packages.push({
                     name: ref[0],
-                    location: getWidgetPath(ref[0], {}, ref[1])
+                    location: getWidgetPath(ref[0], ref[1])
                 });
             });
             require.config(config);
@@ -3188,6 +3212,7 @@ define('app/widget',[],function () {
             app.widget._localWidgetExes[name] = execution;
         };
 
+        // 创建 widget
         app.widget.create = function (widgetObj, options) {
             var sandbox = options.sandbox;
 
@@ -3215,12 +3240,11 @@ define('app/widget',[],function () {
         };
 
         // 获取widget路径
-        function getWidgetPath(name, options, source) {
-            options || (options = {});
+        function getWidgetPath(name, source) {
             var widgetPath = WIDGETS_PATH;
             var globalConfig = core.getConfig();
             var widgetName = name;
-            var widgetSource = source || options._source || 'default';
+            var widgetSource = source || 'default';
 
             if (globalConfig.debug === false) {
                 widgetPath = app.config.releaseWidgetPath;
@@ -3242,7 +3266,6 @@ define('app/widget',[],function () {
 
                     widgetName = core.util.camelize(widgetNameParts[1]) + '/' + core.util.camelize(widgetNameParts[2]);
                 }
-
 
                 // 从部件源中读取路径（module 会默认附加自己的source路径）
                 widgetPath = (globalConfig.sources && globalConfig.sources[widgetSource]) || widgetPath;
@@ -3280,16 +3303,17 @@ define('app/widget',[],function () {
             var name = options._name;
             var funcResult;  // 部件函数执行结果
             var widgetObj;
+            var sandboxRef = _.uniqueId('sandbox$');  // 获取一个唯一的sandbox标识符
 
             // 部件所在的页面不是当前页面，则不执行
             if (pageName && app.isCurrPage && !app.isCurrPage(pageName)) {
                 return;
             } else {
-                core.logger.time('widgetInit.' + name);
                 // 创建 sandbox
-                var sandbox = app.sandboxes.create(options._sandboxRef, name, WIDGET_TYPE);
+                var sandbox = app.sandboxes.create(sandboxRef, name, WIDGET_TYPE);
 
                 // 初始化 options
+                options._sandboxRef = sandboxRef;
                 options.sandbox = sandbox;
                 options._exclusive = options._exclusive || false;  // 是否是独占式widget，一个host只能容纳一个widget
 
@@ -3298,88 +3322,94 @@ define('app/widget',[],function () {
                 // 将对象转换成执行函数
                 executor = app.view.createExecutor(executor);
 
-                if (_.isFunction(executor)) {
-                    funcResult = executor(options);
-                }
+                if (_.isFunction(executor)) { funcResult = executor(options); }
                 if (_.isUndefined(funcResult)) {
                     console.warn('Widget should return an object. [errorWidget:' + name);
                 } else {
                     widgetObj = _.isFunction(funcResult) ? funcResult(options) : funcResult;
                     widgetObj = app.widget.create(widgetObj, options);
-
                 }
-
-                core.logger.info('widgetLoaded ' + name);
-                core.logger.time('widgetInit.' + name, 'End');
 
                 return widgetObj;
             }
         };
 
+        // 分隔传入的 widget name
+        app.widget.splitName = function (nameTags) {
+            var isArray = $.isArray(nameTags);
+            if (!isArray) { nameTags = [nameTags]; }
+            var result = _.map(nameTags, function (nameTag) {
+                var nameParts = nameTag.split('@');
+                return {
+                    name: nameParts[0],
+                    source: nameParts[1]
+                };
+            });
+
+            return isArray ? result : result[0];
+        }
+
+        // 获取 widge package 路径
+        app.widget.resolvePath = function (nameParts) {
+            var isArray = $.isArray(nameParts);
+            if (!isArray) {
+                nameParts = [nameParts];
+            }
+
+            var result = _.map(nameParts, function (np) {
+                return {
+                    name: np.name,
+                    location: getWidgetPath(np.name, np.source)
+                };
+            });
+
+            return isArray ? result : result[0];
+
+        };
+
         // 加载 widget
         app.widget.load = function (nameTag, options, page) {
             var dfd = $.Deferred();
-            var sandboxRef = _.uniqueId('sandbox$');  // 获取一个唯一的sandbox标识符
-            // nameTag = core.util.decamelize(nameTag);
+            var pluginNameParts = [];
 
-            var nameParts = nameTag.split('@');
-            var name = nameParts[0];
-            var source = nameParts[1];  // 从传入的名字中获取源
+            // nameTag = core.util.decamelize(nameTag);
+            var widgetNameParts = app.widget.splitName(nameTag);
+            var name = widgetNameParts.name;
+            var nameParts = [widgetNameParts];
+
+            if (app.plugin) {
+                pluginNameParts = app.widget.splitName(app.plugin.getConfig(widgetNameParts.name));
+                nameParts = nameParts.concat(pluginNameParts);
+            }
+            var packages = app.widget.resolvePath(nameParts);
 
             options._name = name;
             options._page = page;
-            options._sandboxRef = sandboxRef;
 
             // 如果是本地部件
             if (hasLocal(name)) {
                 var executor = getLocal(name);
                 dfd.resolve(executor, options);
             } else {
-                var widgetPath = getWidgetPath(name, options, source);  // 获取插件路径
-                var reqConfig = _.clone(options.require) || { packages: [] };
-
-                reqConfig.packages || (reqConfig.packages = []);
-                reqConfig.packages.push({ name: name, location: widgetPath });
-                require.config(reqConfig);
-
-                core.logger.info('widgetLoading ' + name);
-                core.logger.time('widgetTransfer.' + name);
-
-                // 请求部件
-                require([name], function (executor) {
-                    core.logger.time('widgetTransfer.' + name, 'End');
-                    var pluginPaths;
-                    // 加载该部件的插件
-                    if (app.plugin
-                        && (pluginPaths = app.plugin.resolvePath(name))
-                        && pluginPaths.length > 0) {
-
-                        require.config({
-                            packages: pluginPaths
-                        });
-
-                        require(_.map(pluginPaths, function (value) { return value.name }), function () {
-                            var plugins = Array.prototype.slice.call(arguments, 0);
-                            // 保存插件
-                            app.plugin.cache(name, plugins);
-
-                            dfd.resolve(executor, options);
-                        });
-
-                    } else {
-                        dfd.resolve(executor, options);
-                    }
-
-                }, function (err) {
-                    if (err.requireType === 'timeout') {
-                        console && console.warn && console.warn('Could not load module ' + err.requireModules);
-                    } else {
-                        var failedId = err.requireModules && err.requireModules[0];
-                        require.undef(failedId);
-                        console && console.error && console.error(err);
-                    }
-                    dfd.reject();
-                });
+                core.loader.require(_.map(nameParts, function (p) { return p.name }), true, { packages: packages })
+                    .done(function (name, executors) {
+                        var others;
+                        var executor = executors;
+                        if (_.isArray(executor)) {
+                            executor = executors[0];
+                            others = executors.slice(1);
+                        }
+                        dfd.resolve(executor, options, others);
+                    }).fail(function (err) {
+                        if (err.requireType === 'timeout') {
+                            console && console.warn && console.warn('Could not load module ' + err.requireModules);
+                        } else {
+                            var failedId = err.requireModules && err.requireModules[0];
+                            require.undef(failedId);
+                            console && console.error && console.error(err);
+                        }
+                        dfd.reject();
+                    });
             }
 
             return dfd.promise();
@@ -3391,10 +3421,6 @@ define('app/widget',[],function () {
             // 传入单个对象时
             if (_.isObject(list) && !_.isArray(list)) {
                 list = [list];
-            }
-
-            if (!_.isArray(list)) {
-                throw new Error('Widgets must be defined as an array');
             }
 
             app.widget.isLoading = true;
@@ -3433,13 +3459,6 @@ define('app/widget',[],function () {
                 }
             });
 
-            //_(promises).each(function (prom) {
-            //    prom.done(function (widgetObj) {
-            //        widgetObj && callback && callback(widgetObj);
-            //        core.mediator.emit("widgetLoaded." + widgetObj._name);
-            //    });
-            //});
-
             return $.when.apply($, promises).done(function () {
                 var results = arguments;
                 if (promises.length === 1) {
@@ -3449,7 +3468,9 @@ define('app/widget',[],function () {
                 _.each(results, function (arg) {
                     var executor = arg[0];
                     var options = arg[1];
+                    var others = arg[2];
 
+                    if (others) app.plugin.cache(options._name, others);
                     var widgetObj = executeWidget(executor, options);
                     if (widgetObj) {
                         callback && callback(widgetObj);  // 每个widget执行完毕后，执行回调
@@ -3571,7 +3592,7 @@ define('app/widget',[],function () {
 define('app/parser',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -3812,15 +3833,19 @@ define('app/view/view-view',[],function () {
 
             // 启用布局控件
             if ($.layout) {
-                _.each(this.$('[data-part=layout]'), function (el) {
-                    $(el).layout({
-                        applyDemoStyles: false,
-                        closable: false,
-                        resizable: false,
-                        slidable: false,
-                        spacing_open: 0
+                var me = this;
+                setTimeout(function () {
+                    _.each(this.$('[data-part=layout]'), function (el) {
+                        $(el).layout({
+                            applyDemoStyles: false,
+                            closable: false,
+                            resizable: false,
+                            slidable: false,
+                            spacing_open: 0
+                        });
                     });
-                });
+                }, 0);
+              
             }
 
         }
@@ -3836,6 +3861,8 @@ define('app/view/view-window',[],function () {
         var _ = app.core._;
         var noop = $.noop;
 
+        var loadingText = 'Loading..';
+
         function removeLoading($el) {
             $el.find('.fn-s-loading').remove();
         }
@@ -3844,15 +3871,17 @@ define('app/view/view-window',[],function () {
         app.view.base._windowInstance = function ($el, config, destroy, appendToEl) {
 
             // window 实例
+            var dlg = app.ui.dialog($.extend({
+                title: '对话框',
+                content: $el,// $el.get(0),
+                fixed: true,
+                drag: config.options.draggable
+            }, config.options)).close();  // 解决开始对话框默认显示的问题
+
             var wnd = {
                 element: $el,
 
-                core: app.ui.dialog($.extend({
-                    title: '对话框',
-                    content: $el,// $el.get(0),
-                    fixed: true,
-                    drag: config.options.draggable
-                }, config.options)),
+                core: dlg,
 
                 positionTo: config.positionTo,
                 close: function () {
@@ -3886,8 +3915,8 @@ define('app/view/view-window',[],function () {
             // 移除之前销毁
             wnd.core.addEventListener('beforeremove', destroy);
             wnd.core.addEventListener('remove', function () {
-                // 清除添加的对话框元素
-                $('.fn-wnd-placeholder').remove();
+                // 清除添加的对话框元素 TODO: 这里可能会误杀一些隐藏的对话框，后面要进行解决！！
+                $('.fn-wnd-placeholder:hidden').remove();
             });
 
             return wnd;
@@ -4007,11 +4036,20 @@ define('app/view/view-window',[],function () {
                     }, viewOpt.options);
 
                     var view = me.view(viewOpt.name, viewOpt);
+
+                    // 添加 widget class，确保样式正确
+                    if (view.options.sandbox) {
+                        view.$el.addClass(view.options.sandbox.name);
+                    }
+
                     if (view._rendered) {
                         wnd.rendered(me);
                     } else {
                         view.listenTo(view, 'rendered', function () {
                             wnd.rendered(me);
+                        });
+                        view.listenTo(view, 'refresh-fail', function () {
+                            wnd.close();
                         });
                     }
 
@@ -4019,7 +4057,7 @@ define('app/view/view-window',[],function () {
                 });
 
             };
-            var defaultWnd = '<div class="fn-wnd fn-wnd-placeholder"><span class="ui-dialog-loading fn-s-loading">Loading..</span></div>';
+            var defaultWnd = '<div class="fn-wnd fn-wnd-placeholder"><span class="ui-dialog-loading fn-s-loading">' + loadingText + '</span></div>';
             var footer = '<div class="k-footer"><button class="btn btn-default fn-close">关闭</button></div>';
 
             isShow = isShow == null ? true : isShow;
@@ -4053,6 +4091,11 @@ define('app/view/view-window',[],function () {
 
             if (wnd) {
                 windows[config.name] = wnd;
+            }
+
+            // 如果设置了 positionTo, 强制不居中
+            if (config.positionTo) {
+                config.center = false;
             }
 
             if (config.center) {
@@ -4313,6 +4356,8 @@ define('app/view',[
                     if (_.isString(template)) {  // 仅当获取到模板时，才进行渲染
                         me._render(template, true);
                         me.trigger('refresh');
+                    } else {
+                        me.trigger('refresh-fail');
                     }
                 }).fail(function () {
                     me.options.parentWnd && me.options.parentWnd.close();
@@ -4645,7 +4690,7 @@ define('app/ajax',[
         };
 
         // 提交复杂对象到后台，使 ASP.NET MVC 下能够正常进行数据绑定
-        app.request.postComplex = function (url, data) {
+        app.request.postComplex = function (url, data, options) {
             return $.ajax($.extend({
                 url: url,
                 type: 'POST',
@@ -6411,7 +6456,7 @@ define('app/app',[
     navigation, plugin, sandboxes, widget, parser, view, data, templates, router,
     ajax, hash, dialog) {
 
-    
+    'use strict';
 
     core.createApp = function (config) {
 
@@ -6512,7 +6557,7 @@ define('veronica',[
     './app/app'
 ], function (core) {
 
-    
+    'use strict';
 
     return core;
 });

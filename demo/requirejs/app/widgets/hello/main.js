@@ -1,15 +1,22 @@
-define(['require', 'text!./index.html', 'ver!com'], function (require, tpl) {
-   // var tpl = require('text!./index.html');
-  //  require('ver!com');
-    return function (options) {
-        var app = options.sandbox.app;
-        var View = app.view.define({
-            defaults: {
-                autoAction: true
-            },
-            name: 'hello',
-            template: tpl
-        });
-        return new View(options);
+define([
+    'text!./index.html',
+    './subView',
+    'ver!com'
+], function (tpl, subView) {
+
+    return {
+        name: 'hello',
+        defaults: {
+            autoAction: true
+        },
+        template: tpl,
+        views: {
+            'sub': {
+                initializer: subView,
+                options: {
+                    host: '.subView'
+                }
+            }
+        }
     };
 });

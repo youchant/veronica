@@ -26,7 +26,7 @@
                 'css-builder': framePath + '/require-css/css-builder',
                 //'art-dialog': framePath + '/art-dialog/src/dialog-plus',
                 'veronica': '../../../dist/veronica',
-                'ver': framePath + '/requirejs-ver/ver'
+                'ver': framePath + '/../assets/requirejs-ver/ver'
             },
             shim: {
                 'underscore': { 'exports': '_' }
