@@ -15,14 +15,16 @@
         "url": "https://github.com/gochant/veronica.git"
     },
     "dependencies": {
-        "jquery": "~1.10.x",
-        "underscore": "~1.7.x",
-        "eventemitter2": "~0.4.x",
-        "requirejs": "~2.1.x",
+        "jquery": "latest",
+        "underscore": "latest",
+        "eventemitter2": "latest",
+        "requirejs": "latest",
         "almond": "latest",
         "art-dialog": "latest"
     },
     "devDependencies": {
+        "chai": "~1.5.0",
+        "sinon": "~1.9.x",
         "require-css": "latest",
         "requirejs-text": "latest"
     }

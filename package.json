@@ -5,14 +5,19 @@
   "description": "",
   "url": "https://github.com/gochant/veronica",
   "devDependencies": {
-    "underscore": "latest",
-    "chai": "~1.5.0",
-    "mocha": "1.9.0",
-    "sinon": "~1.9.x",
+    "sinon": "latest",
+    "chai": "latest",
     "grunt": "latest",
     "grunt-contrib-clean": "latest",
     "grunt-contrib-requirejs": "latest",
-    "grunt-contrib-uglify": "latest"
+    "grunt-contrib-uglify": "latest",
+    "karma": "^0.12.35",
+    "karma-mocha": "^0.1.10",
+    "requirejs": "^2.1.18",
+    "karma-requirejs": "^0.2.2",
+    "karma-chrome-launcher": "^0.1.12",
+    "mocha": "^2.2.5",
+    "karma-sinon-chai": "^0.3.0"
   },
   "dependencies": {
     "maxmin": "^1.0.0"

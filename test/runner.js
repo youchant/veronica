@@ -5,25 +5,18 @@ require.config({
     baseUrl: './',
     paths: {
         'underscore': '../bower_components/underscore/underscore',
-        'jquery': '../bower_components/jquery/jquery',
+        'jquery': '../bower_components/jquery/dist/jquery',
         'eventemitter': '../bower_components/eventemitter2/lib/eventemitter2',
         'text': '../bower_components/requirejs-text/text',
         'css': '../bower_components/require-css/css',
         'chai': '../node_modules/chai/chai',
         'sinon': '../node_modules/sinon/pkg/sinon',
-        'plugins': '../../lib/plugins'
+        'veronica': '../dist/veronica'
     },
     shim: {
         'underscore': { 'exports': '_' },
         'jquery': { 'exports': 'jquery' },
         'sinon': { 'exports': 'sinon' }
-    },
-    packages: [{
-        name: 'veronica',
-        location: '../lib'
-    }],
-    sources: {
-        'default': './widgets'
     }
 });
 

@@ -1,4 +1,4 @@
-define(['chai', 'sinon', 'veronica'], function (chai, sinon, core) {
+define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
 
     var should = chai.should();
 
@@ -13,6 +13,23 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, core) {
         };
     }
 
+    describe('hooks', function () {
+        before(function () {
+            // runs before all tests in this block
+            console.log('before');
+        })
+        after(function () {
+            // runs after all tests in this block
+        })
+        beforeEach(function () {
+            // runs before each test in this block
+        })
+        afterEach(function () {
+            // runs after each test in this block
+        })
+        // test cases
+    })
+
     describe('sinon', function () {
         it("calls the original function", function () {
             var callback = sinon.spy();
@@ -25,6 +42,8 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, core) {
     });
 
     describe('Core', function () {
+
+        var core = veronica;
 
         describe('Util', function () {
             describe('#decamelize', function () {
@@ -75,72 +94,20 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, core) {
         });
 
         describe('Loader', function () {
-            describe('#loadWiget', function () {
-                it('should loaded success', function (done) {
-                    core.loadWiget('widget1', {}).done(function () {
-                        done();
-                    });
-                });
-                it('should loaded fail if in wrong page', function (done) {
-                    core.createApp('test');
-                    core.loadWiget('widget1', {}, 'test-page').done(function () {
-
-                    }).fail(function () {
-                        done();
-                    });
-                });
-            });
-            describe('#start', function () {
-                it('should success with widget array', function (done) {
-                    core.start([
-                            { name: 'widget1', options: { host: '.page-view' } },
-                            { name: 'widget2', options: { host: '.page-view' } }
-                    ]).done(function () {
-                        done();
-                    });
-                });
-                it('should success with callback', function (done) {
-                    core.start([
-                      { name: 'widget1', options: { host: '.page-view' } },
-                      { name: 'widget2', options: { host: '.page-view' } }
-                    ], function () {
-                        done();
-                    });
+            describe('#useGlobalRequire', function () {
+                it('ok', function () {
+                    core.loader.useGlobalRequire.should.to.not.throw();
                 })
             });
-            describe('#stop', function () {
-                it('should work if host element have widget', function (done) {
-                    var $ = core.$;
-                    core.start([
-                        { name: 'widget1', options: { host: '.page-view' } }
-                    ]).done(function () {
-                        core.stop($('.page-view'));
-                        $('.page-view').children().length.should.equal(0);
-                        done();
-                    });
+            describe('#useGlobalRequirejs', function () {
+                it('ok', function () {
+                    core.loader.useGlobalRequirejs();
                 })
             });
-            describe('#stopBySandbox', function () {
-                it('pure object', function () {
-                    core.stopBySandbox({});
-                })
-                it('no paramas', function () {
-                    core.stopBySandbox();
-                })
-            });
-            describe('#stopByName', function () {
-            });
-            describe('#recycle', function () {
-            });
-            describe('#waitWidgets', function () {
-            });
-            describe('#registerWidgets', function () {
+            describe('#require', function () {
+                core.loader.require();
             });
         });
 
-    });
-
-    describe('Sandbox', function () {
-        describe('')
     });
 });

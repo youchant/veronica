@@ -1,35 +1,43 @@
 // Karma configuration
-// Generated on Fri Mar 07 2014 14:34:15 GMT+0800 (中国标准时间)
+// Generated on Mon Jun 01 2015 22:22:53 GMT+0800 (中国标准时间)
 
 module.exports = function(config) {
   config.set({
 
-    // base path, that will be used to resolve files and exclude
+    // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
 
     // frameworks to use
+    // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['mocha', 'requirejs'],
 
 
     // list of files / patterns to load in the browser
     files: [
-        {pattern: 'node_modules/chai/chai.js', included: false},
-        {pattern: 'lib/**/*.js', included: false},
-        {pattern: 'bower_components/**/*.js', included: false},
-        {pattern: 'test/**/*spec.js', included: false},
-        'test/test-main.js'
+      'test/test-main.js',
+       { pattern: 'node_modules/chai/chai.js', included: false },
+       { pattern: 'node_modules/sinon/pkg/sinon.js', included: false },
+      { pattern: 'bower_components/**/*.js', included: false },
+      { pattern: 'dist/**/*.js', included: false },
+      {pattern: 'test/**/*spec.js', included: false}
     ],
 
 
     // list of files to exclude
     exclude: [
-      
     ],
 
 
+    // preprocess matching files before serving them to the browser
+    // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
+    preprocessors: {
+    },
+
+
     // test results reporter to use
-    // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
+    // possible values: 'dots', 'progress'
+    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['progress'],
 
 
@@ -50,23 +58,13 @@ module.exports = function(config) {
     autoWatch: true,
 
 
-    // Start these browsers, currently available:
-    // - Chrome
-    // - ChromeCanary
-    // - Firefox
-    // - Opera (has to be installed with `npm install karma-opera-launcher`)
-    // - Safari (only Mac; has to be installed with `npm install karma-safari-launcher`)
-    // - PhantomJS
-    // - IE (only Windows; has to be installed with `npm install karma-ie-launcher`)
+    // start these browsers
+    // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ['Chrome'],
 
 
-    // If browser does not capture in given timeout [ms], kill it
-    captureTimeout: 60000,
-
-
     // Continuous Integration mode
-    // if true, it capture browsers, run tests and exit
+    // if true, Karma captures browsers, runs the tests and exits
     singleRun: false
   });
 };
