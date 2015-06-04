@@ -41,11 +41,11 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
         });
     });
 
-    describe('Core', function () {
+    describe('core', function () {
 
         var core = veronica;
 
-        describe('Util', function () {
+        describe('util', function () {
             describe('#decamelize', function () {
                 it('should work normal string', function () {
                     var r = core.util.decamelize('test');
@@ -93,7 +93,7 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
             });
         });
 
-        describe('Loader', function () {
+        describe('loader', function () {
             describe('#useGlobalRequire', function () {
                 it('ok', function () {
                     core.loader.useGlobalRequire.should.to.not.throw();
@@ -109,5 +109,17 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
             });
         });
 
+    });
+
+    describe('app', function () {
+        var app = veronica.createApp();
+
+        describe('widget', function () {
+            describe('#package', function () {
+                it('should run ok', function () {
+                    app.widget.package();
+                });
+            });
+        })
     });
 });

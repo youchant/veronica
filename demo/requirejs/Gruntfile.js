@@ -19,13 +19,7 @@ module.exports = function (grunt) {
                     ],
                     merge: ['veronica'],
                     notMerge: ['jquery'],
-                    modules: [{
-                        name: '.',
-                        source: '.',
-                        subpaths: ['widgets']
-                        //hasEntry: false
-                    }],
-                    optimize: false,
+                    optimize: true,
                     removeCombined: false
                 }
             }

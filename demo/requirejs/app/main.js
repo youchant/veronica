@@ -7,11 +7,6 @@ define(function () {
             // ´´½¨ app
             var app = veronica.createApp({
                 global: true,
-                modules: [{
-                    name: '',
-                    source: './',
-                    hasEntry: false
-                }],
                 plugins: {
                     'hello': ['pl-hello']
                 }
