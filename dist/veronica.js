@@ -12,7 +12,7 @@
 
 
 /**
- * @license almond 0.3.0 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
+ * @license almond 0.3.1 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -57,12 +57,6 @@ var requirejs, require, define;
             //otherwise, assume it is a top-level require that will
             //be relative to baseUrl in the end.
             if (baseName) {
-                //Convert baseName to array, and lop off the last part,
-                //so that . matches that "directory" and not name of the baseName's
-                //module. For instance, baseName of "one/two/three", maps to
-                //"one/two/three.js", but we want the directory, "one/two" for
-                //this normalization.
-                baseParts = baseParts.slice(0, baseParts.length - 1);
                 name = name.split('/');
                 lastIndex = name.length - 1;
 
@@ -71,7 +65,11 @@ var requirejs, require, define;
                     name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
                 }
 
-                name = baseParts.concat(name);
+                //Lop off the last part of baseParts, so that . matches the
+                //"directory" and not name of the baseName's module. For instance,
+                //baseName of "one/two/three", maps to "one/two/three.js", but we
+                //want the directory, "one/two" for this normalization.
+                name = baseParts.slice(0, baseParts.length - 1).concat(name);
 
                 //start trimDots
                 for (i = 0; i < name.length; i += 1) {
@@ -421,6 +419,9 @@ var requirejs, require, define;
     requirejs._defined = defined;
 
     define = function (name, deps, callback) {
+        if (typeof name !== 'string') {
+            throw new Error('See almond README: incorrect module build, no module name');
+        }
 
         //This module may not have dependencies
         if (!deps.splice) {
@@ -1022,7 +1023,7 @@ define("../bower_components/almond/almond", function(){});
 define('core/events',[
     'underscore'
 ], function (_) {
-    
+    'use strict';
 
     var Backbone = {};
     var array = [];
@@ -1207,7 +1208,7 @@ define('core/events',[
 // borrow frome Backbone 1.1.2
 define('core/extend',[
 ], function ($, Events) {
-    
+    'use strict';
 
     // Helpers
     // -------
@@ -1259,7 +1260,7 @@ define('core/view',[
     './events',
     './extend'
 ], function ($, _, Events, extend) {
-    
+    'use strict';
 
     var Backbone = {
         $: $
@@ -1408,7 +1409,7 @@ define('core/history',[
     './extend',
     'jquery'
 ], function (Events, extend, $) {
-    
+    'use strict';
 
     var Backbone = {
         $: $
@@ -1664,7 +1665,7 @@ define('core/router',[
     './extend',
     './history'
 ], function (_, Events, extend, history) {
-    
+    'use strict';
 
     var Backbone = { history: history };
 
@@ -1778,7 +1779,7 @@ define('core/loader',[
     'jquery'
 ], function ($) {
 
-    
+    'use strict';
 
     var loader = {};
 
@@ -1826,7 +1827,7 @@ define('core/loader',[
 
 
 define('util/logger',[], function () {
-    
+    'use strict';
 
     // thx h5-boilerplate
     // from: https://github.com/h5bp/html5-boilerplate/blob/master/src/js/plugins.js
@@ -1938,7 +1939,7 @@ define('util/util',[
     'underscore'
 ], function (_) {
 
-    
+    'use strict';
 
     function qsToJSON(str) {
         str || (str = location.search.slice(1));
@@ -2055,7 +2056,7 @@ define('util/aspect',[
     'exports'
 ], function (_, $, exports) {
 
-    
+    'use strict';
 
 
     // thx "aralejs"
@@ -2174,7 +2175,7 @@ define('core/core',[
 ], function ($, _, EventEmitter, Events,
     View, history, Router, loader, Logger, util, aspect) {
 
-    
+    'use strict';
 
     var core = {
         $: $,
@@ -2185,6 +2186,11 @@ define('core/core',[
         Router: Router,
         history: history,
         Events: Events,
+        i18n: {
+            defaultDialogTitle: '对话框',
+            windowCloseText: '关闭',
+            loadingText: '加载中...'
+        },
         constant: {
             DEFAULT_MODULE_NAME: '__default__'
         }
@@ -2232,7 +2238,7 @@ define('core/core',[
 define('core/application',[
     './core'
 ], function (core) {
-    
+    'use strict';
 
     var Application = (function () {
 
@@ -2250,9 +2256,11 @@ define('core/application',[
         }
 
         // 初始化应用程序
-        Application.prototype.launch = function () {
+        Application.prototype.launch = function (options) {
             var promises = [];
             var me = this;
+
+            options || (options = {});
 
             // 加载扩展
             _(this.config.extensions).each(function (ext) {
@@ -2281,6 +2289,10 @@ define('core/application',[
             return $.when.apply($, promises).done(function () {
                 me.module.apply();
                 me.widget.package();
+
+                if (options.parse) {
+                    me.parser.parse();
+                }
             });
         };
 
@@ -2336,7 +2348,7 @@ define('core/application',[
 define('app/emitQueue',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -2618,7 +2630,7 @@ define('app/page',[], function () {
 define('app/layout',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -2697,7 +2709,7 @@ define('app/layout',[
 define('app/module',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -2802,7 +2814,7 @@ define('app/module',[
 define('app/navigation',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -2847,7 +2859,7 @@ define('app/navigation',[
 define('app/plugin',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -2943,7 +2955,7 @@ define('core/sandbox',[
     './core'
 ], function (core) {
 
-    
+    'use strict';
 
     var _ = core._;
 
@@ -3107,7 +3119,7 @@ define('app/sandboxes',[
     '../core/sandbox'
 ], function (core, Sandbox) {
 
-    
+    'use strict';
 
     var _ = core._;
 
@@ -3162,7 +3174,7 @@ define('app/sandboxes',[
 // 加载模块
 define('app/widget',[],function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -3257,6 +3269,7 @@ define('app/widget',[],function () {
 
             if (globalConfig.debug === false) {
                 widgetPath = app.config.releaseWidgetPath;
+
                 if (mod && mod.config.build) {
                     widgetPath = (_.template(mod.config.build, {
                         interpolate: /\{\{(.+?)\}\}/g
@@ -3264,7 +3277,7 @@ define('app/widget',[],function () {
                         dir: '',
                         baseUrl: './',
                         type: 'widgets'
-                    })
+                    });
                 }
             } else {
 
@@ -3599,7 +3612,7 @@ define('app/widget',[],function () {
 define('app/parser',[
 ], function () {
 
-    
+    'use strict';
 
     return function (app) {
         var _ = app.core._;
@@ -3860,35 +3873,92 @@ define('app/view/view-view',[],function () {
 
 define('app/view/view-window',[],function () {
 
-    //var WND_CONTAINER = '#ver-modal';
-
     return function (app) {
+        var core = app.core;
         var $ = app.core.$;
         var _ = app.core._;
         var noop = $.noop;
 
-        var loadingText = 'Loading..';
+
+        var defaultWndTpl = '<div class="fn-wnd fn-wnd-placeholder"><span class="ui-dialog-loading fn-s-loading">' + core.i18n.loadingText + '</span></div>';
+        var footerTpl = '<div class="k-footer"><button class="btn btn-default fn-close">' + core.i18n.windowCloseText + '</button></div>';
+
 
         function removeLoading($el) {
             $el.find('.fn-s-loading').remove();
         }
 
+        function getChildRoot(wnd) {
+            var $wndEl = wnd.element.find('.fn-wnd');
+            return $wndEl.length === 0 ? wnd.element : $wndEl;
+        }
+
+        // 创建 Widget
+        function createWidget(configs, wnd) {
+            if (configs.length === 0) return;
+
+            var $root = getChildRoot(wnd);
+
+            _(configs).each(function (config) {
+                config.options || (config.options = {});
+                config.options.host = config.options.host ? $root.find(config.options.host) : $root;
+                config.options.parentWnd = wnd;
+            });
+
+            me.startWidgets(configs).done(function () {
+                removeLoading($el);
+            });
+        };
+
+        // 创建 View
+        function createView(configs, wnd) {
+            var parentView = this;
+            var $root = getChildRoot(wnd);
+
+            _.each(configs, function (config) {
+                var name = config.name;
+                config.options = _.extend({
+                    host: $root,
+                    parentWnd: wnd
+                }, config.options);
+
+                var view = parentView.view(name, config);
+
+                // 添加 widget class，确保样式正确
+                if (view.options.sandbox) {
+                    view.$el.addClass(view.options.sandbox.name);
+                }
+
+                if (view._rendered) {
+                    wnd.rendered(parentView);
+                } else {
+                    view.listenTo(view, 'rendered', function () {
+                        wnd.rendered(parentView);
+                    });
+                    view.listenTo(view, 'refresh-fail', function () {
+                        wnd.close();
+                    });
+                }
+
+                wnd.vToBeDestroyed[name] = view;
+            });
+
+        };
+
         // 创建对话框实例
-        app.view.base._windowInstance = function ($el, config, destroy, appendToEl) {
+        app.view.base._windowInstance = function ($el, config) {
 
             // window 实例
             var dlg = app.ui.dialog($.extend({
-                title: '对话框',
-                content: $el,// $el.get(0),
+                title: core.i18n.defaultDialogTitle,
+                content: $el, // $el.get(0),
                 fixed: true,
                 drag: config.options.draggable
             }, config.options)).close();  // 解决开始对话框默认显示的问题
 
             var wnd = {
                 element: $el,
-
                 core: dlg,
-
                 positionTo: config.positionTo,
                 close: function () {
                     this.core.remove();
@@ -3918,11 +3988,13 @@ define('app/view/view-window',[],function () {
                     this.core.width(opt.width).height(opt.height).title(opt.title);
                 }
             };
-            // 移除之前销毁
-            wnd.core.addEventListener('beforeremove', destroy);
+
             wnd.core.addEventListener('remove', function () {
-                // 清除添加的对话框元素 TODO: 这里可能会误杀一些隐藏的对话框，后面要进行解决！！
-                $('.fn-wnd-placeholder:hidden').remove();
+                $.each($('.fn-wnd-placeholder:hidden'), function (i, el) {
+                    if ($(el).closest('.ui-dialog').length === 0) {
+                        $(el).remove();
+                    }
+                });
             });
 
             return wnd;
@@ -3967,7 +4039,6 @@ define('app/view/view-window',[],function () {
         // 获取或创建一个window
         app.view.base.window = function (config, isShow) {
 
-            var wnd;
             var me = this;
             var windows = this._windows;
             // 获取窗口
@@ -3977,7 +4048,6 @@ define('app/view/view-window',[],function () {
             if (windows[config.name]) {
                 return windows[config.name];
             }
-            var toBeDestroyed = {};
 
             // 默认配置
             var defaults = {
@@ -3989,7 +4059,6 @@ define('app/view/view-window',[],function () {
                 destroyedOnClose: true,
                 // 窗口配置
                 options: {
-                    // appendTo: $(WND_CONTAINER),
                     animation: {
                         open: false,
                         close: false
@@ -4006,80 +4075,37 @@ define('app/view/view-window',[],function () {
                 children: null
             };
 
-            var destroy = _.bind(function () {
-                this._destroyWindow(config.name);
-            }, this);
 
-            // 创建 Widget
-            var createWidget = function (widgetOpt, wnd) {
-                if (widgetOpt.length === 0) return;
-                var $wndEl = wnd.element.find('.fn-wnd');
-                if ($wndEl.length === 0) $wndEl = wnd.element;
-                _(widgetOpt).each(function (opt) {
-                    opt.options || (opt.options = {});
-                    if (opt.options.host) {
-                        opt.options.host = $wndEl.find(opt.options.host);
-                    } else {
-                        opt.options.host = $wndEl;
-                    }
-                    opt.options.parentWnd = wnd;
-                });
 
-                // widgets 加载完毕后移除加载动画
-                me.startWidgets(widgetOpt).done(function () {
-                    removeLoading($el);
-                });
-            };
-            // 创建 View
-            var createView = function (viewOpts, wnd) {
-                var me = this;
-                var $wndEl = wnd.element;
-                _.each(viewOpts, function (viewOpt) {
-                    var host = $wndEl.find('.fn-wnd');
-                    viewOpt.options = _.extend({
-                        host: host.length === 0 ? $wndEl : host,
-                        parentWnd: wnd
-                    }, viewOpt.options);
+            if (config.positionTo) {   // 如果设置了 positionTo, 强制不居中
+                config.center = false;
+            }
 
-                    var view = me.view(viewOpt.name, viewOpt);
-
-                    // 添加 widget class，确保样式正确
-                    if (view.options.sandbox) {
-                        view.$el.addClass(view.options.sandbox.name);
-                    }
-
-                    if (view._rendered) {
-                        wnd.rendered(me);
-                    } else {
-                        view.listenTo(view, 'rendered', function () {
-                            wnd.rendered(me);
-                        });
-                        view.listenTo(view, 'refresh-fail', function () {
-                            wnd.close();
-                        });
-                    }
-
-                    toBeDestroyed[viewOpt.name] = view;
-                });
-
-            };
-            var defaultWnd = '<div class="fn-wnd fn-wnd-placeholder"><span class="ui-dialog-loading fn-s-loading">' + loadingText + '</span></div>';
-            var footer = '<div class="k-footer"><button class="btn btn-default fn-close">关闭</button></div>';
 
             isShow = isShow == null ? true : isShow;
 
             config = $.extend(true, defaults, config);
 
-            if (config.name === '') { config.name = _.uniqueId('wnd_'); }
+            if (config.name === '') { config.name = me.windowName(); }
 
-            var $el = config.el == null ? $(defaultWnd) : $(config.el);
+            var $el = _.isString(config.el) ? $(defaultWndTpl).html(config.el)
+                : (config.el == null ? $(defaultWndTpl) : $(config.el));
 
-            wnd = this._windowInstance($el, config, destroy, this.$el);
+            // 创建 window 实例
+            var wnd = this._windowInstance($el, config);
+
+            wnd.vToBeDestroyed = {};  // window 中应该被销毁的 view
+
             wnd.vLazyLayout = _.debounce(_.bind(function () {
                 this.center();
             }, wnd), 300);
-            wnd.vToBeDestroyed = toBeDestroyed;
 
+            wnd.core.addEventListener('beforeremove', _.bind(function () {
+                this._destroyWindow(config.name);
+            }, this));
+
+
+            // 创建所有 children 实例
             if (config.children) {
                 var widgets = [];
                 var views = [];
@@ -4097,11 +4123,6 @@ define('app/view/view-window',[],function () {
 
             if (wnd) {
                 windows[config.name] = wnd;
-            }
-
-            // 如果设置了 positionTo, 强制不居中
-            if (config.positionTo) {
-                config.center = false;
             }
 
             if (config.center) {
@@ -4161,19 +4182,10 @@ define('app/view',[
     './view/view-window'
 ], function (mvvm, subview, subwindow) {
 
-    //var WND_CONTAINER = '#ver-modal';
-
     return function (app) {
         var $ = app.core.$;
         var _ = app.core._;
         var noop = $.noop;
-
-        //_.templateSettings = {
-        //    evaluate: /\{\{(.+?)\}\}/g,
-        //    escape: /\{\{-(.+?)\}\}/g,
-        //    interpolate: /\{\{=(.+?)\}\}/g,
-        //    variable: 'data'
-        //};
 
         var base = {
             template: null,
@@ -4205,8 +4217,8 @@ define('app/view',[
                 this.viewModel = {};  // 该视图的视图模型
                 this._activeViewName = null;
                 this._name = options._name;
-
-                this.options = $.extend(true, {
+                
+                this.options = $.extend(true, {  // TODO: 大多数时候没必要用深度拷贝，实际测试速度影响暂时不大
                     autoAction: false,  // 自动绑定Action事件
                     autoRender: true,  // 自动渲染
                     autoResize: false,  // 自适应布局
@@ -4237,15 +4249,41 @@ define('app/view',[
                 this._loadPlugin();
 
                 this.aspect();
-                this.listenSelf();  // 自身事件监听
-                // 添加子视图监听
-                this.listen();
+
+                this._defaultListen();
+
+                this.listen();  // 添加子视图监听
+
                 if (this.options.autoResize) {
                     this.listenTo(this, 'rendered', function () {
                         _.defer(me.resize);
                     });
                     $(window).on('resize', this.resize);
                 }
+
+
+                (this.options.sharedModel != null) && this.model(this.shareModel(this.options.sharedModel), false);
+
+                // 初始化窗口大小
+                if (this.options.parentWnd && this.options.windowOptions) {
+                    this.options.parentWnd.setOptions(this.options.windowOptions);
+                    // TODO: 这里遇到 positionTo 的 window，调整大小后可能会错位
+                    this.options.parentWnd.config.center && this.options.parentWnd.center();
+                }
+
+                // 初始化自定义属性
+                this.initAttr();
+
+                this.subscribe();  // 初始化广播监听
+
+                this.init();
+
+                this._autoAction();
+
+                // 渲染
+                this.options.autoRender && this._firstRender();
+            },
+            _defaultListen: function () {
                 this.listenTo(this, 'modelBound', function (model) {
                     // 更新子视图模型
                     _(me._views).each(function (view) {
@@ -4265,21 +4303,8 @@ define('app/view',[
                     this.options.autoST && this.setTriggers();
 
                 });
-
-                (this.options.sharedModel != null) && this.model(this.shareModel(this.options.sharedModel), false);
-
-                // 初始化窗口大小
-                if (this.options.parentWnd && this.options.windowOptions) {
-                    this.options.parentWnd.setOptions(this.options.windowOptions);
-                    this.options.parentWnd.center();
-                }
-
-                // 初始化自定义属性
-                this.initAttr();
-
-                this.subscribe();  // 初始化广播监听
-                this.init();
-
+            },
+            _autoAction: function () {
                 if (this.options.autoAction) {
                     // 代理默认的事件处理程序
                     this.events || (this.events = {});
@@ -4289,17 +4314,6 @@ define('app/view',[
                         'click [data-widget]': '_widgetHandler'
                     });
                 }
-
-                // 渲染
-                this.options.autoRender && this._firstRender();
-            },
-            // 获取设置属性
-            attr: function (name, value) {
-                if (!_.isUndefined(value)) {
-                    this._attributes[name] = value;
-                    this.trigger('attr-change', name, value);
-                }
-                return this._attributes[name];
             },
             // 加载插件
             _loadPlugin: function () {
@@ -4310,7 +4324,14 @@ define('app/view',[
                 }
                 app.plugin && app.plugin.execute(sandbox.name, this);
             },
-
+            // 获取设置属性
+            attr: function (name, value) {
+                if (!_.isUndefined(value)) {
+                    this._attributes[name] = value;
+                    this.trigger('attr-change', name, value);
+                }
+                return this._attributes[name];
+            },
             // 替换模板文件
             replaceTpl: function (origin, content, isDom) {
                 if (isDom) {
@@ -4529,6 +4550,7 @@ define('app/view',[
 
         app.view.base = base;
 
+        // 创建一个 View 执行器
         app.view.createExecutor = function (executor) {
             if (_.isObject(executor) && !_.isFunction(executor)) {
 
@@ -4542,6 +4564,7 @@ define('app/view',[
             }
         }
 
+        // 全局注册 View
         app.view.register = function (name, ctor) {
             if (app.view._ctors[name]) {
                 app.core.logger.warn('View naming conflicts: ' + name);
@@ -4549,6 +4572,8 @@ define('app/view',[
                 app.view._ctors[name] = ctor;
             }
         }
+
+        // 查找 View 构造器
         app.view.ctor = function (name) {
             return app.view._ctors[name];
         }
@@ -4557,6 +4582,7 @@ define('app/view',[
         subview(app);
         subwindow(app);
 
+        // 创建一个 View 定义
         app.view.define = function (obj, inherits) {
             inherits || (inherits = []);
             inherits.push(obj);
@@ -6462,7 +6488,7 @@ define('app/app',[
     navigation, plugin, sandboxes, widget, parser, view, data, templates, router,
     ajax, hash, dialog) {
 
-    
+    'use strict';
 
     var DEFAULT_MODULE_NAME = '__default__';
 
@@ -6485,6 +6511,7 @@ define('app/app',[
             widgetNameSeparator: '-',  // 解析  widget 名称时识别的分隔符
 
             global: false,  // 全局 app
+            plugins: {},
             defaultPage: 'default',
             homePage: 'home',
             page: {
@@ -6580,7 +6607,7 @@ define('veronica',[
     './app/app'
 ], function (core) {
 
-    
+    'use strict';
 
     return core;
 });

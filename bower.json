@@ -1,31 +1,34 @@
 {
     "name": "veronica",
     "description": "A tiny web application library",
-    "homepage": "",
+    "homepage": "http://gochant.github.io/veronica",
     "version": "0.2.2",
     "main": [
         "lib/main.js"
     ],
     "ignore": [
         "demo",
-        "test"
+        "test",
+        "assets",
+        "tools",
+        "karma.conf.js",
+        "Gruntfile.js"
     ],
     "repository": {
         "type": "https",
         "url": "https://github.com/gochant/veronica.git"
     },
     "dependencies": {
-        "jquery": "latest",
-        "underscore": "latest",
-        "eventemitter2": "latest",
-        "requirejs": "latest",
-        "almond": "latest",
-        "art-dialog": "latest"
+        "jquery": ">=1.7",
+        "underscore": ">=1.7"
     },
     "devDependencies": {
-        "chai": "~1.5.0",
-        "sinon": "~1.9.x",
-        "require-css": "latest",
-        "requirejs-text": "latest"
+        "require-css": "^0.1.7",
+        "requirejs-text": "^2.0.14",
+        "eventemitter2": "^0.4.14",
+        "requirejs": "^2.1.18",
+        "almond": "^0.3.1",
+        "art-dialog": "^6.0.4",
+        "bootstrap": "^3.3.4"
     }
 }
