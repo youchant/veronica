@@ -2,6 +2,7 @@
 'use strict';
 
 module.exports = function (grunt) {
+    var path = require('path');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -53,8 +54,33 @@ module.exports = function (grunt) {
                     verbose: true,
                     destination: './docs',
                     configure: 'jsdoc-conf.json',
-                    template: 'assets/jaguarjs-jsdoc',
+                    template: 'node_modules/jaguarjs-jsdoc',
                     'private': false
+                }
+            }
+        },
+        watch: {
+            options: {
+                livereload: true
+            },
+            jsdoc: {
+                files: ['lib/**/*.js'],
+                tasks: ['jsdoc']
+            }
+        },
+        connect: {
+            options: {
+                hostname: '*'
+            },
+            jsdoc: {
+                options: {
+                    port: 8000,
+                    middleware: function (connect, options) {
+                        return [
+                            require('connect-livereload')(),
+                            connect.static(path.resolve('./docs'))
+                        ];
+                    }
                 }
             }
         }
@@ -63,8 +89,10 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-jsdoc');
 
     grunt.registerTask('default', ['requirejs', 'clean', 'uglify']);
-    grunt.registerTask('doc', ['jsdoc']);
+    grunt.registerTask('doc', ['jsdoc', 'connect', 'watch']);
 };

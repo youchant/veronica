@@ -18,7 +18,10 @@
     "karma-chrome-launcher": "^0.1.12",
     "mocha": "^2.2.5",
     "karma-sinon-chai": "^0.3.0",
-    "grunt-jsdoc": "^0.6.7"
+    "grunt-jsdoc": "^0.6.7",
+    "grunt-contrib-connect": "^0.10.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "connect-livereload": "^0.5.3"
   },
   "dependencies": {
     "maxmin": "^1.0.0"
