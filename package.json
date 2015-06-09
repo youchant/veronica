@@ -17,7 +17,8 @@
     "karma-requirejs": "^0.2.2",
     "karma-chrome-launcher": "^0.1.12",
     "mocha": "^2.2.5",
-    "karma-sinon-chai": "^0.3.0"
+    "karma-sinon-chai": "^0.3.0",
+    "grunt-jsdoc": "^0.6.7"
   },
   "dependencies": {
     "maxmin": "^1.0.0"
