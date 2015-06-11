@@ -1941,32 +1941,6 @@ define('util/util',[
 
     'use strict';
 
-    function qsToJSON(str) {
-        str || (str = location.search.slice(1));
-        var pairs = str.split('&');
-
-        var result = {};
-        pairs.forEach(function (pair) {
-            pair = pair.split('=');
-            result[pair[0]] = decodeURIComponent(pair[1] || '');
-        });
-
-        return JSON.parse(JSON.stringify(result));
-    }
-
-    // 将字符串转换成反驼峰表示
-    function decamelize(camelCase, delimiter) {
-        delimiter = (delimiter === undefined) ? '_' : delimiter;
-        return camelCase.replace(/([A-Z])/g, delimiter + '$1').toLowerCase();
-    }
-
-    // 将字符串转换成驼峰表示
-    function camelize(str) {
-        return str.replace(/(?:^|[-_])(\w)/g, function (_, c) {
-            return c ? c.toUpperCase() : '';
-        });
-    }
-
     // 扩展实例属性
     function extend(obj, mixin) {
         var method, name;
@@ -2037,15 +2011,44 @@ define('util/util',[
         (new Function('o, v', body))(o, v);
     }
 
-    return {
-        decamelize: decamelize,
-        camelize: camelize,
+    return /**@lends veronica.util */{
+        /**
+         * 将字符串转换成反驼峰表示
+         * @function
+         */
+        decamelize: function (camelCase, delimiter) {
+            delimiter = (delimiter === undefined) ? '_' : delimiter;
+            return camelCase.replace(/([A-Z])/g, delimiter + '$1').toLowerCase();
+        },
+        /**
+         * 将字符串转换成驼峰表示
+         * @function
+         */
+        camelize: function (str) {
+            return str.replace(/(?:^|[-_])(\w)/g, function (_, c) {
+                return c ? c.toUpperCase() : '';
+            });
+        },
         extend: extend,
         include: include,
         mixin: mixin,
         getter: getter,
         setter: setter,
-        qsToJSON: qsToJSON
+        /**
+         * 查询字符串转换成JSON对象
+         */
+        qsToJSON: function (str) {
+            str || (str = location.search.slice(1));
+            var pairs = str.split('&');
+
+            var result = {};
+            pairs.forEach(function (pair) {
+                pair = pair.split('=');
+                result[pair[0]] = decodeURIComponent(pair[1] || '');
+            });
+
+            return JSON.parse(JSON.stringify(result));
+        }
     };
 
 });
@@ -2158,7 +2161,6 @@ define('util/aspect',[
 
 });
 
-// core
 define('core/core',[
     'jquery',
     'underscore',
@@ -2171,16 +2173,37 @@ define('core/core',[
     '../util/logger',
     '../util/util',
     '../util/aspect'
-
 ], function ($, _, EventEmitter, Events,
     View, history, Router, loader, Logger, util, aspect) {
 
     'use strict';
 
-    var core = {
+    /**
+     * @namespace veronica
+     * @description `veronica` 或者 通过 `app.core`
+     */
+    var veronica = {
+        /**
+         * jquery 对象
+         * @memberOf veronica
+         */
         $: $,
+        /**
+         * underscore 对象
+         * @memberOf veronica
+         */
         _: _,
+        /**
+         * 扩展对象
+         * @memberOf veronica
+         * @namespace
+         */
         ext: {},
+        /**
+         * 帮助对象
+         * @memberOf veronica
+         * @namespace
+         */
         helper: {},
         View: View,
         Router: Router,
@@ -2196,15 +2219,26 @@ define('core/core',[
         }
     };
 
-    core.loader = loader;
-    core.util = util;
+    /**
+     * 加载器
+     * @memberOf veronica
+     */
+    veronica.loader = loader;
+    /**
+     * 工具方法
+     * @memberOf veronica
+     * @namespace
+     */
+    veronica.util = util;
 
-    core.aspect = aspect;
+    veronica.aspect = aspect;
 
-
-    // 获取全局配置
-    core.getConfig = (function () {
-        var requirejs = core.loader.useGlobalRequirejs();
+    /**
+     * 获取全局配置
+     * @function veronica.getConfig
+     */
+    veronica.getConfig = (function () {
+        var requirejs = veronica.loader.useGlobalRequirejs();
         var globalConfig = requirejs.s ? requirejs.s.contexts._.config : {
             sources: {}
         };
@@ -2216,47 +2250,61 @@ define('core/core',[
         };
     }());
 
-    core.logger = new Logger();
-    if (core.getConfig().debug) {
-        core.logger.enable();
+    veronica.logger = new Logger();
+    if (veronica.getConfig().debug) {
+        veronica.logger.enable();
     }
 
     // 中介者
-    var emitterConfig = _.defaults(core.getConfig() || {}, {
+    var emitterConfig = _.defaults(veronica.getConfig() || {}, {
         wildcard: true,
         delimiter: '.',
         newListener: true,
         maxListeners: 50
     });
 
-    core.mediator = new EventEmitter(emitterConfig);
+    veronica.createMediator = function () {
+        return new EventEmitter(emitterConfig);
+    }
 
-    return core;
+    veronica.mediator = new EventEmitter(emitterConfig);
+
+    return veronica;
 });
 
-// 应用程序模块
 define('core/application',[
     './core'
 ], function (core) {
+
     'use strict';
 
-    var Application = (function () {
+    /**
+     * 应用程序构造器
+     * @class Application
+     */
+    var Application = function (options) {
+        var $ = core.$;
 
-        function Application(options) {
-            var $ = core.$;
+        this._extensions = [];
+        this.name = options.name;
+        this.core = core;
+        this.lang = {};
+        this.config = $.extend({
+            extensions: [],
+            modules: []
+        }, options);
+    }
 
-            this._extensions = [];
-            this.name = options.name;
-            this.core = core;
-            this.lang = {};
-            this.config = $.extend({
-                extensions: [],
-                modules: []
-            }, options);
-        }
 
-        // 初始化应用程序
-        Application.prototype.launch = function (options) {
+    Application.prototype = /** @lends Application.prototype */{
+        constructors: Application,
+        /**
+         * 启动应用程序
+         * @param {Object} [options={}] 启动参数
+         * @param {boolean} options.parse 是否解析当前页面
+         * @returns {Promise}
+         */
+        launch: function (options) {
             var promises = [];
             var me = this;
 
@@ -2294,15 +2342,26 @@ define('core/application',[
                     me.parser.parse();
                 }
             });
-        };
-
-        // 停止应用程序
-        Application.prototype.stop = function () {
+        },
+        /**
+         * 停止应用程序
+         */
+        stop: function () {
             this.sandbox.stop();
-        };
-
-        // 使用用户扩展
-        Application.prototype.use = function (ext) {
+        },
+        /**
+         * 使用用户扩展
+         * @param {function} 扩展函数
+         * @returns {object} this
+         * @example
+         *  var extension = function(app){
+	     *      app.ext.sayHello = function(){
+    	 *          alert('hello world');
+         *      }
+         *  }
+         *  app.use(extension);
+         */
+        use: function (ext) {
             var me = this;
             if (!_.isArray(ext)) {
                 ext = [ext];
@@ -2311,10 +2370,14 @@ define('core/application',[
                 func(me, Application);
             });
             return this;
-        };
-
-        // 混入
-        Application.prototype.mixin = function (mixin, isExtend) {
+        },
+        /**
+         * 混入
+         * @param {object} mixin 混入的对象
+         * @param {boolean} [isExtend=true] 是否扩展到该实例上
+         * @returns {object} this
+         */
+        mixin: function (mixin, isExtend) {
             if (isExtend == null) {
                 isExtend = true;
             }
@@ -2324,22 +2387,19 @@ define('core/application',[
                 this.core.util.mixin(Application, mixin);
             }
             return this;
-        };
-
-        // 扩展方法：应用程序广播事件，自动附加应用程序名
-        Application.prototype.emit = function () {
+        },
+        /**
+         * 应用程序广播事件，它会在广播时自动附加应用程序名
+         * @param {string} name 消息名称
+         * @param {...unknowned} args  消息参数
+         */
+        emit: function () {
             var args = Array.prototype.slice.call(arguments);
             // args[0] = args[0] + '.' + this.name;
             args.push(this.name);
             this.sandbox.emit.apply(this.sandbox, args);
-        };
-
-        Application.prototype.hasFeature = function () {
-
         }
-
-        return Application;
-    })();
+    }
 
     return Application;
 
@@ -2969,6 +3029,7 @@ define('core/sandbox',[
             this.ext = core.ext;
             this.helper = core.helper;
             this.type = 'sandbox';
+            // this.mediator = core.createMediator();
         }
 
         var attachListener = function (listenerType) {
@@ -3187,12 +3248,35 @@ define('app/widget',[],function () {
         var WIDGET_TYPE = 'widget';
         var require = core.loader.useGlobalRequire();  // 使用 requirejs，而不是
 
+        /**
+         * @namespace widget
+         * @memberOf app
+         */
         app.widget = {
-            _localWidgetExes: {},  // 本地 widget 初始化器
-            _widgetsPool: {},  // 所有部件引用
-            currWidgetList: [],  // 当前活动的部件配置列表
-            oldWidgetList: [],  // 上一页部件配置列表
-            isLoading: false  // 当前批部件是否正在加载
+            /**
+             * 本地 widget 初始化器
+             * @private
+             */
+            _localWidgetExes: {},
+            /**
+             * 所有部件引用
+             * @private
+             */
+            _widgetsPool: {},
+            /**
+             * 当前活动的部件配置列表
+             * @private
+             */
+            currWidgetList: [],
+            /**
+             * 上一页部件配置列表
+             * @private
+             */
+            oldWidgetList: [],
+            /**
+             * 当前批部件是否正在加载
+             */
+            isLoading: false
         };
 
         function hasLocal(name) {
@@ -3203,7 +3287,9 @@ define('app/widget',[],function () {
             return app.widget._localWidgetExes[name];
         }
 
-        // 声明widget为package，以便在其他widget中引用该widget
+        /**
+         * 声明widget为package，以便在其他widget中引用该widget
+         */
         app.widget.package = function (widgetNames) {
             var config = { packages: [] };
             widgetNames || (widgetNames = core.getConfig().controls);
@@ -3220,12 +3306,16 @@ define('app/widget',[],function () {
             require.config(config);
         };
 
-        // 注册 widget 为 本地 widget
+        /**
+         * 注册 widget 为 本地 widget
+         */
         app.widget.register = function (name, execution) {
             app.widget._localWidgetExes[name] = execution;
         };
 
-        // 创建 widget
+        /**
+         * 创建 widget
+         */
         app.widget.create = function (widgetObj, options) {
             var sandbox = options.sandbox;
 
@@ -3252,7 +3342,9 @@ define('app/widget',[],function () {
             return widgetObj;
         };
 
-        // 获取widget路径
+        /**
+         * 获取widget路径
+         */
         function getWidgetPath(name, source) {
             var widgetPath = WIDGETS_PATH;
             var globalConfig = core.getConfig();
@@ -3294,7 +3386,9 @@ define('app/widget',[],function () {
             return widgetPath + '/' + widgetName;
         }
 
-        // 扫描该宿主元素下的所有插件，对不在插件列表中插件进行删除
+        /**
+         * 扫描该宿主元素下的所有插件，对不在插件列表中插件进行删除
+         */
         function clearOldWidgets(host, exclusive) {
             var oldSandboxRef;
             var currWidgetList = app.widget.currWidgetList;
@@ -3317,7 +3411,9 @@ define('app/widget',[],function () {
 
         }
 
-        // 执行部件
+        /**
+         * 执行部件
+         */
         function executeWidget(executor, options) {
             var pageName = options._page;
             var name = options._name;
@@ -3340,7 +3436,7 @@ define('app/widget',[],function () {
                 options.host && clearOldWidgets(options.host, options._exclusive);
 
                 // 将对象转换成执行函数
-                executor = app.view.createExecutor(executor);
+                executor = app.view._createExecutor(executor);
 
                 if (_.isFunction(executor)) { funcResult = executor(options); }
                 if (_.isUndefined(funcResult)) {
@@ -3354,7 +3450,9 @@ define('app/widget',[],function () {
             }
         };
 
-        // 分隔传入的 widget name
+        /**
+         * 分隔传入的 widget name
+         */
         app.widget.splitName = function (nameTags) {
             var isArray = $.isArray(nameTags);
             if (!isArray) { nameTags = [nameTags]; }
@@ -3369,7 +3467,9 @@ define('app/widget',[],function () {
             return isArray ? result : result[0];
         }
 
-        // 获取 widge package 路径
+        /**
+         * 获取 widge package 路径
+         */
         app.widget.resolvePath = function (nameParts) {
             var isArray = $.isArray(nameParts);
             if (!isArray) {
@@ -3387,7 +3487,12 @@ define('app/widget',[],function () {
 
         };
 
-        // 加载 widget
+        /**
+         * 加载 widget
+         * @function
+         * @memberOf app.widget
+         * @private
+         */
         app.widget.load = function (nameTag, options, page) {
             var dfd = $.Deferred();
             var pluginNameParts = [];
@@ -3435,7 +3540,9 @@ define('app/widget',[],function () {
             return dfd.promise();
         };
 
-        // 加载一个或一组插件
+        /**
+         * 加载一个或一组 widget
+         */
         app.widget.start = function (list, callback, page) {
             var promises = [];
             // 传入单个对象时
@@ -3504,7 +3611,9 @@ define('app/widget',[],function () {
             });
         };
 
-        // 停止插件，根据名称
+        /**
+         * 停止插件，根据名称
+         */
         app.widget.stopByName = function (name) {
             // 传入的是 widget name
             if (_.isString(tag)) {
@@ -3516,7 +3625,9 @@ define('app/widget',[],function () {
             }
         };
 
-        // 停止插件，根据标记
+        /**
+         * 停止插件，根据标记
+         */
         app.widget.stop = function (tag) {
             // 传入的是 sandbox 实例
             if (tag.type && tag.type === 'sandbox') {
@@ -3737,26 +3848,6 @@ define('app/view/view-view',[],function () {
         var _ = app.core._;
         var noop = $.noop;
 
-        // 获取或设置子视图
-        app.view.base.view = function (name, view) {
-            var me = this;
-            if (_.isUndefined(view)) {
-                // 获取子视图
-                view = this._views[name];
-            } else {
-                this._destroyView(name);
-
-                view = this._views[name] = this._createSubview(view, name);
-
-                // 取出延迟监听的事件，并进行监听
-                _.chain(this._delayEvents).filter(function (obj) {
-                    return obj.name === name;
-                }).each(function (obj) {
-                    me.listenTo(view, obj.event, obj.callback);
-                });
-            }
-            return view;
-        };
 
         // 创建已配置的子视图
         app.view.base._createSubviews = function (views) {
@@ -3770,7 +3861,7 @@ define('app/view/view-view',[],function () {
                     me.view(name, func);
                 });
                 // 设置默认活动视图
-                views['active'] && this.active(views['active']);
+                this.options.activeView && this.active(this.options.activeView);
             }
         };
         // 创建子视图
@@ -3791,7 +3882,7 @@ define('app/view/view-view',[],function () {
             }
 
             // 确保 initializer 是个方法
-            view.initializer = app.view.createExecutor(view.initializer);
+            view.initializer = app.view._createExecutor(view.initializer);
 
             return view.initializer(_.extend({
                 sandbox: this.options.sandbox,
@@ -3824,7 +3915,42 @@ define('app/view/view-view',[],function () {
             }
         };
 
-        // 激活子视图
+        /**
+         * 获取或设置子视图
+         * @name view
+         * @memberOf View#
+         * @function
+         * @param {string} name 视图名称
+         * @param {View} view 视图对象
+         */
+        app.view.base.view = function (name, view) {
+            var me = this;
+            if (_.isUndefined(view)) {
+                // 获取子视图
+                view = this._views[name];
+            } else {
+                this._destroyView(name);
+
+                view = this._views[name] = this._createSubview(view, name);
+
+                // 取出延迟监听的事件，并进行监听
+                _.chain(this._delayEvents).filter(function (obj) {
+                    return obj.name === name;
+                }).each(function (obj) {
+                    me.listenTo(view, obj.event, obj.callback);
+                });
+            }
+            return view;
+        };
+
+        /**
+         * 激活子视图
+         * @name active
+         * @function
+         * @memberOf View#
+         * @param {string} name - 视图名称
+         */
+        // 
         app.view.base.active = function (name) {
             var me = this;
             var targetView;
@@ -3836,7 +3962,7 @@ define('app/view/view-view',[],function () {
             this._activeViewName = name;
             targetView = this.view(this._activeViewName);
 
-            _(this.options.switchable).each(function (name) {
+            _(this.switchable).each(function (name) {
                 me.view(name) && me.view(name).hide();
             });
 
@@ -3905,8 +4031,8 @@ define('app/view/view-window',[],function () {
                 config.options.parentWnd = wnd;
             });
 
-            me.startWidgets(configs).done(function () {
-                removeLoading($el);
+            this.startWidgets(configs).done(function () {
+                removeLoading(wnd.element);
             });
         };
 
@@ -4182,59 +4308,268 @@ define('app/view',[
     './view/view-window'
 ], function (mvvm, subview, subwindow) {
 
+    /**
+     * Backbone View Object
+     * @external Backbone.View
+     * @see {@link http://backbonejs.org/#View}
+     */
+
+    /**
+     * @namespace app.view
+     */
+
+    /**
+     * 事件处理函数
+     * @callback eventCallback
+     * @param {...*} param - 事件参数
+     */
+
+    /**
+     * 消息订阅处理函数
+     * @callback messageCallback
+     * @param {...*} param - 消息传递的参数
+     */
+
+
     return function (app) {
         var $ = app.core.$;
         var _ = app.core._;
         var noop = $.noop;
+        /**
+         * @classdesc 视图
+         * @class View
+         * @augments Backbone.View
+         */
 
+        /**@lends View.prototype */
         var base = {
-            template: null,
-            defaults: {},
-            views: null,
-            aspect: noop,
-            subscribe: noop,  // 监听外部的消息
-            listen: noop,  // 监听子视图
-            enhance: noop,  // 进行UI增强
-            init: noop,
-            initAttr: noop,  // 初始化属性
-            listenSelf: noop,  // 监听自身事件
-            resize: noop,  // 自适应布局
-            delegateModelEvents: noop,  //
-            instance: noop,
-            _bind: noop,  // 绑定方法
-            _customDestory: noop, // 自定义销毁
+            /**
+             * 根元素自定义类名
+             * @type {string}
+             * @default
+             */
             className: 'ver-view',
+            /**
+             * 模板
+             * @type {string|function}
+             * @default
+             */
+            template: null,
+            /**
+             * 该视图的默认参数
+             * @type {object}
+             * @default
+             */
+            defaults: {},
+            /**
+             * 配置该视图的子视图
+             * @type {function|object}
+             * @default
+             */
+            views: null,
+            /**
+             * 配置该视图的子视图 **`重写`**
+             * @type {function}
+             * @default
+             * @example
+             *   aspect: function(){
+             *     this.after('initAttr', function(){
+             *         this.param = { test: 'A' }
+             *     });
+             *     this.before // ...
+             *   }
+             */
+            aspect: noop,
+            /**
+             * 订阅消息 **`重写`**
+             * @type {function}
+             * @default
+             * @example
+             *   subscribe: function(){
+             *       this.sub('setTriggers', function(){
+             *           alert('I received this message');
+             *       })
+             *       this.sub ...
+             *   }             
+             */
+            subscribe: noop,
+            /**
+             * 监听自身和子视图事件 **`重写`**
+             * @type {function}
+             * @default
+             * @example
+             *   listen: function(){
+             *       this.listenTo('rendered', function(){
+             *           // 处理代码
+             *       });
+             *       this.listenTo ...
+             *       this.listenToDelay('edit', 'saved', function(){
+             *       })
+             *   }             
+             */
+            listen: noop,
+            /**
+             *  **`重写`** 进行UI增强（在 `render` 过程中，需要自定义的一些行为，
+             * 通常放置一些不能被绑定初始化的控件初始化代码）
+             * @type {function}
+             * @default
+             * @example
+             *   enhance: function(){
+             *       this.$('.chart').chart({
+             *           type: 'pie',
+             *           data: ['0.3', '0.2']
+             *       })
+             *   }
+             */
+            enhance: noop,
+            /**
+             * **`重写`** 视图的自定义初始化代码
+             * @type {function}
+             * @default
+             */
+            init: noop,
+            /**
+             * **`重写`** 初始化属性
+             * @type {function}
+             * @default
+             * @example
+             *  initAttr: function(){
+             *      this.message = 'hello';
+             *      this.baseModel = {
+             *          data: {
+             *              name: 'veronica'
+             *          }
+             *      }
+             *  }             
+             */
+            initAttr: noop,
+            /**
+             * **`重写`** 重写该方法，使视图自适应布局，当开启 `autoResize` 后，窗口大小变化时，该方法会被调用，
+             * 如果有必要，在该方法中应编写窗口大小变化时，该视图对应的处理逻辑
+             * @type {function}
+             */
+            resize: noop,
+            /**
+             * 处理与视图模型有关的事件绑定
+             * @type {function}
+             * @default
+             * @example
+             *   delegateModelEvents: function(){
+             *       var viewModel = this.model();
+             *       viewModel.bind('change', function(){
+             *           // 处理代码
+             *       });
+             *       viewModel.bind('change.xxx', function(){ });
+             *   }             
+             */
+            delegateModelEvents: noop,
+            instance: noop,
+            /**
+             * 绑定方法
+             * @inner
+             */
+            _bind: noop,
+            /**
+             * 自定义销毁
+             * @inner
+             */
+            _customDestory: noop,
+            /**
+             * 可切换的视图集合
+             */
+            switchable: [],
+            /**
+             * 视图初始化
+             * @function
+             * @inner
+             */
             initialize: function (options) {
+                /**
+                 * 视图选项
+                 * @class viewOptions
+                 * @property {boolean} hasCourage - Indicates whether the Courage component is present.
+                 */
+
                 var me = this;
+
                 options || (options = {});
+                /**
+                 * 默认绑定视图对象到函数上下文的函数
+                 * @name binds
+                 * @memberOf View#
+                 */
                 this.binds = ['resize'];
+
                 this._rendered = false;
                 this._windows = {};  // 子窗口集合
                 this._views = {};  // 子视图集合
                 this._delayEvents = [];
                 this._attributes = {};
-                this.baseModel = {};  // 默认的基本视图模型
+                /**
+                 * 默认的基础视图模型
+                 * @name baseModel
+                 * @memberOf View#
+                 */
+                this.baseModel = {};
                 this.viewModel = {};  // 该视图的视图模型
                 this._activeViewName = null;
                 this._name = options._name;
-                
-                this.options = $.extend(true, {  // TODO: 大多数时候没必要用深度拷贝，实际测试速度影响暂时不大
-                    autoAction: false,  // 自动绑定Action事件
-                    autoRender: true,  // 自动渲染
-                    autoResize: false,  // 自适应布局
+
+                /**
+                 * 选项 
+                 * @name options
+                 * @memberOf View#
+                 * @property {boolean} [autoAction=false] - 自动绑定Action事件
+                 *   当在模板中使用如下写法时：
+                 *   ```html
+                 *   <button data-action="add">添加</button>
+                 *   ```
+                 *   如果该属性为 `true`，将自动查找该视图的 `addHandler` 方法作为该按钮点击事件的处理函数
+                 * 
+                 * @property {boolean} [autoRender=true] - 自动渲染. 视图一初始化就进行渲染
+                 * @property {boolean} [autoResize=false] - 自适应窗口变化. 该属性设为true后，当窗口大小变化时，会自动调用`resize`方法，因此需要重写该方法
+                 * @property {boolean} [autoCreateSubview=true] - 在视图渲染时，自动创建子视图，需设置 views 属性
+                 * @property {boolean} [domReady=false] - 是否视图DOM元素已准备好，这会影响视图的首次渲染
+                 * @property {boolean} [autoST=false] - 
+                 *   自动设置触发器. 该属性为true后，会广播 `setTriggers` 消息，可将该视图的工具条（由 defaultToolbarTpl 指定）
+                 *   注入到其他widget，需要额外设置 `toolbar` 项，指定该视图的注入到的widget名称                 
+                 * @property {string} [toolbar='toolbar'] - 触发器放置的 widget name
+                 * @property {string} [defaultToolbarTpl='.tpl-toolbar'] - 触发器默认模板的选择器
+                 * @property {object} [windowOptions=false] - 设置当视图单独位于窗口中时，窗口的选项
+                 * @property {object} [sharedModel=null] - 视图没有自己的视图模型，来源于该属性共享的视图模型
+                 * @property {array} [sharedModelProp=null] - 共享视图模型的属性集合
+                 *   ```
+                 *   [['destPropName', 'originPropName'], 'propName2']
+                 *   ```
+                 * @property {string} [langClass=null] - 视图所属的 language class，在模板中，可通过 `data.lang.xxx` 来访问特定的语言文本
+                 * @property {boolean} [bindEmptyModel=false] - 当视图模型没赋值时，是否也进行绑定
+                 * @property {string} [activeView=null] - 初始活动的子视图名称
+                 * @default {}
+                 * @todo 这里参数默认值合并使用了深拷贝，大多数时候其实没必要，目前实际测试速度影响暂时不大
+                 */
+                this.options = $.extend(true, {
+                    autoAction: false,
+                    autoRender: true,
+                    autoResize: false,
                     autoCreateSubview: true,
-                    autoBind: false,
-                    domReady: false,  // DOM元素已经准备好
+                    domReady: false,
                     autoST: false,
-                    lazyTemplate: false,
-                    defaultToolbarTpl: '.tpl-toolbar',
                     toolbar: 'toolbar',
-                    switchable: [],
+                    defaultToolbarTpl: '.tpl-toolbar',
+                    /**
+                     * @deprecated
+                     */
+                    autoBind: false,
+                    /**
+                     * @deprecated
+                     */
+                    lazyTemplate: false,
                     windowOptions: false,
-                    sharedModel: null,  // 共享的视图模型
-                    sharedModelProp: null,  // 共享视图模型的属性集合
+                    sharedModel: null,
+                    sharedModelProp: null,
                     langClass: null,
-                    bindEmptyModel: false
+                    bindEmptyModel: false,
+                    activeView: null
                 }, this.defaults, options);
 
                 // 将方法绑定到当前视图
@@ -4293,6 +4628,7 @@ define('app/view',[
                     });
                 });
                 this.listenTo(this, 'rendering', function () {
+                    // 自动创建子视图
                     if (this.options.autoCreateSubview) {
                         this._createSubviews();
                     }
@@ -4324,7 +4660,10 @@ define('app/view',[
                 }
                 app.plugin && app.plugin.execute(sandbox.name, this);
             },
-            // 获取设置属性
+            /**
+             * 获取设置属性
+             * @function
+             */
             attr: function (name, value) {
                 if (!_.isUndefined(value)) {
                     this._attributes[name] = value;
@@ -4332,7 +4671,10 @@ define('app/view',[
                 }
                 return this._attributes[name];
             },
-            // 替换模板文件
+            /**
+              * 替换模板文件
+              * @function
+              */
             replaceTpl: function (origin, content, isDom) {
                 if (isDom) {
                     this.template = $('<div>' + this.template + '</div>').find(origin).replaceWith(content).end().html();
@@ -4340,7 +4682,10 @@ define('app/view',[
                     this.template = this.template.replace(origin, content);
                 }
             },
-            // 显示该视图
+            /**
+              * 显示该视图
+              * @function
+              */
             show: function () {
                 var me = this;
                 this.$el.show(false, function () {
@@ -4349,7 +4694,10 @@ define('app/view',[
                     }
                 });
             },
-            // 隐藏该视图
+            /**
+              * 隐藏该视图
+              * @function
+              */
             hide: function () {
                 this.$el.hide(false);
             },
@@ -4412,7 +4760,7 @@ define('app/view',[
 
                 if (hasTpl) {
                     if (isHtml) {
-                        this.$el.get(0).innerHTML = template;
+                        this.$el.get(0).innerHTML = template;  // 为了提高效率，不使用 jquery 的 html() 方法
                     } else {
                         var tpl = _.isFunction(template) ?
                             template : _.template(template, { variable: 'data' });  // 如果使用 Lodash，这里调用方式有差异
@@ -4441,8 +4789,14 @@ define('app/view',[
 
                 return this;
             },
-            // 延迟监听子视图
+            /**
+              * 延迟监听子视图
+              * @param {string} name - 子视图名称
+              * @param {string} event - 事件名称
+              * @param {eventCallback} callback - 回调
+              */
             listenToDelay: function (name, event, callback) {
+
                 this._delayEvents.push({
                     name: name,
                     event: event,
@@ -4452,21 +4806,34 @@ define('app/view',[
                     this.listenTo(this.view(name), event, callback);
                 }
             },
-
-            // 订阅消息
+            /**
+              * 订阅消息
+              * @param {string} name 消息名
+              * @param {messageCallback} listener 消息订阅处理函数
+              */
             sub: function (name, listener) {
+
                 this.options.sandbox.on(name, listener, this, this.cid);
             },
-            // 发布消息
+            /**
+              * 发布消息
+              * @param {string} name 消息名
+              * @param {...*} msgParam 消息传递的参数
+              */
             pub: function () {
                 this.options.sandbox.emit.apply(this.options.sandbox,
                     Array.prototype.slice.call(arguments));
             },
-            // 取消订阅消息
+            /**
+              * 取消该视图的所有消息订阅
+              */
             unsub: function () {
                 this.options.sandbox.stopListening(this.cid);
             },
-            // 启用子部件
+            /**
+             * 启用子部件
+             * @param {object[]} list 部件配置列表
+             */
             startWidgets: function (list) {
                 return this.options.sandbox.startWidgets(list, null, this.cid);
             },
@@ -4474,11 +4841,16 @@ define('app/view',[
             stopChildren: function () {
                 this.options.sandbox.stopChildren(this.cid);
             },
+            /**
+             * 设置触发器
+             * @param {string} [toolbarTpl=options.defaultToolbarTpl] - 工具条选择器
+             * @returns void
+             */
             setTriggers: function (toolbarTpl) {
                 toolbarTpl || (toolbarTpl = this.options.defaultToolbarTpl);
                 var sandbox = this.options.sandbox;
-                sandbox.emit('setTriggers', this.$(toolbarTpl).html(),
-                    this.options.toolbar || sandbox.name, this);
+                this.pub('setTriggers', this.$(toolbarTpl).html(),
+                    this.options.toolbar || this._name, this);
             },
             _actionHandler: function (e, context) {
                 e.preventDefault();
@@ -4539,6 +4911,9 @@ define('app/view',[
 
                 this.options.sandbox.log('destroyed');
             },
+            /**
+             * 销毁该视图
+             */
             destroy: function () {
                 this._destroy();
             }
@@ -4548,10 +4923,16 @@ define('app/view',[
             _ctors: {}
         };
 
+        /**
+         * 基础配置对象
+         */
         app.view.base = base;
 
-        // 创建一个 View 执行器
-        app.view.createExecutor = function (executor) {
+        /**
+         * 创建一个 View 执行器
+         * @private
+         */
+        app.view._createExecutor = function (executor) {
             if (_.isObject(executor) && !_.isFunction(executor)) {
 
                 return function (options) {
@@ -4564,7 +4945,9 @@ define('app/view',[
             }
         }
 
-        // 全局注册 View
+        /**
+         * 全局注册 View
+         */
         app.view.register = function (name, ctor) {
             if (app.view._ctors[name]) {
                 app.core.logger.warn('View naming conflicts: ' + name);
@@ -4582,8 +4965,18 @@ define('app/view',[
         subview(app);
         subwindow(app);
 
-        // 创建一个 View 定义
-        app.view.define = function (obj, inherits) {
+        /**
+         * 创建一个自定义 View 定义
+         * @param {object} [obj={}] - 自定义属性或方法
+         * @param {array} [inherits=[]] - 继承的属性或方法组
+         * @param {boolean} [isFactory] - 是否该视图定义是个工厂方法
+         */
+        app.view.define = function (obj, inherits, isFactory) {
+            if (_.isBoolean(inherits) && isFactory == null) {
+                isFactory = inherits;
+                inherits = [];
+            }
+            if (isFactory == null) isFactory = false;
             inherits || (inherits = []);
             inherits.push(obj);
 
@@ -4591,6 +4984,12 @@ define('app/view',[
             // 注册 View
             if (obj && obj.name) {
                 app.view.register(obj.name, ctor);
+            }
+            // 使用工厂模式，不需要用 `new`
+            if (isFactory) {
+                return function (options) {
+                    return new ctor(options);
+                }
             }
             return ctor;
         };
@@ -6465,6 +6864,7 @@ define('app/ui/dialog',[
     };
 });
 
+
 define('app/app',[
     '../core/core',
     '../core/application',
@@ -6484,14 +6884,50 @@ define('app/app',[
     './ajax',
     './hash',
     './ui/dialog'
-], function (core, Application, emitQueue, page, layout, module,
+], /**@lends veronica */function (core, Application, emitQueue, page, layout, module,
     navigation, plugin, sandboxes, widget, parser, view, data, templates, router,
     ajax, hash, dialog) {
 
     'use strict';
 
+    /**
+     * 是一个 `Application` 类的实例，在`global` 设为 `true` 的情况下，可通过`window.__verApp`访问
+     * @namespace app
+     * @global
+     */
+
     var DEFAULT_MODULE_NAME = '__default__';
 
+    /**
+     * 创建 app
+     * @function veronica.createApp
+     * @param {object} [options={}]
+     * @param {string} options.name='app' 应用程序名称
+     * @param {array} options.features=['plugin','dialog','spa'] -
+     *   设置创建的该应用程序需要启用哪些特性，目前包括：
+     *
+     *    * dialog: 支持对话框
+     *    * plugin: 支持插件扩展widget
+     *    * spa: 支持单页面应用程序的构建（页面、布局、路由，导航等）
+     *
+     * @param {boolean} options.autoBuildPage=false
+     *   是否启用自动页面配置。当通过路由或 `app.page.change`访问某个页面时，
+     *   如果未找到对应的页面配置，启用自动页面配置时，会根据页面名称自动生成页面配置。
+     *
+     *   > **关于自动页面配置**
+     *   >
+     *   > 访问 basic/home/index 或 basic-home-index 时，系统会去查找名为 basic-home-index 的widget，并且添加 _common 的页面继承;
+     *   > 如果访问index，则会查找basic/Home/index，如果访问 home/index，则会查找basic/home/index
+     * @param {array} options.modules=[] - 模块配置
+     *    模块配置传入一个数组，指定该应用程序包括的所有模块，包括如下参数：
+     *
+     *    * name: 模块名称
+     *    * source: 模块源
+     *    * multilevel: widget 为多级目录
+     *    * hasEntry: 有入口文件
+     *   当每个模块配置参数为字符串时，该字符串指定该模块的名称，其他参数采用默认参数
+     * @param {array} options.extensions=[] - 扩展列表
+     */
     core.createApp = function (options) {
 
         var $ = core.$;
@@ -6600,6 +7036,13 @@ define('app/app',[
         return app;
     };
 
+    /**
+     * hehhee
+     * @inner
+     */
+    function hh() {
+
+    }
     return core;
 });
 

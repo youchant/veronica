@@ -13,7 +13,8 @@
     </div>
     <div data-ver-role="hello-veronica" data-options='{ "hi": "Hello", "name": "Veronica22!"  }'>
         <%= data.hi %> <%= data.name %>
-        <button data-action="test">Test Action</button>
+        <button data-action="test">Open HTMLWindow</button>
+        <button data-action="test1">Open WidgetWindow</button>
         <button data-view="test">Test Action</button>
     </div>
     <script src="../../bower_components/jquery/dist/jquery.min.js"></script>
@@ -34,14 +35,28 @@
             defaults: {
                 autoAction: true
             },
+            initAttr: function () {
+                this.win1Name = this.windowName();
+                this.win2Name = this.windowName();
+            },
             testHandler: function () {
+                debugger;
                 this.window({
-                    name: 'wnd_test',
+                    name: this.win1Name,
                     el: '<div>hello</div><div class="footer">footer</div>',
                     footer: true,
                     options: {
                         drag: true
                     }
+                });
+            },
+            test1Handler: function () {
+                this.window({
+                    name: this.win2Name,
+                    children: [{
+                        name: 'hello-veronica',
+                        type: 'widget'
+                    }]
                 });
             }
         });
