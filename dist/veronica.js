@@ -4619,6 +4619,7 @@ define('app/view',[
                 this.options.autoRender && this._firstRender();
             },
             _defaultListen: function () {
+                var me = this;
                 this.listenTo(this, 'modelBound', function (model) {
                     // 更新子视图模型
                     _(me._views).each(function (view) {
