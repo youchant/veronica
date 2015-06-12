@@ -120,6 +120,21 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
                     app.widget.package();
                 });
             });
+            describe('#start', function () {
+                it('should run ok', function () {
+                    app.widget.start({});
+                });
+            });
+            describe('#register', function () {
+                it('should run ok', function () {
+                    app.widget.register({}, {});
+                });
+            });
+            describe('#stop', function () {
+                it('should run ok', function () {
+                    app.widget.stop({});
+                });
+            });
         })
     });
 });
