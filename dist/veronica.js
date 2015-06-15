@@ -1788,24 +1788,24 @@ define('core/loader',[
     var loader = {};
 
     /**
-     * ʹ��ȫ�ֵ�require����
+     * 使用全局的require变量
      */
     loader.useGlobalRequire = function () {
         return window.require ? window.require : require;
     };
 
     /**
-     * ʹ��ȫ�ֵ�requirejs����
+     * 使用全局的requirejs变量
      */
     loader.useGlobalRequirejs = function () {
         return window.requirejs ? window.requirejs : requirejs;
     }
 
     /**
-     * ����һ���ű�
-     * @param {array|object} modeuls - Ҫ������ģ�飨requirejs��require�����������ã�
-     * @param {boolean} [condition=true] - ����������������
-     * @param {object} [requireConfig] - require ����
+     * 请求一个脚本
+     * @param {array|object} modeuls - 要请求的模块（requirejs的require方法所需配置）
+     * @param {boolean} [condition=true] - 发起请求的条件，
+     * @param {object} [requireConfig] - require 配置
      */
     loader.require = function (modules, condition, requireConfig) {
 
@@ -2260,6 +2260,9 @@ define('core/core',[
             windowCloseText: '关闭',
             loadingText: '加载中...'
         },
+        /**
+         * 所有常量
+         */
         constant: {
             DEFAULT_MODULE_NAME: '__default__',
             SCAFFOLD_LAYOUT_NAME: 'scaffold',
@@ -2267,8 +2270,26 @@ define('core/core',[
             WIDGET_CLASS: 'ver-widget',
             WIDGET_TAG: 'ver-tag',
             SANDBOX_REF_NAME: '__sandboxRef__'
-        }
+        },
+        /**
+         * 所有枚举
+         * @namespace
+         * @memberOf veronica
+         */
+        enums: { }
     };
+
+    /**
+     * 沙箱宿主枚举
+     * @readonly
+     * @enum {string}
+     * @memberOf veronica.enums
+     */
+    var hostType = {
+        WIDGET: 'widget',
+        APP: 'app'
+    }
+    veronica.enums.hostType = hostType;
 
     /**
      * 加载器
@@ -3254,48 +3275,87 @@ define('core/sandbox',[
     'use strict';
 
     var _ = core._;
+    var $ = core.$;
 
-    var Sandbox = (function () {
+    var attachListener = function (listenerType) {
+        return function (name, listener, context, tag) {
+            var mediator = core.mediator;
+            if (!_.isFunction(listener) || !_.isString(name)) {
+                throw new Error('Invalid arguments passed to sandbox.' + listenerType);
+            }
+            context = context || this;
+            var callback = function () {
+                var args = Array.prototype.slice.call(arguments);
 
-        function Sandbox() {
-            this._ = core._;
-            this.$ = core.$;
-            this._children = [];
-            this.events = [];
-            this.ext = core.ext;
-            this.helper = core.helper;
-            this.type = 'sandbox';
-            // this.mediator = core.createMediator();
-        }
+                listener.apply(context, args);  // 将该回调的上下文绑定到sandbox
 
-        var attachListener = function (listenerType) {
-            return function (name, listener, context, tag) {
-                var mediator = core.mediator;
-                if (!_.isFunction(listener) || !_.isString(name)) {
-                    throw new Error('Invalid arguments passed to sandbox.' + listenerType);
-                }
-                context = context || this;
-                var callback = function () {
-                    var args = Array.prototype.slice.call(arguments);
-
-                    listener.apply(context, args);  // 将该回调的上下文绑定到sandbox
-
-                };
-
-                this._events = this._events || [];
-                this._events.push({
-                    name: name,  // 消息名
-                    listener: listener,  // 原始方法
-                    callback: callback,
-                    tag: tag  // 标识符
-                });
-
-                mediator[listenerType](name, callback);
             };
-        };
 
-        // 为每个沙箱记录日志
-        Sandbox.prototype.log = function (msg, type) {
+            this._events = this._events || [];
+            this._events.push({
+                name: name,  // 消息名
+                listener: listener,  // 原始回调方法
+                callback: callback,  // 绑定了 context的回调
+                tag: tag  // 标识符
+            });
+
+            mediator[listenerType](name, callback);
+        };
+    };
+
+    /**
+     * @typedef SandboxChildren
+     * @property {string} ref - sandbox的唯一标识符
+     * @property {string} caller - 开启该sandbox的对象的唯一标识符
+     */
+
+    /**
+     * @classdesc 沙箱，管理公共方法、消息传递、宿主生命周期维护
+     * @class Sandbox
+     */
+    function Sandbox(options) {
+
+        /**
+         * 名称
+         * @var {string} name
+         * @memberOf Sandbox#
+         */
+        this.name = options.name;
+        /**
+         * 当前应用程序实例
+         * @var {Application} app
+         * @memberOf Sandbox#
+         */
+        this.app = options.app;
+        this.type = 'sandbox';
+        /**
+         * 唯一标识符
+         * @var {string} _id
+         * @memberOf Sandbox#
+         */
+        this._id = options._id;
+        this._hostType = options._hostType;
+        /**
+         * 子集
+         * @var {SandboxChildren[]} _children
+         * @memberOf Sandbox#
+         * @private
+         */
+        this._children = [];
+
+        this._events = [];
+
+        // this.mediator = core.createMediator();
+
+    }
+
+    /**@lends Sandbox# */
+    var proto = {
+        constructor: Sandbox,
+        /**
+         * 为沙箱记录日志
+         */
+        log: function (msg, type) {
             type || (type = 'log');
             core.logger.setName(this._hostType + '(' + this.name + ')');
             if (_.isArray(msg)) {
@@ -3308,18 +3368,37 @@ define('core/sandbox',[
                 core.logger[type](msg);
             }
             core.logger.setName();
-        };
-
-        Sandbox.prototype.getConfig = core.getConfig;
-
-        // 监听
-        Sandbox.prototype.on = attachListener('on');
-
-        // 监听一次
-        Sandbox.prototype.once = attachListener('once');
-
-        // 移除监听
-        Sandbox.prototype.off = function (name, listener) {
+        },
+        /**
+         * 获取全局配置
+         * @function
+         * @see {@link veronica.getConfig}
+         */
+        getConfig: core.getConfig,
+        /**
+         * 订阅消息
+         * @function
+         * @param {string} name - 名称
+         * @param {function} listener - 监听器
+         * @param {object} context - 执行监听器的上下文
+         * @param {string} tag - 监听标记
+         */
+        on: attachListener('on'),
+        /**
+         * 订阅一次
+         * @function
+         * @param {string} name - 名称
+         * @param {function} listener - 监听器
+         * @param {object} context - 执行监听器的上下文
+         * @param {string} tag - 监听标记，在移除时，可根据该标记进行识别
+         */
+        once: attachListener('once'),
+        /**
+         * 取消单个订阅
+         * @param {string} name - 消息名称
+         * @param {function} listener - 监听器
+         */
+        off: function (name, listener) {
             var mediator = core.mediator;
             if (!this._events) {
                 return;
@@ -3331,10 +3410,13 @@ define('core/sandbox',[
                 }
                 return ret;
             });
-        };
-
-        // 广播事件
-        Sandbox.prototype.emit = function () {
+        },
+        /**
+         * 发布消息
+         * @param {string} name - 消息名称
+         * @param {...*} params - 消息参数
+         */
+        emit: function () {
             var mediator = core.mediator;
             var app = core.app;
             var eventData = Array.prototype.slice.call(arguments);
@@ -3350,10 +3432,12 @@ define('core/sandbox',[
             } else {
                 emitFunc();
             }
-        };
-
-        // 停止该沙箱中的消息监听
-        Sandbox.prototype.stopListening = function (tag) {
+        },
+        /**
+         * 批量停止消息订阅
+         * @param {string} [tag] - 只停止带有该标记的订阅
+         */
+        stopListening: function (tag) {
             var mediator = core.mediator;
             var events = this._events;
 
@@ -3369,27 +3453,35 @@ define('core/sandbox',[
             _(events).each(function (evt) {
                 mediator.off(evt.name, evt.callback);
             });
-        };
-
-        // 通过沙箱开启插件，所开启的插件成为该插件的子插件
-        Sandbox.prototype.startWidgets = function (list, page, tag) {
+        },
+        /**
+         * 启动新的 widget，所开启的 widget 成为该 widget 的子 widget
+         * @param {Array} list - widget 配置列表
+         * @param {string} page - 所属页面
+         * @param {string} callerId - 启动这些widget的对象标记
+         * @returns {Promise}
+         */
+        startWidgets: function (list, page, callerId) {
             var app = core.app;
 
             return app.widget.start(list, _.bind(function (widget) {
                 var sandbox = widget.sandbox;
-                sandbox._parent = this._ref;
-                this._children.push({ ref: sandbox._ref, caller: tag });
+                sandbox._parent = this._id;
+                this._children.push({ ref: sandbox._id, caller: callerId });
             }, this), page);
-        };
-
-        // 停止并销毁该沙箱
-        Sandbox.prototype.stop = function () {
+        },
+        /**
+         * 停止并销毁该沙箱及其宿主
+         */
+        stop: function () {
             var app = core.app;
             app.widget.stop(this);
-        };
-
-        // 停用子部件
-        Sandbox.prototype.stopChildren = function (callerId) {
+        },
+        /**
+         * 停用并销毁子沙箱及其宿主对象
+         * @param {string} [callerId] - 调用者标识符，传入该参数，可只销毁拥有该调用者标识的沙箱
+         */
+        stopChildren: function (callerId) {
             var children = this._children;
             var app = core.app;
 
@@ -3403,67 +3495,96 @@ define('core/sandbox',[
                 return app.sandboxes.get(cd.ref);
             }), 'stop');
 
-        };
+        },
+        /**
+         * 获取宿主对象
+         * @returns {Object}
+         */
+        getHost: function () { }
+    };
 
-        return Sandbox;
-    })();
+    Sandbox.prototype = proto;
 
     return Sandbox;
 });
 
 define('app/sandboxes',[
-    '../core/core',
     '../core/sandbox'
-], function (core, Sandbox) {
+], function (Sandbox) {
 
     'use strict';
 
-    var _ = core._;
 
     return function (app) {
-        app.sandboxes = {
+
+        var core = app.core;
+        var _ = core._;
+
+        /**
+         * 管理所有沙箱
+         * @namespace
+         * @memberOf Application#
+         */
+        var sandboxes = {
             _sandboxPool: {}
         };
 
-        // 创建沙箱
-        app.sandboxes.create = function (ref, widgetName, hostType) {
+        /**
+         * 创建沙箱
+         * @param {string} name - 沙箱名称
+         * @param {veronica.enums.hostType} [hostType=WIDGET] - 宿主类型
+         * @returns {Sandbox}
+         */
+        sandboxes.create = function (name, hostType) {
+            var id = _.uniqueId('sandbox$');
+            hostType || (hostType = core.enums.hostType.WIDGET);
+            var sandbox = new Sandbox({
+                name: name,
+                _id: id,
+                _hostType: hostType,
+                app: core.app
+            });
 
-            var sandbox = new Sandbox;
             var sandboxPool = this._sandboxPool;  // 沙箱池
-
-            // 即使是相同的插件的sandbox都是唯一的
-            if (sandboxPool[ref]) {
-                throw new Error("Sandbox with ref " + ref + " already exists.");
+            if (sandboxPool[id]) {
+                throw new Error("Sandbox with ref " + id + " already exists.");
             } else {
-                sandboxPool[ref] = sandbox;
+                sandboxPool[id] = sandbox;
             }
-
-            sandbox.name = widgetName;
-            sandbox._ref = ref;
-            sandbox._hostType = hostType;
-            sandbox.app = core.app;
 
             return sandbox;
         };
 
-        // 销毁指定的沙箱
-        app.sandboxes.remove = function (ref) {
-            this._sandboxPool[ref] = null;
-            delete this._sandboxPool[ref];
+        /**
+         * 移除沙箱
+         * @param {string} id - 沙箱标识符
+         */
+        sandboxes.remove = function (id) {
+            this._sandboxPool[id] = null;
+            delete this._sandboxPool[id];
         };
 
-        // 从沙箱集合中根据引用获取沙箱
-        app.sandboxes.get = function (ref) {
-            var o = this._sandboxPool[ref];
-            return o;
+        /**
+         * 从沙箱集合中根据引用获取沙箱
+         * @param {string} id - 沙箱标识符
+         * @returns {Sandbox}
+         */
+        sandboxes.get = function (id) {
+            return this._sandboxPool[id];
         };
 
-        // 根据插件名称获取沙箱
-        app.sandboxes.getByName = function (name) {
+        /**
+         * 根据插件名称获取沙箱
+         * @param {string} name - 沙箱名称
+         * @returns {Sandbox[]}
+         */
+        sandboxes.getByName = function (name) {
             return _(this._sandboxPool).filter(function (o) {
                 return o.name === name;
             });
         };
+
+        app.sandboxes = sandboxes;
     };
 
 });
@@ -3472,24 +3593,28 @@ define('core/widget',[],function () {
 
     'use strict';
 
+    /**
+     * @classdesc Widget
+     * @class Widget
+     * @param {function} executor - 创建 widget 基础对象的方法
+     * @param {WidgetConfig} options - 配置
+     * @param {Application} app - 当前应用程序
+     * @see {@link View} 查看关于视图的更多信息（widget 对象一般是一个视图，称为“主视图”）
+     */
     var Widget = function (executor, options, app) {
         var core = app.core;
+        var $ = core.$;
         var pageName = options._page;
         var name = options._name;
         var funcResult;  // 部件函数执行结果
         var widgetObj;
-        var sandboxRef = _.uniqueId('sandbox$');
-        var WIDGET_TYPE = core.constant.WIDGET_TYPE;
-        var WIDGET_CLASS = core.constant.WIDGET_CLASS;
-        var WIDGET_TAG = core.constant.WIDGET_TAG;
-        var SANDBOX_REF_NAME = core.constant.SANDBOX_REF_NAME;
-        var sandbox = app.sandboxes.create(sandboxRef, name, WIDGET_TYPE);
-        var $ = app.core.$;
+
+        var sandbox = app.sandboxes.create(name);
 
         var defaults = {
             _name: null,
             _page: null,
-            _sandboxRef: sandboxRef,
+            _sandboxRef: sandbox._id,
             _exclusive: false,
             sandbox: sandbox
         };
@@ -3504,20 +3629,28 @@ define('core/widget',[],function () {
             console.warn('Widget should return an object. [errorWidget:' + name);
         } else {
             widgetObj = _.isFunction(funcResult) ? funcResult(options) : funcResult;
+            /**
+             * @var {string} name - 名称
+             * @memberOf Widget#
+             */
             widgetObj._name = options._name;
+
             widgetObj.sandbox = sandbox;
+            /**
+             * @var {WidgetConfig} options - 配置项
+             * @memberOf Widget#
+             */
             widgetObj.options || (widgetObj.options = options);
 
             widgetObj.$el && widgetObj.$el
                 .addClass(sandbox.name)
-                .addClass(WIDGET_CLASS)
-                .data(WIDGET_CLASS, sandbox.name)
-                .data(WIDGET_TAG, options._tag)
-                .data(SANDBOX_REF_NAME, sandbox._ref);  // 在该元素上保存对插件对象的引用
+                .addClass(core.constant.WIDGET_CLASS)
+                .data(core.constant.WIDGET_CLASS, sandbox.name)
+                .data(core.constant.WIDGET_TAG, options._tag)
+                .data(core.constant.SANDBOX_REF_NAME, sandbox._id);  // 在该元素上保存对插件对象的引用
 
-            // 获取 widget 实例对象
-            sandbox._widgetObj = function () {
-                return app.widget._widgetsPool[sandbox._ref];
+            sandbox.getHost = function () {
+                return app.widget._widgetsPool[sandbox._id];
             };
         }
 
@@ -3527,6 +3660,7 @@ define('core/widget',[],function () {
 
     return Widget;
 });
+
 // 加载模块
 define('app/widget',[
     '../core/widget'
@@ -3730,8 +3864,29 @@ define('app/widget',[
         };
 
         /**
+         * widget 启动时配置
+         * @typedef WidgetStartConfig
+         * @property {string} name - widget 名称（配置时名称）
+         * @property {object} options - 选项
+         * @property {string} options._source - 源
+         * @property {string|DOM|jQueryObject} options.host - 附加到该DOM元素的子集
+         * @property {string|DOM|jQueryObject} options.el - 附加到该DOM元素
+         * @property {string} options._exclusive - 是否独占式
+         */
+
+        /**
+         * widget 创建时配置，他继承部分启动时配置，不需要自己创建
+         * @typedef WidgetConfig
+         * @property {string} _name - widget名称
+         * @property {string} [_page] - 所属页面名称
+         * @property {string} _sandboxRef - 沙箱标识符（自动生成）
+         * @property {Sandbox} sandbox - 沙箱（自动生成）
+         * @see {@link WidgetStartConfig} 其他属性请查看启动时配置的 `options` 属性
+         */
+
+        /**
          * 启动一个或一组 widget
-         * @param {array|object} list - widget 配置（列表）
+         * @param {WidgetStartConfig[]|WidgetStartConfig} list - widget 配置（列表）
          * @param {function} [callback] - 每个widget加载完毕后执行的回调
          * @param {string} [page] - 当前加载的widget列表所属的页面名称
          * @returns {Promise}
@@ -3750,14 +3905,14 @@ define('app/widget',[
             _.each(list, function (config) {
                 var options = config.options || {};
                 var host = options.host;
-                var widgetName = config.name;
+                var name = config.name;
 
-                if (widgetName === 'empty') {
+                if (name === 'empty') {
                     widget.clear(host, options._exclusive);
                 }
 
                 if (widget._allowLoad(config)) {
-                    var loadDf = app.widget.load(widgetName, options, page);
+                    var loadDf = app.widget.load(name, options, page);
                     promises.push(loadDf);
                 }
 
@@ -3850,19 +4005,24 @@ define('app/widget',[
             });
 
             return widgetName !== 'empty' &&
-                        (noSameNameWidget || (!noSameNameWidget && !allSame));
+                        (noSameNameWidget || !allSame);
         }
 
         widget.add = function (wg) {
-            widget._widgetsPool[wg.options.sandbox._ref] = wg;
+            widget._widgetsPool[wg.options.sandbox._id] = wg;
         }
 
         widget.create = function (executor, options) {
             return Widget(executor, options, app);
         }
 
-        widget.get = function (ref) {
-            return widget._widgetsPool[ref];
+        widget.get = function (id) {
+            return widget._widgetsPool[id];
+        }
+
+        widget.remove = function (id) {
+            app.widget._widgetsPool[id] = null;
+            delete app.widget._widgetsPool[id];
         }
 
         /**
@@ -3879,16 +4039,17 @@ define('app/widget',[
                 });
             } else {
                 // 2. 传入 sandbox 实例
+                var sandbox;
                 if (tag.type && tag.type === 'sandbox') {
-                    var sandbox = tag;
+                    sandbox = tag;
                     var widgetObj;
                     if (!sandbox) {
                         return;
                     }
 
                     // 获取 widget 对象
-                    if (sandbox._widgetObj) {
-                        widgetObj = sandbox._widgetObj();
+                    if (sandbox.getHost) {
+                        widgetObj = sandbox.getHost();
                         // TODO: 这里为什么不移除？？
                         if (widgetObj && widgetObj.loadingTemplate) { return; }
                     }
@@ -3897,11 +4058,11 @@ define('app/widget',[
                     var parentSandbox = app.sandboxes.get(sandbox._parent);
                     if (parentSandbox) {
                         parentSandbox._children.splice(_(parentSandbox._children).indexOf2(function (cd) {
-                            return cd.ref === sandbox._ref;
+                            return cd.ref === sandbox._id;
                         }), 1);
                     }
                     // 从全局移除该沙箱
-                    app.sandboxes.remove(sandbox._ref);
+                    app.sandboxes.remove(sandbox._id);
 
                     // 停用所有子 widget
                     sandbox.stopChildren();
@@ -3919,19 +4080,17 @@ define('app/widget',[
                         widgetObj.sandbox = null;
 
                         // 全局移除部件对象
-                        app.widget._widgetsPool[sandbox._ref] = null;
-                        delete app.widget._widgetsPool[sandbox._ref];
+                        app.widget.remove(sandbox._id);
                     }
 
                     // 在 requirejs 中移除对该插件的引用
-                    app.widget._unload(sandbox._ref);
+                    // app.widget._unload(sandbox._id);  // BUG
                     return;
                 } else {
 
                     // 3. 传入 jQuery 对象
-                    var sandboxRef, sandbox;
                     var el = tag;
-                    sandboxRef = $(el).data(SANDBOX_REF_NAME);
+                    var sandboxRef = $(el).data(SANDBOX_REF_NAME);
                     var childWidgets = $(el).find('.' + WIDGET_CLASS);
                     if (childWidgets.length > 0) {
                         _.each(childWidgets, function (ele) {
@@ -3953,8 +4112,8 @@ define('app/widget',[
          */
         widget.recycle = function () {
             _(app.sandboxes._sandboxPool).each(function (sandbox) {
-                if (!sandbox._widgetObj) return;
-                var widgetObj = sandbox._widgetObj();
+                if (!sandbox.getHost) return;
+                var widgetObj = sandbox.getHost();
                 if (widgetObj.$el && widgetObj.$el.closest(document.body).length === 0) {
                     // TODO 此种方法可能存在性能问题
                     app.widget.stop(sandbox);
@@ -3978,7 +4137,7 @@ define('app/widget',[
                     }
                 }
             }
-           
+
         };
 
         app.widget = widget;
@@ -4750,6 +4909,12 @@ define('app/view',[
                 var me = this;
 
                 options || (options = {});
+
+                /**
+                 * @var {string} cid - 视图唯一标识符
+                 * @memberOf View#
+                 */
+
                 /**
                  * 默认绑定视图对象到函数上下文的函数
                  * @name binds
@@ -4815,10 +4980,7 @@ define('app/view',[
                     defaultToolbarTpl: '.tpl-toolbar',
                     /**
                      * @deprecated
-                     */
-                    autoBind: false,
-                    /**
-                     * @deprecated
+                     * @private
                      */
                     lazyTemplate: false,
                     windowOptions: false,
@@ -5089,7 +5251,7 @@ define('app/view',[
                 this.options.sandbox.stopListening(this.cid);
             },
             /**
-             * 启用子部件
+             * 启用子部件，会自动附加该视图标识符作为标记
              * @param {object[]} list 部件配置列表
              */
             startWidgets: function (list) {
@@ -7156,6 +7318,11 @@ define('app/app',[
     'use strict';
 
     /**
+     * jQuery 延迟对象
+     * @typedef Promise
+     */
+
+    /**
      * 是一个 `Application` 类的实例，在`global` 设为 `true` 的情况下，可通过`window.__verApp`访问
      * @name app
      * @type {Application}
@@ -7246,7 +7413,7 @@ define('app/app',[
 
         core.app = app;
 
-        app.sandbox = app.sandboxes.create('app-' + app.name, app.name, 'app');
+        app.sandbox = app.sandboxes.create(app.name, core.enums.hostType.APP);
 
         if (app.config.global) { window.__verApp = app; }
 
