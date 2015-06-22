@@ -19,7 +19,7 @@
         "url": "https://github.com/gochant/veronica.git"
     },
     "dependencies": {
-        "jquery": ">=1.7",
+        "jquery": "^1.11",
         "underscore": ">=1.7"
     },
     "devDependencies": {
