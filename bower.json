@@ -29,6 +29,8 @@
         "requirejs": "^2.1.18",
         "almond": "^0.3.1",
         "art-dialog": "^6.0.4",
-        "bootstrap": "^3.3.4"
+        "bootstrap": "^3.3.4",
+        "requirejs-ver": "~0.1.0",
+        "tinyui": "~0.1.0"
     }
 }

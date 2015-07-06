@@ -1,0 +1,16 @@
+{
+    "name": "demo",
+    "dependencies": {
+        "jquery": "^1.11",
+        "underscore": ">=1.7",
+        "require-css": "^0.1.7",
+        "requirejs-text": "^2.0.14",
+        "requirejs": "^2.1.18",
+        "requirejs-ver": "~0.1.0",
+        "tinyui": "~0.1.0",
+        "jquery-placeholder": "latest",
+        "jquery.inputmask": "latest",
+        "font-awesome": "latest",
+        "echarts": "~2.2.5"
+    }
+}

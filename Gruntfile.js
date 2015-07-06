@@ -15,7 +15,7 @@ module.exports = function (grunt) {
                         'underscore': '../bower_components/underscore/underscore',
                         'jquery': 'empty:',
                         'eventemitter': '../bower_components/eventemitter2/lib/eventemitter2',
-                        'art-dialog': '../assets/artDialog/dist/dialog-plus',
+                        'art-dialog': '../lib/assets/artDialog/dist/dialog-plus',
                         'text': '../bower_components/requirejs-text/text'
                     },
                     'shim': {

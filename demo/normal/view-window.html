@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>simpe page</title>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <link href="../../bower_components/tiny/dist/css/bootstrap.css" rel="stylesheet" />
+    <style>
+        .modal-dialog {
+            width: auto !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div data-ver-role="hello-veronica" data-options='{ "hi": "Hello", "name": "Veronica!"  }'>
+        <%= data.hi %> <%= data.name %>
+        <button data-action="test">Test</button>
+    </div>
+    <div data-ver-role="hello-veronica" data-options='{ "hi": "Hello", "name": "Veronica22!"  }'>
+        <%= data.hi %> <%= data.name %>
+        <button data-action="test">Open HTMLWindow</button>
+        <button data-action="test2">Open HTMLWindow2</button>
+        <button data-action="test1">Open WidgetWindow</button>
+        <button data-view="test">Test ViewWindow</button>
+        <button data-action="alert">Test Alert</button>
+    </div>
+    <script src="../../bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../../bower_components/underscore/underscore-min.js"></script>
+    <script src="../../dist/veronica.js"></script>
+    <script>
+        // create app
+        var app = veronica.createApp();
+
+        // create view: test
+        app.view.define({
+            name: 'test',
+            template: 'This is View'
+        });
+        app.widget.register('sub-widget', {
+            template: '<strong><%= data.hi %></strong> <%= data.name %>'
+        });
+        // create widget: hello-veronica
+        app.widget.register('hello-veronica', {
+            defaults: {
+                autoAction: true
+            },
+            initAttr: function () {
+                this.win1Name = this.windowName();
+                this.win2Name = this.windowName();
+            },
+            testHandler: function () {
+                this.window({
+                    name: this.win1Name,
+                    el: '<div>hello</div><div class="footer">footer</div>',
+                    footer: true,
+                    options: {
+                        drag: true
+                    }
+                });
+            },
+            enhance: function () {
+
+            },
+            test2Handler: function () {
+                this.htmlWindow('<div>Very Special Day</div>', {
+                    title: 'HHHH'
+                });
+            },
+            alertHandler: function () {
+                app.ui.confirm("确定关闭窗口？");
+            },
+            test1Handler: function () {
+
+                this.widgetWindow('sub-widget', {
+                    hi: 'WWW',
+                    name: 'YOUr Name'
+                }, {
+                    options: {
+                        width: 800,
+                        height: 300
+                    }
+                });
+            }
+        });
+
+        app.launch({ parse: true });
+
+    </script>
+</body>
+</html>

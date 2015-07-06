@@ -2092,6 +2092,9 @@ define('util/util',[
             dfd.reject();
             return dfd.promise();
         },
+        normalizePath: function (path) {
+            return path.replace('//', '/');
+        },
         /**
          * 分隔传入的 name 为 nameParts
          * @private
@@ -2903,7 +2906,15 @@ define('app/layout',[
              * ```
              */
             add: function (layout) {
-                $.extend(this._layouts, layout);
+                var me = this;
+                $.each(layout, function (i, lay) {
+                    if (_.isString(lay)) {
+                        lay = {
+                            html: lay
+                        };
+                    }
+                    me._layouts[i] = lay;
+                });
                 return this;
             },
             /**
@@ -3856,7 +3867,7 @@ define('app/widget',[
 
                 return {
                     name: name,
-                    location: widgetPath + '/' + widgetName,
+                    location: core.util.normalizePath(widgetPath + '/' + widgetName),
                     main: 'main'
                 };
             });
@@ -4181,7 +4192,7 @@ define('app/widget',[
             _(app.sandboxes._sandboxPool).each(function (sandbox) {
                 if (!sandbox.getHost) return;
                 var widgetObj = sandbox.getHost();
-                if (widgetObj.$el && widgetObj.$el.closest(document.body).length === 0) {
+                if (widgetObj && widgetObj.$el && widgetObj.$el.closest(document.body).length === 0) {
                     // TODO 此种方法可能存在性能问题
                     app.widget.stop(sandbox);
                 }
@@ -5655,16 +5666,16 @@ define('app/router',[],function () {
          * 开启路由，创建路由实例
          */
         router.start = function (obj) {
-            var router = router.create(obj);
+            var r = router.create(obj);
             /**
              * 路由实例
              * @name instance
              * @type {Backbone.Router}
              * @memberOf Application#router
              */
-            router.instance = router;
+            router.instance = r;
             app.core.history.start({ pushState: false });
-            return router;
+            return r;
         }
 
         /**
@@ -5674,6 +5685,8 @@ define('app/router',[],function () {
         router.navigate = function (fragment, options) {
             router.instance.navigate(fragment, options);
         }
+
+        app.router = router;
 
         return router;
     };
@@ -7459,19 +7472,24 @@ define('app/ui/dialog',[
         app.ui || (app.ui = {});
         app.ui.dialog = dialog;
         app.ui.confirm = function (content, successCallback, cancelCallback) {
-            app.ui.dialog({
-                width: 250,
-                quickClose: true,
-                content: "<div class='confirm_content'>"+content+"</div>" ||"<div class='confirm_content'>确认进行该操作？</div>",
-                okValue: '确定',
-                ok: function () {
-                    successCallback && successCallback();
-                },
-                cancelValue: '取消',
-                cancel: function () {
-                    cancelCallback && cancelCallback();
-                }
-            }).showModal();
+            if (window.confirm(content)) {
+                successCallback && successCallback();
+            } else {
+                cancelCallback && cancelCallback();
+            }
+            //app.ui.dialog({
+            //    width: 250,
+            //    quickClose: true,
+            //    content: "<div class='confirm_content'>"+content+"</div>" ||"<div class='confirm_content'>确认进行该操作？</div>",
+            //    okValue: '确定',
+            //    ok: function () {
+            //        successCallback && successCallback();
+            //    },
+            //    cancelValue: '取消',
+            //    cancel: function () {
+            //        cancelCallback && cancelCallback();
+            //    }
+            //}).showModal();
         };
     };
 });
