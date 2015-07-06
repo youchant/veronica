@@ -1,5 +1,6 @@
 define([
-    'text!./index.html'
+    'text!./index.html',
+    'css!./index.css'
 ], function (tpl) {
     return {
         template: tpl

@@ -9,6 +9,10 @@ require(['./require-conf'], function (config) {
                 name: 'dashboard',
                 source: './modules',
                 widgetPath: ''
+            }, {
+                name: 'user-control',
+                source: './modules',
+                widgetPath: ''
             }],
             homePage: 'dashboard'
         });

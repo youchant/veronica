@@ -112,29 +112,89 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
     });
 
     describe('app', function () {
-        var app = veronica.createApp();
+        var app;
+        var $;
+        var $host;
+
+        // create a simple widget
+        function createWiget() {
+            var widgetName = 'hello';
+            app.widget.register(widgetName, {});
+
+            app.widget.start({
+                name: widgetName,
+                options: {
+                    host: $host
+                }
+            });
+
+            var $el = $host.find('.' + widgetName);
+            return app.sandboxes.get($el.data(app.core.constant.SANDBOX_REF_NAME));
+        }
+
+        beforeEach(function () {
+            app = veronica.createApp();
+            $ = app.core.$;
+            $host = $('<div></div>');
+        })
 
         describe('widget', function () {
-            describe('#package', function () {
+            describe('.package', function () {
                 it('should run ok', function () {
                     app.widget.package();
                 });
             });
-            describe('#start', function () {
+            describe('.register', function () {
                 it('should run ok', function () {
-                    app.widget.start({});
+
+                    app.widget.register({});
+                    console.log(app.widget);
                 });
             });
-            describe('#register', function () {
-                it('should run ok', function () {
-                    app.widget.register({}, {});
+            describe('.start', function () {
+                it('should create a widget', function () {
+
+                    var sandbox = createWiget();
+                    var widget = sandbox.getHost();
+                    var $el = widget.$el;
+
+                    $el.length.should.to.equal(1);
+                    widget._name.should.to.equal('hello');
+                    widget.sandbox.should.to.equal(sandbox);
+                    $el.parent().get(0).should.to.equal($host.get(0));
+                    $el.hasClass(app.core.constant.WIDGET_CLASS).should.to.be.true;
+                    (sandbox instanceof app.sandboxes.ctor()).should.to.be.true;
                 });
             });
-            describe('#stop', function () {
-                it('should run ok', function () {
-                    app.widget.stop({});
+            describe('.stop', function () {
+                it('should run ok when incoming Sandbox', function () {
+                    var sandbox = createWiget();
+
+                    app.widget.stop(sandbox);
+
+                    should.not.exist(app.sandboxes.get(sandbox.id));
+                    $host.children().length.should.to.equal(0);
+                });
+                it('should run ok when incoming jQuery element', function () {
+                    var sandbox = createWiget();
+
+                    app.widget.stop($host);
+
+                    $host.children().length.should.to.equal(0);
+                });
+                it('should run ok when incoming widget name', function () {
+                    var sandbox = createWiget();
+
+                    app.widget.stop(sandbox.name);
+
+                    $host.children().length.should.to.equal(0);
                 });
             });
         })
+
+
+        describe('view', function () {
+
+        });
     });
 });

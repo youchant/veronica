@@ -11,7 +11,8 @@ define(function (require) {
                 name: '“«±Ì≈Ã',
                 layout: 'dashboard',
                 widgets: [
-                    'hello-veronica@#hard@dashboard'
+                    'hello-veronica@#hard@dashboard',
+                    'charts@#hard@dashboard'
                 ]
             }
         }]);

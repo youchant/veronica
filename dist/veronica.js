@@ -1995,7 +1995,7 @@ define('util/util',[
     }
 
     _.mixin({
-        indexOf2: function (array, test) {
+        findIndex: function (array, test) {
             var indexOfValue = _.indexOf;
             if (!_.isFunction(test)) return indexOfValue(array, test);
             for (var x = 0; x < array.length; x++) {
@@ -4135,7 +4135,7 @@ define('app/widget',[
                     // 从父元素中移除该沙箱
                     var parentSandbox = app.sandboxes.get(sandbox._parent);
                     if (parentSandbox) {
-                        parentSandbox._children.splice(_(parentSandbox._children).indexOf2(function (cd) {
+                        parentSandbox._children.splice(_(parentSandbox._children).findIndex(function (cd) {
                             return cd.ref === sandbox._id;
                         }), 1);
                     }
