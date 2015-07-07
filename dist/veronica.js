@@ -3832,31 +3832,26 @@ define('app/widget',[
 
                 if (isRelease) {
                     widgetPath = app.config.releaseWidgetPath;
-
-                    //if (mod && mod.config.build) {
-                    //    widgetPath = (_.template(mod.config.build, {
-                    //        interpolate: /\{\{(.+?)\}\}/g
-                    //    }))({
-                    //        dir: '',
-                    //        baseUrl: './',
-                    //        type: 'widgets'
-                    //    });
-                    //}
-
                 } else {
 
-                    // 如果该 source 源下对应的 module 配置为多层级放置 widget
                     if (mod && mod.config.multilevel) {
 
+                        // 如果该 source 源下对应的 module 配置为多层级放置 widget
                         widgetName = _.reduce(widgetNameParts, function (memo, name, i) {
-                            if (i === 1) {
-                                return core.util.camelize(name);
-                            }
+                            // 因为第0项是全名称，所以直接跳过
                             if (name === '') {
                                 return memo;
                             }
+                            var cname = core.util.camelize(name);
+                            if (i === 1) {
+                                // 如果第一个与source名称相同，则不要重复返回路径
+                                if (cname === core.util.camelize(widgetSource)) {
+                                    return '';
+                                }
+                                return cname;
+                            }
 
-                            return core.util.camelize(memo) + '/' + core.util.camelize(name);
+                            return core.util.camelize(memo) + '/' + cname;
 
                         });
                     }

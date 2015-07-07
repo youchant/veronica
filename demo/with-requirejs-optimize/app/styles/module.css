@@ -1,15 +1,1 @@
-/*
-combined files : 
-
-..\..\app-release\parts\hello-veronica\index.css
-*/
-
-
-.hello-veronica {
-    background-image: url(../parts/hello-veronica/test.png);
-}
-    .hello-veronica strong {
-        color: green;
-    }
-
 

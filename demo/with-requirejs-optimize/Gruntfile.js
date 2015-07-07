@@ -8,35 +8,43 @@ module.exports = function (grunt) {
             defaults: {
                 options: {
                     appDir: './app',
-                    baseUrl: './entries',
+                    baseUrl: './',
                     dir: './app-release',
-                    reqConfig: require('./app/require-conf.js')('../../../../bower_components'),
+                    reqConfig: require('./app/require-conf.js')('../../bower_components'),
                     clean: [
-                      './app-release/parts/**/*.css',
-                      './app-release/parts/**/*.html',
-                      './app-release/widgets',
+                      './app-release/widgets/**/*.css',
+                      './app-release/widgets/**/*.html',
+                      './app-release/modules',
                       './app-release/**/require-conf.js'
                     ],
-                    notMerge: ['jquery'],
+                    notMerge: [],
                     optimize: false,
                     entryPack: [{
                         name: './main',
-                        include: ['../require-conf', 'veronica']
+                        include: ['./require-conf', 'veronica', 'jquery', 'underscore',
+                            'text', 'css', './modules/dashboard/main', './modules/user-control/main']
                     }, {
                         name: './main2',
-                        include: ['../require-conf', 'veronica']
+                        include: ['./require-conf', 'veronica', 'jquery', 'underscore',
+                           'text', 'css']
                     }],
                     jsPack: {
+                        defaults: {
+                            target: './widgets2'
+                        },
                         paths: [{
-                            name: '',
-                            origin: '../widgets',
-                            target: '../parts'
+                            name: 'dashboard'
+                        }, 'user-control', {
+                            name: 'others',
+                            origin: './modules/others',
+                            target: './widgets',
+                            unique: true
                         }]
                     },
                     cssPack: {
                         mode: 'all',
                         name: 'module.css',
-                        src: ['../parts'],
+                        src: ['./widgets'],
                         target: './app-release/styles'
                     }
                 }
