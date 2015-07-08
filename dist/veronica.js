@@ -4523,13 +4523,15 @@ define('app/view/view-window',[],function () {
 
             var $root = getChildRoot(wnd);
 
-            _(configs).each(function (config) {
+            var paramConfigs = _(configs).map(function (refConfig) {
+                var config = $.extend({}, refConfig);
                 config.options || (config.options = {});
                 config.options.host = config.options.host ? $root.find(config.options.host) : $root;
                 config.options.parentWnd = wnd;
+                return config;
             });
 
-            this.startWidgets(configs).done(function () {
+            this.startWidgets(paramConfigs).done(function () {
                 removeLoading(wnd.element);
             });
         };
@@ -4539,7 +4541,8 @@ define('app/view/view-window',[],function () {
             var parentView = this;
             var $root = getChildRoot(wnd);
 
-            _.each(configs, function (config) {
+            _.each(configs, function (refConfig) {
+                var config = $.extend({}, refConfig);
                 var name = config.name;
                 config.options = _.extend({
                     host: $root,
@@ -4583,6 +4586,7 @@ define('app/view/view-window',[],function () {
             var wnd = {
                 element: $el,
                 core: dlg,
+                config: config,
                 positionTo: config.positionTo,
                 close: function () {
                     this.core.remove();
@@ -4609,7 +4613,9 @@ define('app/view/view-window',[],function () {
                     this.center();
                 },
                 setOptions: function (opt) {
-                    this.core.width(opt.width).height(opt.height).title(opt.title);
+                    opt.width && this.core.width(opt.width);
+                    opt.height && this.core.height(opt.height);
+                    opt.title && this.core.title(opt.title);
                 }
             };
 
@@ -4884,7 +4890,7 @@ define('app/view',[
              *           alert('I received this message');
              *       })
              *       this.sub ...
-             *   }             
+             *   }
              */
             subscribe: noop,
             /**
@@ -4899,7 +4905,7 @@ define('app/view',[
              *       this.listenTo ...
              *       this.listenToDelay('edit', 'saved', function(){
              *       })
-             *   }             
+             *   }
              */
             listen: noop,
             /**
@@ -4934,7 +4940,7 @@ define('app/view',[
              *              name: 'veronica'
              *          }
              *      }
-             *  }             
+             *  }
              */
             initAttr: noop,
             /**
@@ -4954,7 +4960,7 @@ define('app/view',[
              *           // 处理代码
              *       });
              *       viewModel.bind('change.xxx', function(){ });
-             *   }             
+             *   }
              */
             delegateModelEvents: noop,
             instance: noop,
@@ -5012,7 +5018,7 @@ define('app/view',[
                 this._name = options._name;
 
                 /**
-                 * 选项 
+                 * 选项
                  * @name options
                  * @memberOf View#
                  * @property {boolean} [autoAction=false] - 自动绑定Action事件
@@ -5021,14 +5027,14 @@ define('app/view',[
                  *   <button data-action="add">添加</button>
                  *   ```
                  *   如果该属性为 `true`，将自动查找该视图的 `addHandler` 方法作为该按钮点击事件的处理函数
-                 * 
+                 *
                  * @property {boolean} [autoRender=true] - 自动渲染. 视图一初始化就进行渲染
                  * @property {boolean} [autoResize=false] - 自适应窗口变化. 该属性设为true后，当窗口大小变化时，会自动调用`resize`方法，因此需要重写该方法
                  * @property {boolean} [autoCreateSubview=true] - 在视图渲染时，自动创建子视图，需设置 views 属性
                  * @property {boolean} [domReady=false] - 是否视图DOM元素已准备好，这会影响视图的首次渲染
-                 * @property {boolean} [autoST=false] - 
+                 * @property {boolean} [autoST=false] -
                  *   自动设置触发器. 该属性为true后，会广播 `setTriggers` 消息，可将该视图的工具条（由 defaultToolbarTpl 指定）
-                 *   注入到其他widget，需要额外设置 `toolbar` 项，指定该视图的注入到的widget名称                 
+                 *   注入到其他widget，需要额外设置 `toolbar` 项，指定该视图的注入到的widget名称
                  * @property {string} [toolbar='toolbar'] - 触发器放置的 widget name
                  * @property {string} [defaultToolbarTpl='.tpl-toolbar'] - 触发器默认模板的选择器
                  * @property {object} [windowOptions=false] - 设置当视图单独位于窗口中时，窗口的选项
@@ -5240,7 +5246,7 @@ define('app/view',[
             /**
              * 渲染界面
              * @param {string} [template] 模板
-             * @fires View#rendered 
+             * @fires View#rendered
              */
             render: function (template) {
                 template || (template = this.template);
@@ -5462,7 +5468,13 @@ define('app/view',[
                     return new View(options);
                 }
             } else {
-                return executor;
+                if (executor.extend) {  // 检测是否是 Backbone.View 构造函数
+                    return function (options) {
+                        return new executor(options);
+                    }
+                } else {
+                    return executor;
+                }
             }
         }
 

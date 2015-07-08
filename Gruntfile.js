@@ -52,7 +52,7 @@ module.exports = function (grunt) {
                 src: ['lib/**/*.js', 'README.md'],
                 options: {
                     verbose: true,
-                    destination: './docs',
+                    destination: './site/api',
                     configure: 'jsdoc-conf.json',
                     template: 'node_modules/jaguarjs-jsdoc',
                     'private': false

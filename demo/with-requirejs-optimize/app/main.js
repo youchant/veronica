@@ -1,10 +1,13 @@
 
 require(['./require-conf'], function (config) {
-    require.config(config('../../bower_components'));
+    var framePath = 'http://192.168.1.18:8097/cdn/bower_components';
+    var fp2 = '../../bower_components';
+    require.config(config(framePath));
 
     require(['veronica'], function (veronica) {
 
         var app = veronica.createApp({
+            global: true,
             modules: [{
                 name: 'dashboard',
                 source: './modules',
