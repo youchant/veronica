@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>快速开始 - Veronica</title>
+  
+
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "tutorial\quickstart"
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+  <script src="../../js/theme.js"></script> 
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Veronica</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">首页</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../changelog/">更新日志</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>教程</span></li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">快速开始</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#_1">快速入门</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../requirejs/">使用RequireJS</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>主题</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../topics/concept/">深入理解一些概念</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Veronica</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">文档</a> &raquo;</li>
+    
+      
+        
+          <li>教程 &raquo;</li>
+        
+      
+    
+    <li>快速开始</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="_1">快速入门</h1>
+<p>通过这个教程，你可以基于 veronica 库创建一个非常简单的 web 应用程序：Hello Veronica，并借此简单了解基于 Veronica 的应用的执行逻辑</p>
+<p>在我们的应用程序中，我们需要一个 HTML 页面，最简单的情况下，它会是如下的样子：</p>
+<ul>
+<li>hello-veronica.html</li>
+</ul>
+<pre><code>&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge,chrome=1&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+    &lt;title&gt;Hello-veronica&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div data-ver-role=&quot;hello-veronica&quot; data-options='{ &quot;hi&quot;: &quot;Hello&quot;, &quot;name&quot;: &quot;Veronica!&quot;  }'&gt;
+        &lt;strong&gt;&lt;%= data.hi %&gt; &lt;%= data.name %&gt;&lt;/strong&gt;
+    &lt;/div&gt;
+    &lt;script src=&quot;../../bower_components/jquery/dist/jquery.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../../bower_components/underscore/underscore-min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;../../dist/veronica.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;app.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>这里引入了脚本文件（根据你实际情况适当调整路径）：</p>
+<ul>
+<li>jquery</li>
+<li>underscore</li>
+<li>veronica</li>
+</ul>
+<p>这仅是一个非常普通的符合HTML5标准的页面，注意到里面有个 <code>div</code>，有两个自定义属性：</p>
+<ul>
+<li><code>data-ver-role</code>：指定该元素的 widget 名称</li>
+<li><code>data-options</code>：指定实例化该 widget 传入的配置项</li>
+</ul>
+<p>下面写一点JS代码：</p>
+<ul>
+<li>app.js</li>
+</ul>
+<pre><code class="js">// create app
+var app = veronica.createApp();
+
+// create widget: hello-veronica
+var helloVeronicaWidget = {};
+// registe widget
+app.widget.register('hello-veronica', helloVeronicaWidget);
+
+// launch app
+app.launch({ parse: true });
+</code></pre>
+
+<p>在浏览器中显示如下：</p>
+<p><img alt="预览" src="../images/preview-hello-veronica.png" /></p>
+<p><strong>需要注意的几点</strong></p>
+<ol>
+<li>widget 对象是一个普通的JS对象，在注册后会被创建为<code>Widget</code>对象的一个实例，同时它也是<code>Backbone.View</code>的实例，Veronica 对 Backbone 默认的视图进行了扩展</li>
+<li>在应用程序启动（launch）后，如果参数 <code>parse</code> 设为 <code>true</code>，那么应用程序会实例化所有具有 <code>data-ver-role</code> 属性的元素</li>
+<li><code>hello-veronica</code> 的宿主元素内部使用了 Underscore 的模板，外部传入的参数全部通过 <code>data</code> 字段进行访问</li>
+</ol>
+<p>实际上对于<code>hello-veronica</code> widget 我们什么都没写，Widget 类为我们做了大部分事情，包括如何传入参数，如何渲染模板等，下面我们改写以下定义 widget 的写法，让我们能够更多的了解在 veronica 中视图（view）的一些写法</p>
+<ul>
+<li>hello-veronica.html</li>
+</ul>
+<pre><code class="html">...
+&lt;div data-ver-role=&quot;hello-veronica&quot;&gt;&lt;/div&gt;
+...
+</code></pre>
+
+<ul>
+<li>app.js</li>
+</ul>
+<pre><code class="js">var helloVeronicaWidget = {
+    template: '&lt;strong&gt;&lt;%= data.hi %&gt; &lt;%= data.name %&gt;&lt;/strong&gt;',
+    defaults: {
+        hi: 'Hello',
+        name: 'Veronica!'
+    }
+};
+</code></pre>
+
+<p>改写后最终结果是一样的，这里通过 <code>template</code> 属性设置默认模板，通过 <code>defaults</code> 属性设置默认参数</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../requirejs/" class="btn btn-neutral float-right" title="使用RequireJS"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../../changelog/" class="btn btn-neutral" title="更新日志"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <!-- Copyright etc -->
+    </p>
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../../changelog/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../requirejs/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>

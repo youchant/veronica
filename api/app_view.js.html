@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Source: app/view.js</title>
+    
+    
+    
+    
+    
+    <meta property="og:title" content=""/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:image" content=""/>
+    
+    <meta property="og:url" content=""/>
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+    
+    
+    <script>
+    var config = {"monospaceLinks":true,"cleverLinks":true,"default":{"outputSourceFiles":true},"applicationName":"Veronica API","disqus":"","googleAnalytics":"","openGraph":{"title":"","type":"website","image":"","site_name":"","url":""},"meta":{"title":"","description":"","keyword":""},"linenums":false};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html">Veronica API</a></h3>
+
+    <div class="search">
+        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
+    </div>
+    <ul class="list">
+    
+        <li class="item" data-name="Application#data">
+            <span class="title">
+                <a href="Application_data.html">Application#data</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Application#data.get"><a href="Application_data.html#.get">get</a></li>
+            
+                <li data-name="Application#data.set"><a href="Application_data.html#.set">set</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            <span class="subtitle">Events</span>
+            
+                <li data-name="Application#data.event:change"><a href="Application_data.html#.event:change">change</a></li>
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Application#layout">
+            <span class="title">
+                <a href="Application_layout.html">Application#layout</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Application#layout.add"><a href="Application_layout.html#.add">add</a></li>
+            
+                <li data-name="Application#layout.change"><a href="Application_layout.html#.change">change</a></li>
+            
+                <li data-name="Application#layout.get"><a href="Application_layout.html#.get">get</a></li>
+            
+                <li data-name="Application#layout.init"><a href="Application_layout.html#.init">init</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            <span class="subtitle">Events</span>
+            
+                <li data-name="Application#layout.event:layoutChanged"><a href="Application_layout.html#.event:layoutChanged">layoutChanged</a></li>
+            
+                <li data-name="Application#layout.event:layoutChanging"><a href="Application_layout.html#.event:layoutChanging">layoutChanging</a></li>
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Application#module">
+            <span class="title">
+                <a href="Application_module.html">Application#module</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Application#module.add"><a href="Application_module.html#.add">add</a></li>
+            
+                <li data-name="Application#module.apply"><a href="Application_module.html#.apply">apply</a></li>
+            
+                <li data-name="Application#module.create"><a href="Application_module.html#.create">create</a></li>
+            
+                <li data-name="Application#module.get"><a href="Application_module.html#.get">get</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Application#page">
+            <span class="title">
+                <a href="Application_page.html">Application#page</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Application#page.active"><a href="Application_page.html#.active">active</a></li>
+            
+                <li data-name="Application#page.add"><a href="Application_page.html#.add">add</a></li>
+            
+                <li data-name="Application#page.change"><a href="Application_page.html#.change">change</a></li>
+            
+                <li data-name="Application#page.getCurrentName"><a href="Application_page.html#.getCurrentName">getCurrentName</a></li>
+            
+                <li data-name="Application#page.start"><a href="Application_page.html#.start">start</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            <span class="subtitle">Events</span>
+            
+                <li data-name="Application#page.event:pageLoaded"><a href="Application_page.html#.event:pageLoaded">pageLoaded</a></li>
+            
+                <li data-name="Application#page.event:pageLoading"><a href="Application_page.html#.event:pageLoading">pageLoading</a></li>
+            
+                <li data-name="Application#page.event:pageNotFound"><a href="Application_page.html#.event:pageNotFound">pageNotFound</a></li>
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Application#request">
+            <span class="title">
+                <a href="Application_request.html">Application#request</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Application#request.get"><a href="Application_request.html#.get">get</a></li>
+            
+                <li data-name="Application#request.getComplex"><a href="Application_request.html#.getComplex">getComplex</a></li>
+            
+                <li data-name="Application#request.getJSON"><a href="Application_request.html#.getJSON">getJSON</a></li>
+            
+                <li data-name="Application#request.post"><a href="Application_request.html#.post">post</a></li>
+            
+                <li data-name="Application#request.postComplex"><a href="Application_request.html#.postComplex">postComplex</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Application#router">
+            <span class="title">
+                <a href="Application_router.html">Application#router</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="Application#router.base"><a href="Application_router.html#.base">base</a></li>
+            
+                <li data-name="Application#router.instance"><a href="Application_router.html#.instance">instance</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Application#router.create"><a href="Application_router.html#.create">create</a></li>
+            
+                <li data-name="Application#router.navigate"><a href="Application_router.html#.navigate">navigate</a></li>
+            
+                <li data-name="Application#router.start"><a href="Application_router.html#.start">start</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Application#sandboxes">
+            <span class="title">
+                <a href="Application_sandboxes.html">Application#sandboxes</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Application#sandboxes.create"><a href="Application_sandboxes.html#.create">create</a></li>
+            
+                <li data-name="Application#sandboxes.get"><a href="Application_sandboxes.html#.get">get</a></li>
+            
+                <li data-name="Application#sandboxes.getByName"><a href="Application_sandboxes.html#.getByName">getByName</a></li>
+            
+                <li data-name="Application#sandboxes.remove"><a href="Application_sandboxes.html#.remove">remove</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Application#view">
+            <span class="title">
+                <a href="Application_view.html">Application#view</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="Application#view.base"><a href="Application_view.html#.base">base</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Application#view.define"><a href="Application_view.html#.define">define</a></li>
+            
+                <li data-name="Application#view.register"><a href="Application_view.html#.register">register</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Application#widget">
+            <span class="title">
+                <a href="Application_widget.html">Application#widget</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="Application#widget.isLoading"><a href="Application_widget.html#.isLoading">isLoading</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Application#widget.clear"><a href="Application_widget.html#.clear">clear</a></li>
+            
+                <li data-name="Application#widget.package"><a href="Application_widget.html#.package">package</a></li>
+            
+                <li data-name="Application#widget.register"><a href="Application_widget.html#.register">register</a></li>
+            
+                <li data-name="Application#widget.start"><a href="Application_widget.html#.start">start</a></li>
+            
+                <li data-name="Application#widget.stop"><a href="Application_widget.html#.stop">stop</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            <span class="subtitle">Events</span>
+            
+                <li data-name="Application#widget.event:widgetLoaded"><a href="Application_widget.html#.event:widgetLoaded">widgetLoaded</a></li>
+            
+                <li data-name="Application#widget.event:widgetsLoaded"><a href="Application_widget.html#.event:widgetsLoaded">widgetsLoaded</a></li>
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="veronica">
+            <span class="title">
+                <a href="veronica.html">veronica</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="veronica.$"><a href="veronica.html#.$">$</a></li>
+            
+                <li data-name="veronica._"><a href="veronica.html#._">_</a></li>
+            
+                <li data-name="veronica.app"><a href="veronica.html#.app">app</a></li>
+            
+                <li data-name="veronica.ext"><a href="veronica.html#.ext">ext</a></li>
+            
+                <li data-name="veronica.helper"><a href="veronica.html#.helper">helper</a></li>
+            
+                <li data-name="veronica.loader"><a href="veronica.html#.loader">loader</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="veronica.createApp"><a href="veronica.html#.createApp">createApp</a></li>
+            
+                <li data-name="veronica.getConfig"><a href="veronica.html#.getConfig">getConfig</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="veronica.enums">
+            <span class="title">
+                <a href="veronica.enums.html">veronica.enums</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="veronica.enums.hostType"><a href="veronica.enums.html#.hostType">hostType</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Veronica.loader">
+            <span class="title">
+                <a href="Veronica.loader.html">Veronica.loader</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Veronica.loader.require"><a href="Veronica.loader.html#.require">require</a></li>
+            
+                <li data-name="Veronica.loader.useGlobalRequire"><a href="Veronica.loader.html#.useGlobalRequire">useGlobalRequire</a></li>
+            
+                <li data-name="Veronica.loader.useGlobalRequirejs"><a href="Veronica.loader.html#.useGlobalRequirejs">useGlobalRequirejs</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="veronica.util">
+            <span class="title">
+                <a href="veronica.util.html">veronica.util</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="veronica.util.camelize"><a href="veronica.util.html#.camelize">camelize</a></li>
+            
+                <li data-name="veronica.util.decamelize"><a href="veronica.util.html#.decamelize">decamelize</a></li>
+            
+                <li data-name="veronica.util.qsToJSON"><a href="veronica.util.html#.qsToJSON">qsToJSON</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Application">
+            <span class="title">
+                <a href="Application.html">Application</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="Application#config"><a href="Application.html#config">config</a></li>
+            
+                <li data-name="Application#core"><a href="Application.html#core">core</a></li>
+            
+                <li data-name="Application#lang"><a href="Application.html#lang">lang</a></li>
+            
+                <li data-name="Application#name"><a href="Application.html#name">name</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Application#emit"><a href="Application.html#emit">emit</a></li>
+            
+                <li data-name="Application#launch"><a href="Application.html#launch">launch</a></li>
+            
+                <li data-name="Application#mixin"><a href="Application.html#mixin">mixin</a></li>
+            
+                <li data-name="Application#stop"><a href="Application.html#stop">stop</a></li>
+            
+                <li data-name="Application#use"><a href="Application.html#use">use</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            <span class="subtitle">Events</span>
+            
+                <li data-name="Application#event:appStarted"><a href="Application.html#event:appStarted">appStarted</a></li>
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Logger">
+            <span class="title">
+                <a href="Logger.html">Logger</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Logger#_time"><a href="Logger.html#_time">_time</a></li>
+            
+                <li data-name="Logger#enable"><a href="Logger.html#enable">enable</a></li>
+            
+                <li data-name="Logger#error"><a href="Logger.html#error">error</a></li>
+            
+                <li data-name="Logger#info"><a href="Logger.html#info">info</a></li>
+            
+                <li data-name="Logger#log"><a href="Logger.html#log">log</a></li>
+            
+                <li data-name="Logger#setName"><a href="Logger.html#setName">setName</a></li>
+            
+                <li data-name="Logger#warn"><a href="Logger.html#warn">warn</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Module">
+            <span class="title">
+                <a href="Module.html">Module</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="Module#config"><a href="Module.html#config">config</a></li>
+            
+                <li data-name="Module#execution"><a href="Module.html#execution">execution</a></li>
+            
+                <li data-name="Module#name"><a href="Module.html#name">name</a></li>
+            
+                <li data-name="Module#path"><a href="Module.html#path">path</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Module#addExtension"><a href="Module.html#addExtension">addExtension</a></li>
+            
+                <li data-name="Module#addLayout"><a href="Module.html#addLayout">addLayout</a></li>
+            
+                <li data-name="Module#addPage"><a href="Module.html#addPage">addPage</a></li>
+            
+                <li data-name="Module#addSource"><a href="Module.html#addSource">addSource</a></li>
+            
+                <li data-name="Module#apply"><a href="Module.html#apply">apply</a></li>
+            
+                <li data-name="Module#loadEntry"><a href="Module.html#loadEntry">loadEntry</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Sandbox">
+            <span class="title">
+                <a href="Sandbox.html">Sandbox</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="Sandbox#_id"><a href="Sandbox.html#_id">_id</a></li>
+            
+                <li data-name="Sandbox#app"><a href="Sandbox.html#app">app</a></li>
+            
+                <li data-name="Sandbox#name"><a href="Sandbox.html#name">name</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Sandbox#emit"><a href="Sandbox.html#emit">emit</a></li>
+            
+                <li data-name="Sandbox#getConfig"><a href="Sandbox.html#getConfig">getConfig</a></li>
+            
+                <li data-name="Sandbox#getHost"><a href="Sandbox.html#getHost">getHost</a></li>
+            
+                <li data-name="Sandbox#log"><a href="Sandbox.html#log">log</a></li>
+            
+                <li data-name="Sandbox#off"><a href="Sandbox.html#off">off</a></li>
+            
+                <li data-name="Sandbox#on"><a href="Sandbox.html#on">on</a></li>
+            
+                <li data-name="Sandbox#once"><a href="Sandbox.html#once">once</a></li>
+            
+                <li data-name="Sandbox#startWidgets"><a href="Sandbox.html#startWidgets">startWidgets</a></li>
+            
+                <li data-name="Sandbox#stop"><a href="Sandbox.html#stop">stop</a></li>
+            
+                <li data-name="Sandbox#stopChildren"><a href="Sandbox.html#stopChildren">stopChildren</a></li>
+            
+                <li data-name="Sandbox#stopListening"><a href="Sandbox.html#stopListening">stopListening</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="View">
+            <span class="title">
+                <a href="View.html">View</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="View#_bind"><a href="View.html#_bind">_bind</a></li>
+            
+                <li data-name="View#_customDestory"><a href="View.html#_customDestory">_customDestory</a></li>
+            
+                <li data-name="View#aspect"><a href="View.html#aspect">aspect</a></li>
+            
+                <li data-name="View#baseModel"><a href="View.html#baseModel">baseModel</a></li>
+            
+                <li data-name="View#binds"><a href="View.html#binds">binds</a></li>
+            
+                <li data-name="View#cid"><a href="View.html#cid">cid</a></li>
+            
+                <li data-name="View#className"><a href="View.html#className">className</a></li>
+            
+                <li data-name="View#defaults"><a href="View.html#defaults">defaults</a></li>
+            
+                <li data-name="View#delegateModelEvents"><a href="View.html#delegateModelEvents">delegateModelEvents</a></li>
+            
+                <li data-name="View#enhance"><a href="View.html#enhance">enhance</a></li>
+            
+                <li data-name="View#init"><a href="View.html#init">init</a></li>
+            
+                <li data-name="View#initAttr"><a href="View.html#initAttr">initAttr</a></li>
+            
+                <li data-name="View#listen"><a href="View.html#listen">listen</a></li>
+            
+                <li data-name="View#options"><a href="View.html#options">options</a></li>
+            
+                <li data-name="View#resize"><a href="View.html#resize">resize</a></li>
+            
+                <li data-name="View#subscribe"><a href="View.html#subscribe">subscribe</a></li>
+            
+                <li data-name="View#switchable"><a href="View.html#switchable">switchable</a></li>
+            
+                <li data-name="View#template"><a href="View.html#template">template</a></li>
+            
+                <li data-name="View#views"><a href="View.html#views">views</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="View#active"><a href="View.html#active">active</a></li>
+            
+                <li data-name="View#attr"><a href="View.html#attr">attr</a></li>
+            
+                <li data-name="View#destroy"><a href="View.html#destroy">destroy</a></li>
+            
+                <li data-name="View#hide"><a href="View.html#hide">hide</a></li>
+            
+                <li data-name="View#initialize"><a href="View.html#initialize">initialize</a></li>
+            
+                <li data-name="View#listenToDelay"><a href="View.html#listenToDelay">listenToDelay</a></li>
+            
+                <li data-name="View#pub"><a href="View.html#pub">pub</a></li>
+            
+                <li data-name="View#refresh"><a href="View.html#refresh">refresh</a></li>
+            
+                <li data-name="View#render"><a href="View.html#render">render</a></li>
+            
+                <li data-name="View#replaceTpl"><a href="View.html#replaceTpl">replaceTpl</a></li>
+            
+                <li data-name="View#setTriggers"><a href="View.html#setTriggers">setTriggers</a></li>
+            
+                <li data-name="View#show"><a href="View.html#show">show</a></li>
+            
+                <li data-name="View#startWidgets"><a href="View.html#startWidgets">startWidgets</a></li>
+            
+                <li data-name="View#sub"><a href="View.html#sub">sub</a></li>
+            
+                <li data-name="View#unsub"><a href="View.html#unsub">unsub</a></li>
+            
+                <li data-name="View#view"><a href="View.html#view">view</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            <span class="subtitle">Events</span>
+            
+                <li data-name="View#event:rendered"><a href="View.html#event:rendered">rendered</a></li>
+            
+                <li data-name="View#event:setTriggers"><a href="View.html#event:setTriggers">setTriggers</a></li>
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Widget">
+            <span class="title">
+                <a href="Widget.html">Widget</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="Widget#name"><a href="Widget.html#name">name</a></li>
+            
+                <li data-name="Widget#options"><a href="Widget.html#options">options</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+    </ul>
+</div>
+    <div class="main">
+        <h1 class="page-title" data-filename="app_view.js.html">Source: app/view.js</h1>
+        
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source "><code>define([
+    './view/view-mvvm',
+    './view/view-view',
+    './view/view-window'
+], function (mvvm, subview, subwindow) {
+
+    /**
+     * Backbone View Object
+     * @external Backbone.View
+     * @see {@link http://backbonejs.org/#View}
+     */
+
+    /**
+     * 事件处理函数
+     * @callback eventCallback
+     * @param {...*} param - 事件参数
+     */
+
+    /**
+     * 消息订阅处理函数
+     * @callback messageCallback
+     * @param {...*} param - 消息传递的参数
+     */
+
+
+    return function (app) {
+        var $ = app.core.$;
+        var _ = app.core._;
+        var noop = $.noop;
+        /**
+         * @classdesc 视图
+         * @class View
+         * @augments Backbone.View
+         */
+
+        /**@lends View.prototype */
+        var base = {
+            /**
+             * 根元素自定义类名
+             * @type {string}
+             * @default
+             */
+            className: 'ver-view',
+            /**
+             * 模板
+             * @type {string|function}
+             * @default
+             */
+            template: null,
+            /**
+             * 该视图的默认参数
+             * @type {object}
+             * @default
+             */
+            defaults: {},
+            /**
+             * 配置该视图的子视图
+             * @type {function|object}
+             * @default
+             */
+            views: null,
+            /**
+             * 配置该视图的子视图 **`重写`**
+             * @type {function}
+             * @default
+             * @example
+             *   aspect: function(){
+             *     this.after('initAttr', function(){
+             *         this.param = { test: 'A' }
+             *     });
+             *     this.before // ...
+             *   }
+             */
+            aspect: noop,
+            /**
+             * 订阅消息 **`重写`**
+             * @type {function}
+             * @default
+             * @example
+             *   subscribe: function(){
+             *       this.sub('setTriggers', function(){
+             *           alert('I received this message');
+             *       })
+             *       this.sub ...
+             *   }
+             */
+            subscribe: noop,
+            /**
+             * 监听自身和子视图事件 **`重写`**
+             * @type {function}
+             * @default
+             * @example
+             *   listen: function(){
+             *       this.listenTo('rendered', function(){
+             *           // 处理代码
+             *       });
+             *       this.listenTo ...
+             *       this.listenToDelay('edit', 'saved', function(){
+             *       })
+             *   }
+             */
+            listen: noop,
+            /**
+             *  **`重写`** 进行UI增强（在 `render` 过程中，需要自定义的一些行为，
+             * 通常放置一些不能被绑定初始化的控件初始化代码）
+             * @type {function}
+             * @default
+             * @example
+             *   enhance: function(){
+             *       this.$('.chart').chart({
+             *           type: 'pie',
+             *           data: ['0.3', '0.2']
+             *       })
+             *   }
+             */
+            enhance: noop,
+            /**
+             * **`重写`** 视图的自定义初始化代码
+             * @type {function}
+             * @default
+             */
+            init: noop,
+            /**
+             * **`重写`** 初始化属性
+             * @type {function}
+             * @default
+             * @example
+             *  initAttr: function(){
+             *      this.message = 'hello';
+             *      this.baseModel = {
+             *          data: {
+             *              name: 'veronica'
+             *          }
+             *      }
+             *  }
+             */
+            initAttr: noop,
+            /**
+             * **`重写`** 重写该方法，使视图自适应布局，当开启 `autoResize` 后，窗口大小变化时，该方法会被调用，
+             * 如果有必要，在该方法中应编写窗口大小变化时，该视图对应的处理逻辑
+             * @type {function}
+             */
+            resize: noop,
+            /**
+             * 处理与视图模型有关的事件绑定
+             * @type {function}
+             * @default
+             * @example
+             *   delegateModelEvents: function(){
+             *       var viewModel = this.model();
+             *       viewModel.bind('change', function(){
+             *           // 处理代码
+             *       });
+             *       viewModel.bind('change.xxx', function(){ });
+             *   }
+             */
+            delegateModelEvents: noop,
+            instance: noop,
+            /**
+             * 绑定方法
+             * @inner
+             */
+            _bind: noop,
+            /**
+             * 自定义销毁
+             * @inner
+             */
+            _customDestory: noop,
+            /**
+             * 可切换的视图集合
+             */
+            switchable: [],
+            /**
+             * 视图初始化
+             * @function
+             * @inner
+             * @listens View#rendered
+             */
+            initialize: function (options) {
+
+                var me = this;
+
+                options || (options = {});
+
+                /**
+                 * @var {string} cid - 视图唯一标识符
+                 * @memberOf View#
+                 */
+
+                /**
+                 * 默认绑定视图对象到函数上下文的函数
+                 * @name binds
+                 * @memberOf View#
+                 */
+                this.binds = ['resize'];
+
+                this._rendered = false;
+                this._windows = {};  // 子窗口集合
+                this._views = {};  // 子视图集合
+                this._delayEvents = [];
+                this._attributes = {};
+                /**
+                 * 默认的基础视图模型
+                 * @name baseModel
+                 * @memberOf View#
+                 */
+                this.baseModel = {};
+                this.viewModel = {};  // 该视图的视图模型
+                this._activeViewName = null;
+                this._name = options._name;
+
+                /**
+                 * 选项
+                 * @name options
+                 * @memberOf View#
+                 * @property {boolean} [autoAction=false] - 自动绑定Action事件
+                 *   当在模板中使用如下写法时：
+                 *   ```html
+                 *   &lt;button data-action="add">添加&lt;/button>
+                 *   ```
+                 *   如果该属性为 `true`，将自动查找该视图的 `addHandler` 方法作为该按钮点击事件的处理函数
+                 *
+                 * @property {boolean} [autoRender=true] - 自动渲染. 视图一初始化就进行渲染
+                 * @property {boolean} [autoResize=false] - 自适应窗口变化. 该属性设为true后，当窗口大小变化时，会自动调用`resize`方法，因此需要重写该方法
+                 * @property {boolean} [autoCreateSubview=true] - 在视图渲染时，自动创建子视图，需设置 views 属性
+                 * @property {boolean} [domReady=false] - 是否视图DOM元素已准备好，这会影响视图的首次渲染
+                 * @property {boolean} [autoST=false] -
+                 *   自动设置触发器. 该属性为true后，会广播 `setTriggers` 消息，可将该视图的工具条（由 defaultToolbarTpl 指定）
+                 *   注入到其他widget，需要额外设置 `toolbar` 项，指定该视图的注入到的widget名称
+                 * @property {string} [toolbar='toolbar'] - 触发器放置的 widget name
+                 * @property {string} [defaultToolbarTpl='.tpl-toolbar'] - 触发器默认模板的选择器
+                 * @property {object} [windowOptions=false] - 设置当视图单独位于窗口中时，窗口的选项
+                 * @property {object} [sharedModel=null] - 视图没有自己的视图模型，来源于该属性共享的视图模型
+                 * @property {array} [sharedModelProp=null] - 共享视图模型的属性集合
+                 *   ```
+                 *   [['destPropName', 'originPropName'], 'propName2']
+                 *   ```
+                 * @property {string} [langClass=null] - 视图所属的 language class，在模板中，可通过 `data.lang.xxx` 来访问特定的语言文本
+                 * @property {boolean} [bindEmptyModel=false] - 当视图模型没赋值时，是否也进行绑定
+                 * @property {string} [activeView=null] - 初始活动的子视图名称
+                 * @default {}
+                 * @todo 这里参数默认值合并使用了深拷贝，大多数时候其实没必要，目前实际测试速度影响暂时不大
+                 */
+                this.options = $.extend(true, {
+                    autoAction: false,
+                    autoRender: true,
+                    autoResize: false,
+                    autoCreateSubview: true,
+                    domReady: false,
+                    autoST: false,
+                    toolbar: 'toolbar',
+                    defaultToolbarTpl: '.tpl-toolbar',
+                    /**
+                     * @deprecated
+                     * @private
+                     */
+                    lazyTemplate: false,
+                    windowOptions: false,
+                    sharedModel: null,
+                    sharedModelProp: null,
+                    langClass: null,
+                    bindEmptyModel: false,
+                    activeView: null
+                }, this.defaults, options);
+
+                // 将方法绑定到当前视图
+                if (this.binds) {
+                    this.binds.unshift(this);
+                    _.bindAll.apply(_, this.binds);
+                }
+
+                // 混入AOP方法
+                app.core.util.extend(this, app.core.aspect);
+
+                this._loadPlugin();
+
+                this.aspect();
+
+                this._defaultListen();
+
+                this.listen();  // 添加子视图监听
+
+                if (this.options.autoResize) {
+                    this.listenTo(this, 'rendered', function () {
+                        _.defer(me.resize);
+                    });
+                    $(window).on('resize', this.resize);
+                }
+
+
+                (this.options.sharedModel != null) &amp;&amp; this.model(this.shareModel(this.options.sharedModel), false);
+
+                // 初始化窗口大小
+                if (this.options.parentWnd &amp;&amp; this.options.windowOptions) {
+                    this.options.parentWnd.setOptions(this.options.windowOptions);
+                    // TODO: 这里遇到 positionTo 的 window，调整大小后可能会错位
+                    this.options.parentWnd.config.center &amp;&amp; this.options.parentWnd.center();
+                }
+
+                // 初始化自定义属性
+                this.initAttr();
+
+                this.subscribe();  // 初始化广播监听
+
+                this.init();
+
+                this._autoAction();
+
+                // 渲染
+                this.options.autoRender &amp;&amp; this._firstRender();
+            },
+            _defaultListen: function () {
+                var me = this;
+                this.listenTo(this, 'modelBound', function (model) {
+                    // 更新子视图模型
+                    _(me._views).each(function (view) {
+                        if (view.options.sharedModel || view.options.sharedModelProp) {
+                            view.model(view.shareModel(model));
+                        }
+                    });
+                });
+                this.listenTo(this, 'rendering', function () {
+                    // 自动创建子视图
+                    if (this.options.autoCreateSubview) {
+                        this._createSubviews();
+                    }
+                });
+                this.listenTo(this, 'rendered', function () {
+                    // 在渲染视图后重新绑定视图模型
+                    this._bindViewModel();
+                    this.options.autoST &amp;&amp; this.setTriggers();
+
+                });
+            },
+            _autoAction: function () {
+                if (this.options.autoAction) {
+                    // 代理默认的事件处理程序
+                    this.events || (this.events = {});
+                    $.extend(this.events, {
+                        'click [data-action]': '_actionHandler',
+                        'click [data-view]': '_viewHandler',
+                        'click [data-widget]': '_widgetHandler'
+                    });
+                }
+            },
+            // 加载插件
+            _loadPlugin: function () {
+                var sandbox = this.options.sandbox;
+                var app = sandbox.app;
+                if (this.options.plugin) {
+                    this.options.plugin.call(this);
+                }
+                app.plugin &amp;&amp; app.plugin.execute(sandbox.name, this);
+            },
+            /**
+             * 获取设置属性
+             * @function
+             */
+            attr: function (name, value) {
+                if (!_.isUndefined(value)) {
+                    this._attributes[name] = value;
+                    this.trigger('attr-change', name, value);
+                }
+                return this._attributes[name];
+            },
+            /**
+              * 替换模板文件
+              * @function
+              */
+            replaceTpl: function (origin, content, isDom) {
+                if (isDom) {
+                    this.template = $('&lt;div>' + this.template + '&lt;/div>').find(origin).replaceWith(content).end().html();
+                } else {
+                    this.template = this.template.replace(origin, content);
+                }
+            },
+            /**
+              * 显示该视图
+              * @function
+              */
+            show: function () {
+                var me = this;
+                this.$el.show(false, function () {
+                    if (me.options.autoResize) {
+                        me.resize();
+                    }
+                });
+            },
+            /**
+              * 隐藏该视图
+              * @function
+              */
+            hide: function () {
+                this.$el.hide(false);
+            },
+
+            updateEl: function (selector, url, data) {
+                var $el = this.$(selector);
+                if (arguments.length > 2) {
+                    $.get(url, data).done(function (resp) {
+                        $el.html(resp);
+                    });
+                } else {
+                    $el.html(url);
+                }
+            },
+            _firstRender: function () {
+                if (this.options.domReady) {
+                    this.enhance();
+                    this.trigger('rendered');
+                } else {
+                    this.render();
+                }
+            },
+            /**
+             * 刷新界面
+             * @param {string} [url] - 内容获取路径
+             * @param {*} [data] - 数据
+             */
+            refresh: function (url, data) {
+                var me = this;
+                if (url == null) {
+                    url = _.result(this, 'templateUrl');
+                }
+                this.loadingTemplate = true;
+                $.get(url, data).done(function (template) {
+                    me.loadingTemplate = false;
+                    if (_.isString(template)) {  // 仅当获取到模板时，才进行渲染
+                        me._render(template, true);
+                        me.trigger('refresh');
+                    } else {
+                        me.trigger('refresh-fail');
+                    }
+                }).fail(function () {
+                    me.options.parentWnd &amp;&amp; me.options.parentWnd.close();
+                });
+            },
+            /**
+             * 渲染界面
+             * @param {string} [template] 模板
+             * @fires View#rendered
+             */
+            render: function (template) {
+                template || (template = this.template);
+
+                if (this.templateUrl) {
+                    this.refresh();
+                } else {
+                    if (this.options.el &amp;&amp; !template) {
+                        // 将当前元素内容作为 template
+                        template = _.unescape(this.$el.html());
+                    }
+                    this._render(template);
+                }
+                return this;
+            },
+            _render: function (template, isHtml) {
+                var hasTpl = !!template;
+                var options = this.options;
+                var sandbox = this.options.sandbox;
+
+                if (hasTpl) {
+                    if (isHtml) {
+                        this.$el.get(0).innerHTML = template;  // 为了提高效率，不使用 jquery 的 html() 方法
+                    } else {
+                        var tpl = _.isFunction(template) ?
+                            template : _.template(template, { variable: 'data' });  // 如果使用 Lodash，这里调用方式有差异
+                        var html = tpl(_.extend({ lang: app.lang[this.options.langClass] }, this.options));
+                        html &amp;&amp; (this.$el.get(0).innerHTML = html);
+                    }
+                }
+
+                this.trigger('rendering');
+
+                // append
+                if (this.options.host &amp;&amp; this._appended !== true) {
+                    var placeMethod = options._place === 1 ? 'prependTo' : 'appendTo';
+                    if (!this.options._page || this.options._page === app.page.active()) {
+                        this.$el[placeMethod](this.options.host);
+                        this._appended = true;
+                    }
+                };
+
+                sandbox.log(this.cid + ' rendered');
+                this._rendered = true;
+
+                this._activeUI();
+                this.enhance();
+
+                /**
+                 * 渲染完毕
+                 * @event View#rendered
+                 */
+                this.trigger('rendered');
+
+                return this;
+            },
+            /**
+              * 延迟监听子视图
+              * @param {string} name - 子视图名称
+              * @param {string} event - 事件名称
+              * @param {eventCallback} callback - 回调
+              */
+            listenToDelay: function (name, event, callback) {
+
+                this._delayEvents.push({
+                    name: name,
+                    event: event,
+                    callback: callback
+                });
+                if (this.view(name)) {
+                    this.listenTo(this.view(name), event, callback);
+                }
+            },
+            /**
+              * 订阅消息
+              * @param {string} name 消息名
+              * @param {messageCallback} listener 消息订阅处理函数
+              */
+            sub: function (name, listener) {
+
+                this.options.sandbox.on(name, listener, this, this.cid);
+            },
+            /**
+              * 发布消息
+              * @param {string} name 消息名
+              * @param {...*} msgParam 消息传递的参数
+              */
+            pub: function () {
+                this.options.sandbox.emit.apply(this.options.sandbox,
+                    Array.prototype.slice.call(arguments));
+            },
+            /**
+              * 取消该视图的所有消息订阅
+              */
+            unsub: function () {
+                this.options.sandbox.stopListening(this.cid);
+            },
+            /**
+             * 启用子部件，会自动附加该视图标识符作为标记
+             * @param {object[]} list 部件配置列表
+             */
+            startWidgets: function (list) {
+                return this.options.sandbox.startWidgets(list, null, this.cid);
+            },
+            // 停用该视图创建的子部件
+            stopChildren: function () {
+                this.options.sandbox.stopChildren(this.cid);
+            },
+            /**
+             * 设置触发器
+             * @param {string} [toolbarTpl=options.defaultToolbarTpl] - 工具条选择器
+             * @returns void
+             * @fires View#setTriggers
+             */
+            setTriggers: function (toolbarTpl) {
+                toolbarTpl || (toolbarTpl = this.options.defaultToolbarTpl);
+                var sandbox = this.options.sandbox;
+
+                /**
+                 * **消息：** 设置触发器
+                 * @event View#setTriggers
+                 * @param {string} html - 工具条模板
+                 * @param {string} name - 目标名称
+                 * @param {View} view - 当前视图
+                 */
+                this.pub('setTriggers', this.$(toolbarTpl).html(),
+                    this.options.toolbar || this._name, this);
+            },
+            _actionHandler: function (e, context) {
+                e.preventDefault();
+                //e.stopImmediatePropagation();
+
+                context || (context = this);
+                var $el = $(e.currentTarget);
+                if ($el.closest('script').length > 0) return;
+                var actionName = $el.data().action;
+                if (actionName.indexOf('Handler') &lt; 0) {
+                    actionName = actionName + 'Handler';
+                }
+                context[actionName] &amp;&amp; context[actionName](e);
+            },
+            _getViewTriggerOptions: function (attr) {
+                var nameParts = attr.split('?');
+                var name = nameParts[0];
+                var options = {};
+                if (nameParts[1]) {
+                    options = app.core.util.qsToJSON(nameParts[1]);
+                }
+                options._viewName = name;
+                return options;
+            },
+            _viewHandler: function (e) {
+                var $el = $(e.currentTarget);
+                var options = this._getViewTriggerOptions($el.attr('data-view'));
+
+                var initializer = function (options) {
+                    var ctor = app.view.ctor(options._viewName);
+                    return new ctor(options);
+                };
+                this.viewWindow(options._viewName, initializer, options);
+            },
+            _widgetHandler: function (e) {
+                var $el = $(e.currentTarget);
+                var options = this._getViewTriggerOptions($el.attr('data-widget'));
+
+                this.widgetWindow(options._viewName, options);
+            },
+            _destroy: function () {
+                // 清理在全局注册的事件处理器
+                this.options.autoResize &amp;&amp; $(window).off('resize', this.resize);
+
+                // 关闭该组件下的所有弹出窗口
+                _(this._windows).each(function (window) {
+                    window.close();
+                });
+
+                // 销毁该视图的所有子视图
+                this._destroyView();
+
+                // 销毁第三方组件
+                this._customDestory();
+
+                // 清除引用
+                this.viewModel = null;
+
+                this.options.sandbox.log('destroyed');
+            },
+            /**
+             * 销毁该视图
+             */
+            destroy: function () {
+                this._destroy();
+            }
+        };
+
+        /**
+         * @namespace
+         * @memberOf Application#
+         */
+        var view = {
+            _ctors: {}
+        };
+
+        /**
+         * 基础配置对象
+         */
+        view.base = base;
+
+        /**
+         * 创建一个 View 执行器
+         * @private
+         */
+        view._createExecutor = function (executor) {
+            if (_.isObject(executor) &amp;&amp; !_.isFunction(executor)) {
+
+                return function (options) {
+                    var app = options.sandbox.app;
+                    var View = app.view.define(executor);
+                    return new View(options);
+                }
+            } else {
+                if (executor.extend) {  // 检测是否是 Backbone.View 构造函数
+                    return function (options) {
+                        return new executor(options);
+                    }
+                } else {
+                    return executor;
+                }
+            }
+        }
+
+        /**
+         * 全局注册 View
+         */
+        view.register = function (name, ctor) {
+            if (app.view._ctors[name]) {
+                app.core.logger.warn('View naming conflicts: ' + name);
+            } else {
+                app.view._ctors[name] = ctor;
+            }
+        }
+
+        // 查找 View 构造器
+        view.ctor = function (name) {
+            return app.view._ctors[name];
+        }
+
+
+        /**
+         * 创建一个自定义 View 定义
+         * @param {object} [obj={}] - 自定义属性或方法
+         * @param {array} [inherits=[]] - 继承的属性或方法组
+         * @param {boolean} [isFactory] - 是否该视图定义是个工厂方法
+         */
+        view.define = function (obj, inherits, isFactory) {
+            if (_.isBoolean(inherits) &amp;&amp; isFactory == null) {
+                isFactory = inherits;
+                inherits = [];
+            }
+            if (isFactory == null) isFactory = false;
+            inherits || (inherits = []);
+            inherits.push(obj);
+
+            var ctor = app.core.View.extend($.extend.apply($, [true, {}, app.view.base].concat(inherits)));
+            // 注册 View
+            if (obj &amp;&amp; obj.name) {
+                app.view.register(obj.name, ctor);
+            }
+            // 使用工厂模式，不需要用 `new`
+            if (isFactory) {
+                return function (options) {
+                    return new ctor(options);
+                }
+            }
+            return ctor;
+        };
+
+        app.view = view;
+
+        mvvm(app);
+        subview(app);
+        subwindow(app);
+    };
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+
+        
+
+        <footer>
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.1</a> on Mon Jul 20 2015 14:07:22 GMT+0800 (中国标准时间)
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>

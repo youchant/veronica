@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- 由 Microsoft Visio, SVG Export 生成 layout.svg 页-1 -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		width="7.1723in" height="4.33927in" viewBox="0 0 516.406 312.427" xml:space="preserve" color-interpolation-filters="sRGB"
+		class="st8">
+	<style type="text/css">
+	<![CDATA[
+		.st1 {fill:#f2f2f2;stroke:#7f7f7f;stroke-width:0.25}
+		.st2 {stroke:#bfbfbf;stroke-dasharray:3,6;stroke-linecap:round;stroke-linejoin:round;stroke-width:3}
+		.st3 {fill:#d8d8d8;stroke:none;stroke-width:0.25}
+		.st4 {fill:#ffffff;font-family:黑体;font-size:1.33333em}
+		.st5 {fill:none;stroke:none;stroke-width:0.25}
+		.st6 {fill:#3f3f3f;font-family:Calibri;font-size:2.50001em;font-weight:bold}
+		.st7 {fill:#7f7f7f;font-size:1em;font-weight:normal}
+		.st8 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<g>
+		<title>页-1</title>
+		<g id="shape1-1" transform="translate(0.25,-1.5)">
+			<title>矩形</title>
+			<rect x="0" y="1.74999" width="515.906" height="310.677" class="st1"/>
+		</g>
+		<g id="shape21-3" transform="translate(5.17333,-247.592)">
+			<title>动态连接线</title>
+			<path d="M0 305.34 L504.57 305.34" class="st2"/>
+		</g>
+		<g id="shape22-6" transform="translate(98.0453,-250.949)">
+			<title>动态连接线.22</title>
+			<path d="M7.09 312.43 L7.09 561.88" class="st2"/>
+		</g>
+		<g id="shape23-9" transform="translate(1.66732,-2.91732)">
+			<title>矩形.23</title>
+			<desc>侧边栏</desc>
+			<rect x="0" y="64.3957" width="97.7953" height="248.031" class="st3"/>
+			<text x="24.9" y="193.74" class="st4">侧边栏</text>		</g>
+		<g id="shape24-12" transform="translate(1.66732,-258.064)">
+			<title>矩形.24</title>
+			<desc>顶部导航</desc>
+			<rect x="0" y="260.015" width="511.654" height="52.4126" class="st3"/>
+			<text x="223.83" y="291.55" class="st4">顶部导航</text>		</g>
+		<g id="shape25-15" transform="translate(112.219,-4.33465)">
+			<title>矩形.25</title>
+			<desc>内容区</desc>
+			<rect x="0" y="65.813" width="401.102" height="246.614" class="st3"/>
+			<text x="176.55" y="194.45" class="st4">内容区</text>		</g>
+		<g id="shape29-18" transform="translate(29.8406,-228.272)">
+			<title>工作表.29</title>
+			<desc>Layout</desc>
+			<rect x="0" y="260.015" width="152" height="52.4126" class="st5"/>
+			<text x="34.87" y="295.22" class="st6">L<tspan class="st7">ayout</tspan></text>		</g>
+	</g>
+</svg>
