@@ -49,7 +49,7 @@ module.exports = function (grunt) {
         },
         jsdoc: {
             dist: {
-                src: ['lib/**/*.js', 'README.md'],
+                src: ['lib/**/*.js', 'README.md', '!lib/assets/**/*'],
                 options: {
                     verbose: true,
                     destination: './site/api',
@@ -78,9 +78,17 @@ module.exports = function (grunt) {
                     middleware: function (connect, options) {
                         return [
                             require('connect-livereload')(),
-                            connect.static(path.resolve('./docs'))
+                            connect.static(path.resolve('./site'))
                         ];
                     }
+                }
+            }
+        },
+        mkdocs: {
+            dist: {
+                src: './docs',
+                options: {
+                    clean: true
                 }
             }
         }
@@ -92,7 +100,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-jsdoc');
+    grunt.loadNpmTasks('grunt-mkdocs');
 
     grunt.registerTask('default', ['requirejs', 'clean', 'uglify']);
-    grunt.registerTask('doc', ['jsdoc', 'connect', 'watch']);
+    grunt.registerTask('doc', ['mkdocs', 'jsdoc', 'connect', 'watch']);
 };

@@ -2093,7 +2093,7 @@ define('util/util',[
             return dfd.promise();
         },
         normalizePath: function (path) {
-            return path.replace('//', '/');
+            return path.replace('//', '/').replace('http:/', 'http://');
         },
         /**
          * 分隔传入的 name 为 nameParts

@@ -12,7 +12,8 @@ define(function (require) {
                 layout: 'dashboard',
                 widgets: [
                     'hello-veronica@#hard@dashboard',
-                    'charts@#hard@dashboard'
+                    'charts@#hard@dashboard',
+                    'tiny_basic-haha@#hard@tiny_basic'
                 ]
             }
         }]);

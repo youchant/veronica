@@ -1,8 +1,9 @@
 
 require(['./require-conf'], function (config) {
-    var framePath = 'http://192.168.1.18:8097/cdn/bower_components';
-    var fp2 = '../../bower_components';
-    require.config(config(framePath));
+
+    var devPath = 'http://192.168.1.18:8097/cdn/bower_components';
+    var releasePath = './vendor';
+    require.config(config(devPath, releasePath));
 
     require(['veronica'], function (veronica) {
 
@@ -16,6 +17,11 @@ require(['./require-conf'], function (config) {
                 name: 'user-control',
                 source: './modules',
                 widgetPath: ''
+            }, {
+                name: 'tiny_basic',
+                source: 'http://localhost:59529',
+                widgetPath: '',
+                hasEntry: false
             }],
             homePage: 'dashboard'
         });

@@ -14,23 +14,29 @@
     }
 }(this, function () {
 
-    return function (framePath) {
-        return {
+    return function (devPath, releasePath) {
+
+        var config = {
             debug: true,
-            paths: {
-                'underscore': framePath + '/underscore/underscore',
-                'jquery': framePath + '/jquery/dist/jquery',
-                'text': framePath + '/requirejs-text/text',
-                'css': framePath + '/require-css/css',
-                'normalize': framePath + '/require-css/normalize',
-                'css-builder': framePath + '/require-css/css-builder',
-                'veronica': '../../../dist/veronica',
-                'ver': framePath + '/requirejs-ver/ver'
-            },
             shim: {
                 'underscore': { 'exports': '_' }
             }
         };
+
+        var framePath = config.debug === true ? devPath : releasePath;
+
+        config.paths = {
+            'underscore': framePath + '/underscore/underscore',
+            'jquery': framePath + '/jquery/dist/jquery',
+            'text': framePath + '/requirejs-text/text',
+            'css': framePath + '/require-css/css',
+            'normalize': framePath + '/require-css/normalize',
+            'css-builder': framePath + '/require-css/css-builder',
+            'veronica': '../../../dist/veronica',
+            'ver': framePath + '/requirejs-ver/ver'
+        }
+
+        return config;
     }
 
 }));

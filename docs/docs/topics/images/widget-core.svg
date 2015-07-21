@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- 由 Microsoft Visio, SVG Export 生成 widget-core.svg 页-1 -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		width="6.18569in" height="4.40583in" viewBox="0 0 445.37 317.22" xml:space="preserve" color-interpolation-filters="sRGB"
+		class="st18">
+	<style type="text/css">
+	<![CDATA[
+		.st1 {fill:none;stroke:#d8d8d8;stroke-dasharray:3,6;stroke-width:3}
+		.st2 {fill:none;stroke:#0c0c0c;stroke-width:4.5}
+		.st3 {fill:#3f3f3f;font-family:Calibri;font-size:2.50001em;font-weight:bold}
+		.st4 {fill:#d8d8d8;stroke:#0c0c0c;stroke-width:4.5}
+		.st5 {visibility:visible}
+		.st6 {fill:none;filter:url(#filter_2);stroke:#5b9bd5;stroke-opacity:0.22}
+		.st7 {fill:#5b9bd5;filter:url(#filter_2);font-family:Calibri;font-size:2.50001em;font-weight:bold;opacity:0.219608}
+		.st8 {fill:#5c8bee;stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st9 {fill:#5b9bd5;fill-opacity:0.22;filter:url(#filter_2);stroke:#5b9bd5;stroke-opacity:0.22}
+		.st10 {marker-end:url(#mrkr1-65);stroke:#9cc3e5;stroke-dasharray:4.5,9;stroke-linecap:round;stroke-linejoin:round;stroke-width:4.5}
+		.st11 {fill:#9cc3e5;fill-opacity:1;stroke:#9cc3e5;stroke-opacity:1;stroke-width:0.71428571428571}
+		.st12 {fill:none;stroke:none;stroke-width:0.25}
+		.st13 {fill:#bfbfbf;font-family:Calibri;font-size:1.00001em}
+		.st14 {marker-end:url(#mrkr10-79);stroke:#5b9bd5;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.25}
+		.st15 {fill:#5b9bd5;fill-opacity:1;stroke:#5b9bd5;stroke-opacity:1;stroke-width:0.47169811320755}
+		.st16 {marker-end:url(#mrkr1-105);stroke:#5b9bd5;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5}
+		.st17 {fill:#5b9bd5;fill-opacity:1;stroke:#5b9bd5;stroke-opacity:1;stroke-width:0.37313432835821}
+		.st18 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<defs id="Markers">
+		<g id="lend1">
+			<path d="M 1 -1 L 0 0 L 1 1 " style="stroke-linecap:round;stroke-linejoin:round;fill:none"/>
+		</g>
+		<marker id="mrkr1-65" class="st11" orient="auto" markerUnits="strokeWidth" overflow="visible">
+			<use xlink:href="#lend1" transform="scale(-1.4,-1.4) "/>
+		</marker>
+		<g id="lend10">
+			<path
+					d="M 0 0.75 C -0.414214 0.75 -0.75 0.414214 -0.75 0 -0.75 -0.414214 -0.414214 -0.75 0 -0.75 0.414214 -0.75 0.75 -0.414214 0.75 0 0.75 0.414214 0.414214 0.75 0 0.75 Z "
+					style="stroke:none"/>
+		</g>
+		<marker id="mrkr10-79" class="st15" refX="-1.59" orient="auto" markerUnits="strokeWidth" overflow="visible">
+			<use xlink:href="#lend10" transform="scale(-2.12,-2.12) "/>
+		</marker>
+		<marker id="mrkr1-105" class="st17" orient="auto" markerUnits="strokeWidth" overflow="visible">
+			<use xlink:href="#lend1" transform="scale(-2.68,-2.68) "/>
+		</marker>
+	</defs>
+	<defs id="Filters">
+		<filter id="filter_2">
+			<feGaussianBlur stdDeviation="2"/>
+		</filter>
+	</defs>
+	<g>
+		<title>页-1</title>
+		<g id="shape1-1" transform="translate(2.99991,-3)">
+			<title>圆角矩形.37</title>
+			<path d="M5.71 317.22 L215.39 317.22 A5.71489 5.71489 -180 0 0 221.1 311.5 L221.1 119.14 A5.71489 5.71489 -180 0 0 215.39
+						 113.43 L5.71 113.43 A5.71489 5.71489 -180 0 0 0 119.14 L0 311.5 A5.71489 5.71489 -180 0 0 5.71 317.22 Z"
+					class="st1"/>
+		</g>
+		<g id="shape2-3" transform="translate(286.464,-100.121)">
+			<title>圆角矩形.60</title>
+			<path d="M4.03 317.22 L151.88 317.22 A4.02973 4.02973 -180 0 0 155.91 313.19 L155.91 117.46 A4.02973 4.02973 -180 0 0
+						 151.88 113.43 L4.03 113.43 A4.02973 4.02973 -180 0 0 0 117.46 L0 313.19 A4.02973 4.02973 -180 0 0 4.03 317.22
+						 Z" class="st1"/>
+		</g>
+		<g id="shape3-5" transform="translate(89.2475,-25.6772)">
+			<title>圆形</title>
+			<desc>v</desc>
+			<path d="M0 290.08 A27.1382 27.1382 0 0 1 54.28 290.08 A27.1382 27.1382 0 1 1 0 290.08 Z" class="st2"/>
+			<text x="20.04" y="299.08" class="st3">v</text>		</g>
+		<g id="shape4-8" transform="translate(89.2475,-118.775)">
+			<title>圆形.13</title>
+			<desc>s</desc>
+			<path d="M0 290.08 A27.1382 27.1382 0 0 1 54.28 290.08 A27.1382 27.1382 0 1 1 0 290.08 Z" class="st2"/>
+			<text x="21.15" y="299.08" class="st3">s</text>		</g>
+		<g id="shape5-11" transform="translate(83.706,-66.5711)">
+			<title>圆形.38</title>
+			<desc>w</desc>
+			<path d="M0 284.54 A32.6797 32.6797 0 1 1 65.36 284.54 A32.6797 32.6797 0 0 1 0 284.54 Z" class="st4"/>
+			<text x="21.5" y="293.54" class="st3">w</text>		</g>
+		<g id="shape6-14" transform="translate(17.5461,-72.9832)">
+			<title>圆形.40</title>
+			<desc>v</desc>
+			<g id="shadow6-15" transform="matrix(1,0,0,1,0.345598,1.97279)" class="st5">
+				<path d="M0 290.08 A27.1382 27.1382 0 0 1 54.28 290.08 A27.1382 27.1382 0 1 1 0 290.08 Z" class="st6"/>
+				<text x="20.04" y="299.08" class="st7">v</text>			</g>
+			<path d="M0 290.08 A27.1382 27.1382 0 0 1 54.28 290.08 A27.1382 27.1382 0 1 1 0 290.08 Z" class="st2"/>
+			<text x="20.04" y="299.08" class="st3">v</text>		</g>
+		<g id="shape7-22" transform="translate(350.052,-128.468)">
+			<title>圆形.41</title>
+			<desc>v</desc>
+			<path d="M0 290.08 A27.1382 27.1382 0 0 1 54.28 290.08 A27.1382 27.1382 0 1 1 0 290.08 Z" class="st2"/>
+			<text x="20.04" y="299.08" class="st3">v</text>		</g>
+		<g id="shape8-25" transform="translate(161.322,-54.0236)">
+			<title>圆形.42</title>
+			<desc>v</desc>
+			<path d="M0 290.08 A27.1382 27.1382 0 0 1 54.28 290.08 A27.1382 27.1382 0 1 1 0 290.08 Z" class="st2"/>
+			<text x="20.04" y="299.08" class="st3">v</text>		</g>
+		<g id="shape9-28" transform="translate(348.699,-219.149)">
+			<title>圆形.43</title>
+			<desc>s</desc>
+			<path d="M0 290.08 A27.1382 27.1382 0 0 1 54.28 290.08 A27.1382 27.1382 0 1 1 0 290.08 Z" class="st2"/>
+			<text x="21.15" y="299.08" class="st3">s</text>		</g>
+		<g id="group10-31" transform="translate(144.732,-150.657)">
+			<title>工作表.10</title>
+			<g id="shape11-32">
+				<title>工作表.11</title>
+				<path d="M6.93 317.22 L14.35 316.01 C12.67 309.13 9.77 302.82 5.95 297.24 L0 301.8 C3.1 306.41 5.49 311.6 6.93 317.22
+							 Z" class="st8"/>
+			</g>
+			<g id="shape12-34" transform="translate(12.8737,-2.61375)">
+				<title>工作表.12</title>
+				<path d="M10.09 317.22 L19.36 315.71 C17.14 305.8 13.01 296.74 7.45 288.85 L0 294.55 C4.66 301.24 8.15 308.88 10.09
+							 317.22 Z" class="st8"/>
+			</g>
+			<g id="shape13-36" transform="translate(27.213,-5.52375)">
+				<title>工作表.13</title>
+				<path d="M13.59 317.22 L24.71 315.41 C21.91 302.15 16.43 290.07 8.94 279.64 L0 286.48 C6.4 295.48 11.12 305.85 13.59
+							 317.22 Z" class="st8"/>
+			</g>
+		</g>
+		<g id="group14-38" transform="translate(345.473,385.208) rotate(180)">
+			<title>工作表.14</title>
+			<g id="shape15-39">
+				<title>工作表.15</title>
+				<path d="M6.93 317.22 L14.35 316.01 C12.67 309.13 9.77 302.82 5.95 297.24 L0 301.8 C3.1 306.41 5.49 311.6 6.93 317.22
+							 Z" class="st8"/>
+			</g>
+			<g id="shape16-41" transform="translate(12.8737,-2.61375)">
+				<title>工作表.16</title>
+				<path d="M10.09 317.22 L19.36 315.71 C17.14 305.8 13.01 296.74 7.45 288.85 L0 294.55 C4.66 301.24 8.15 308.88 10.09
+							 317.22 Z" class="st8"/>
+			</g>
+			<g id="shape17-43" transform="translate(27.213,-5.52375)">
+				<title>工作表.17</title>
+				<path d="M13.59 317.22 L24.71 315.41 C21.91 302.15 16.43 290.07 8.94 279.64 L0 286.48 C6.4 295.48 11.12 305.85 13.59
+							 317.22 Z" class="st8"/>
+			</g>
+		</g>
+		<g id="shape18-45" transform="translate(270.874,-7.99536)">
+			<title>圆角矩形.61</title>
+			<path d="M4.43 317.22 L167.06 317.22 A4.4327 4.4327 -180 0 0 171.5 312.79 L171.5 242.28 A4.4327 4.4327 -180 0 0 167.06
+						 237.85 L4.43 237.85 A4.4327 4.4327 -180 0 0 0 242.28 L0 312.79 A4.4327 4.4327 -180 0 0 4.43 317.22 Z"
+					class="st1"/>
+		</g>
+		<g id="shape19-47" transform="translate(83.3692,-248.94)">
+			<title>圆形.64</title>
+			<desc>s</desc>
+			<path d="M0 290.08 A27.1382 27.1382 0 0 1 54.28 290.08 A27.1382 27.1382 0 1 1 0 290.08 Z" class="st2"/>
+			<text x="21.15" y="299.08" class="st3">s</text>		</g>
+		<g id="shape20-50" transform="translate(343.157,-166.945)">
+			<title>圆形.39</title>
+			<desc>w</desc>
+			<path d="M0 284.54 A32.6797 32.6797 0 1 1 65.36 284.54 A32.6797 32.6797 0 0 1 0 284.54 Z" class="st4"/>
+			<text x="21.5" y="293.54" class="st3">w</text>		</g>
+		<g id="shape21-53" transform="translate(24.2597,-241.854)">
+			<title>圆形.14</title>
+			<desc>A</desc>
+			<g id="shadow21-54" transform="matrix(1,0,0,1,0.345598,1.97279)" class="st5">
+				<path d="M0 281.79 A35.4331 35.4331 0 0 1 70.87 281.79 A35.4331 35.4331 0 1 1 0 281.79 Z" class="st9"/>
+			</g>
+			<path d="M0 281.79 A35.4331 35.4331 0 0 1 70.87 281.79 A35.4331 35.4331 0 1 1 0 281.79 Z" class="st4"/>
+			<text x="26.34" y="290.79" class="st3">A</text>		</g>
+		<g id="group22-59" transform="translate(77.3123,-119.86) rotate(-25.2906)">
+			<title>工作表.22</title>
+			<g id="shape23-60" transform="translate(7.08661,-28.7966)">
+				<title>动态连接线.56</title>
+				<path d="M0 323.6 L90.71 325.02" class="st10"/>
+			</g>
+			<g id="shape24-66" transform="translate(99.2126,-30.4004)">
+				<title>动态连接线.57</title>
+				<path d="M0 310.66 L-99.21 309.61" class="st10"/>
+			</g>
+			<g id="shape25-71" transform="translate(19.9298,-1.55565) rotate(1.11214)">
+				<title>工作表.25</title>
+				<desc>PUB/SUB</desc>
+				<rect x="0" y="297.22" width="83.2286" height="20" class="st12"/>
+				<text x="19.21" y="310.82" class="st13">PUB/SUB</text>			</g>
+		</g>
+		<g id="shape26-74" transform="translate(144.732,-281.539)">
+			<title>动态连接线.66</title>
+			<path d="M0 317.22 L201.94 332.54" class="st14"/>
+		</g>
+		<g id="shape27-80" transform="translate(102.213,-241.854)">
+			<title>动态连接线.67</title>
+			<path d="M5.67 317.22 L8.35 377.43" class="st14"/>
+		</g>
+		<g id="shape28-85" transform="translate(147.567,-139.806)">
+			<title>动态连接线.68</title>
+			<path d="M0 317.22 L134.29 385.06" class="st14"/>
+		</g>
+		<g id="shape29-90" transform="translate(282.362,-20.6235)">
+			<title>圆形.69</title>
+			<desc>s</desc>
+			<path d="M0 290.08 A27.1382 27.1382 0 0 1 54.28 290.08 A27.1382 27.1382 0 1 1 0 290.08 Z" class="st2"/>
+			<text x="21.15" y="299.08" class="st3">s</text>		</g>
+		<g id="shape30-93" transform="translate(376.904,-20.6235)">
+			<title>圆形.70</title>
+			<desc>v</desc>
+			<path d="M0 290.08 A27.1382 27.1382 0 0 1 54.28 290.08 A27.1382 27.1382 0 1 1 0 290.08 Z" class="st2"/>
+			<text x="20.04" y="299.08" class="st3">v</text>		</g>
+		<g id="shape31-96" transform="translate(324.8,-15.082)">
+			<title>圆形.62</title>
+			<desc>w</desc>
+			<path d="M0 284.54 A32.6797 32.6797 0 1 1 65.36 284.54 A32.6797 32.6797 0 0 1 0 284.54 Z" class="st4"/>
+			<text x="21.5" y="293.54" class="st3">w</text>		</g>
+		<g id="group32-99" transform="translate(36.5404,-23.4393)">
+			<title>工作表.32</title>
+			<g id="shape33-100" transform="translate(23.1524,-44.0836)">
+				<title>动态连接线.71</title>
+				<path d="M0 317.22 L21.26 338.48" class="st16"/>
+			</g>
+			<g id="shape34-106" transform="translate(224.308,54.4358) rotate(45)">
+				<title>工作表.34</title>
+				<desc>Events</desc>
+				<rect x="0" y="297.22" width="54.4129" height="20" class="st12"/>
+				<text x="11.07" y="310.82" class="st13">Events</text>			</g>
+		</g>
+		<g id="group35-109" transform="translate(217.71,-7.65468) rotate(15)">
+			<title>工作表.35</title>
+			<g id="shape36-110" transform="translate(28.0732,-44.3846)">
+				<title>动态连接线.71</title>
+				<path d="M0 317.22 L-21.26 338.48" class="st16"/>
+			</g>
+			<g id="shape37-115" transform="translate(-210.166,92.9115) rotate(-45)">
+				<title>工作表.37</title>
+				<desc>Events</desc>
+				<rect x="0" y="297.22" width="54.4129" height="20" class="st12"/>
+				<text x="11.07" y="310.82" class="st13">Events</text>			</g>
+		</g>
+	</g>
+</svg>
