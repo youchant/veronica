@@ -1,0 +1,11 @@
+site_name: Veronica
+theme_dir: readthedocs-cn
+site_dir: ../site
+pages:
+- 首页: 'index.md'
+- 更新日志: 'changelog.md'
+- 教程:
+  - '快速开始': 'tutorial/quickstart.md'
+  - '使用RequireJS': 'tutorial/requirejs.md'
+- 主题:
+  - '深入理解一些概念': 'topics/concept.md'

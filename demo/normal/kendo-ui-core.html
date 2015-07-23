@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>simpe page</title>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <link href="../bower_components/tinyui/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="../bower_components/font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <link href="../bower_components/tinyui/dist/css/tiny.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div data-ver-role="hello-veronica">
+        <div class="well">
+            <div class="paper-bills">
+                <h2 class="tc">记账凭证</h2>
+                <div class="metadata">2015年第2期</div>
+                <div class="form-inline mb10">
+                    <div class="form-group">
+                        <label class="control-label">
+                            凭证字：
+                        </label>
+                        <select class="form-control">
+                            <option>记</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control w3em" />
+                        <label class="control-label">
+                            号
+                        </label>
+                    </div>
+                    <div class="form-group" style="margin-left:30px;">
+                        <label class="control-label">
+                            日期：
+                        </label>
+                        <input type="text" class="form-control" />
+                    </div>
+                    <div class="form-group pull-right">
+                        <label class="control-label">
+                            附单据
+                        </label>
+                        <input type="text" class="form-control w3em" />
+                        <label class="control-label">
+                            张
+                        </label>
+                    </div>
+                </div>
+                <style>
+                </style>
+                <div class="table-paper-wrapper mb10">
+                    <table class="table table-paper table-bordered">
+                        <thead>
+                            <tr>
+                                <th>摘要</th>
+                                <th width="150">会计科目</th>
+                                <th class="currency-head">
+                                    <div>借方金额</div>
+                                    <div class="currency-wrapper clearfix">
+                                        <span>亿</span>
+                                        <span>千</span>
+                                        <span>百</span>
+                                        <span>十</span>
+                                        <span>万</span>
+                                        <span>千</span>
+                                        <span>百</span>
+                                        <span>十</span>
+                                        <span>元</span>
+                                        <span>角</span>
+                                        <span class="last">分</span>
+                                    </div>
+                                </th>
+                                <th class="currency-head">
+                                    <div>贷方金额</div>
+                                    <div class="currency-wrapper clearfix">
+                                        <span>亿</span>
+                                        <span>千</span>
+                                        <span>百</span>
+                                        <span>十</span>
+                                        <span>万</span>
+                                        <span>千</span>
+                                        <span>百</span>
+                                        <span>十</span>
+                                        <span>元</span>
+                                        <span>角</span>
+                                        <span class="last">分</span>
+                                    </div>
+                                </th>
+                                <th width="110">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody data-template="template" data-bind="source: bills"></tbody>
+                    </table>
+                </div>
+                <table class="table form-inline">
+                    <tr>
+                        <td>
+                            <label class="control-label">填制人：</label>
+                            <input type="text" value="" class="form-control w10em" />
+                        </td>
+                        <td>
+                            <label class="control-label">单位主管：</label>
+                            <input type="text" value="" class="form-control w10em" />
+                        </td>
+                        <td colspan="2">
+                            <label class="control-label" style="margin-left:-40px;">备注：</label>
+                            <input type="text" value="" class="form-control" style="width:100%;" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <button data-action="getData">获取数据</button>
+        </div>
+    </div>
+
+    <style>
+        .display.editable .form-control {
+            display: block;
+        }
+
+        .display.editable .text {
+            display: none;
+        }
+
+        .display .form-control {
+            display: none;
+        }
+
+        .text {
+            padding: 0 6px;
+        }
+
+        .display .text {
+            display: block;
+        }
+
+        .currency-wrapper .form-control {
+            text-align: right;
+        }
+    </style>
+    <script type="text/x-kendo-tmpl" id="template">
+        <tr data-bind="attr: { data-uid: uid, id: id }">
+            <td class="display">
+                <div class="text" data-bind="text: zhaiyao"></div>
+                <input type="text" data-bind="value: zhaiyao" class="form-control" />
+            </td>
+            <td class="display">
+                <div class="text" data-bind="text: kemu"></div>
+                <input type="text" data-bind="value: kemu" data-type="number" class="form-control" />
+            </td>
+            <td class="currency-wrapper display">
+                <div class="currency-data text" data-bind="qian: jiefang">
+                </div>
+                <input type="text" data-bind="value: jiefang" data-type="number" class="form-control" />
+            </td>
+            <td class="currency-wrapper display">
+                <div class="currency-data text" data-bind="qian: daifang">
+                </div>
+                <input type="text" data-bind="value: daifang" class="form-control" />
+            </td>
+            <td>
+                <a title="添加分录" class="btn">
+                    <span class="fa fa-plus-circle" data-action="addFenluHandler"></span>
+                </a>
+                <a title="删除分录" class="btn">
+                    <span class="fa fa-times-circle" data-action="deleteFenluHandler"></span>
+                </a>
+            </td>
+        </tr>
+    </script>
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../bower_components/underscore/underscore-min.js"></script>
+    <script src="../../dist/veronica.js"></script>
+    <script src="kendo.ui.core.js"></script>
+    <script>
+        // create app
+        var app = veronica.createApp();
+
+        app.use(function (app) {
+
+            app.view.base._bind = function () {
+                // 重绑定视图模型
+                kendo.unbind(this.$el);
+                kendo.bind(this.$el, this.viewModel);
+            }
+
+            app.view.base.instance = function (el) {
+                return kendo.widgetInstance(this.$(el));
+            }
+
+            app.view.base._customDestroy = function () {
+                // 销毁该组件下的kendo控件
+                if (window.kendo) {
+                    _.each(this.$('[data-role]'), function (el) {
+                        var inst = kendo.widgetInstance($(el));
+                        inst && inst.destroy();
+                    });
+                }
+
+                kendo.unbind(this.$el);
+            }
+
+            app.view.base._createViewModel = function (data) {
+                return kendo.observable(data);
+            };
+        });
+
+        // 显示钱的绑定
+        kendo.data.binders.qian = kendo.data.Binder.extend({
+            refresh: function () {
+
+                var qian = this.bindings.qian.get();
+                if(qian !== ''){
+                    qian = parseFloat(qian).toFixed(2).toString().replace('.', '');
+                }
+                this.element.innerHTML = qian;
+            }
+        });
+
+        // create widget: hello-veronica
+        app.widget.register('hello-veronica', {
+            defaults: {
+                autoAction: true
+            },
+            events: {
+                'click tbody .display': 'beginEditHandler',
+                'keydown .display>.form-control': 'fenLuShortcutHandler'
+            },
+            initAttr: function () {
+                this.model({
+                    bills: [{
+                        id: 1, zhaiyao: '寄售商品', kemu: '1101 应收账款', fangxiang: '', jiefang: 2000,daifang: ''
+                    }],
+                    idx: 1
+                }, false);
+            },
+            delegateModelEvents: function(){
+            },
+            // 获取凭证分录初始数据
+            _getListInitData: function () {
+                var bills = this.model('bills');
+                return { id: bills.length + 1, zhaiyao: '', kemu: '', fangxiang: '', jiefang: '', daifang: '' };
+            },
+            // 获取凭证分录的Index
+            _getFenLuIdx:function($el){
+                return this.$('tbody tr').index($el.closest('tr'))
+            },
+            // 添加分录
+            addFenluHandler: function(e){
+                // 由于不分页，所以可以直接在页面上查找
+                var idx = this._getFenLuIdx($(e.target));
+                this.model('bills').splice(idx + 1, 0, this._getListInitData());
+
+            },
+            // 开始编辑分录
+            beginEditHandler: function (e) {
+                this.$('tbody .editable').removeClass('editable');
+
+                $(e.target).closest('.display')
+                    .addClass('editable')
+                    .find('.form-control').focus();
+
+            },
+            // 移除分录
+            deleteFenluHandler: function(e){
+                var idx = this._getFenLuIdx($(e.target));
+                this.model('bills').splice(idx, 1);
+            },
+            fenLuShortcutHandler: function(e){
+                if (e.keyCode == 13 || e.keyCode === 9) {
+                    $(e.target).closest('.display').next('.display').trigger('click');
+                    e.preventDefault();
+                }
+            },
+            getDataHandler: function(){
+                console.log(this.model().toJSON());
+            }
+        });
+
+        app.launch({ parse: true });
+
+    </script>
+</body>
+</html>

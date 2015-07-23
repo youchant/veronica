@@ -1,4 +1,4 @@
-define(['chai', 'sinon', 'veronica'], function (chai, sinon, core) {
+define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
 
     var should = chai.should();
 
@@ -13,6 +13,23 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, core) {
         };
     }
 
+    describe('hooks', function () {
+        before(function () {
+            // runs before all tests in this block
+            console.log('before');
+        })
+        after(function () {
+            // runs after all tests in this block
+        })
+        beforeEach(function () {
+            // runs before each test in this block
+        })
+        afterEach(function () {
+            // runs after each test in this block
+        })
+        // test cases
+    })
+
     describe('sinon', function () {
         it("calls the original function", function () {
             var callback = sinon.spy();
@@ -24,9 +41,11 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, core) {
         });
     });
 
-    describe('Core', function () {
+    describe('core', function () {
 
-        describe('Util', function () {
+        var core = veronica;
+
+        describe('util', function () {
             describe('#decamelize', function () {
                 it('should work normal string', function () {
                     var r = core.util.decamelize('test');
@@ -74,73 +93,108 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, core) {
             });
         });
 
-        describe('Loader', function () {
-            describe('#loadWiget', function () {
-                it('should loaded success', function (done) {
-                    core.loadWiget('widget1', {}).done(function () {
-                        done();
-                    });
-                });
-                it('should loaded fail if in wrong page', function (done) {
-                    core.createApp('test');
-                    core.loadWiget('widget1', {}, 'test-page').done(function () {
-
-                    }).fail(function () {
-                        done();
-                    });
-                });
-            });
-            describe('#start', function () {
-                it('should success with widget array', function (done) {
-                    core.start([
-                            { name: 'widget1', options: { host: '.page-view' } },
-                            { name: 'widget2', options: { host: '.page-view' } }
-                    ]).done(function () {
-                        done();
-                    });
-                });
-                it('should success with callback', function (done) {
-                    core.start([
-                      { name: 'widget1', options: { host: '.page-view' } },
-                      { name: 'widget2', options: { host: '.page-view' } }
-                    ], function () {
-                        done();
-                    });
+        describe('loader', function () {
+            describe('#useGlobalRequire', function () {
+                it('ok', function () {
+                    core.loader.useGlobalRequire.should.to.not.throw();
                 })
             });
-            describe('#stop', function () {
-                it('should work if host element have widget', function (done) {
-                    var $ = core.$;
-                    core.start([
-                        { name: 'widget1', options: { host: '.page-view' } }
-                    ]).done(function () {
-                        core.stop($('.page-view'));
-                        $('.page-view').children().length.should.equal(0);
-                        done();
-                    });
+            describe('#useGlobalRequirejs', function () {
+                it('ok', function () {
+                    core.loader.useGlobalRequirejs();
                 })
             });
-            describe('#stopBySandbox', function () {
-                it('pure object', function () {
-                    core.stopBySandbox({});
-                })
-                it('no paramas', function () {
-                    core.stopBySandbox();
-                })
-            });
-            describe('#stopByName', function () {
-            });
-            describe('#recycle', function () {
-            });
-            describe('#waitWidgets', function () {
-            });
-            describe('#registerWidgets', function () {
+            describe('#require', function () {
+                core.loader.require();
             });
         });
 
     });
 
-    describe('Sandbox', function () {
-        describe('')
+    describe('app', function () {
+        var app;
+        var $;
+        var $host;
+
+        // create a simple widget
+        function createWiget() {
+            var widgetName = 'hello';
+            app.widget.register(widgetName, {});
+
+            app.widget.start({
+                name: widgetName,
+                options: {
+                    host: $host
+                }
+            });
+
+            var $el = $host.find('.' + widgetName);
+            return app.sandboxes.get($el.data(app.core.constant.SANDBOX_REF_NAME));
+        }
+
+        beforeEach(function () {
+            app = veronica.createApp();
+            $ = app.core.$;
+            $host = $('<div></div>');
+        })
+
+        describe('widget', function () {
+            describe('.package', function () {
+                it('should run ok', function () {
+                    app.widget.package();
+                });
+            });
+            describe('.register', function () {
+                it('should run ok', function () {
+
+                    app.widget.register({});
+                    console.log(app.widget);
+                });
+            });
+            describe('.start', function () {
+                it('should create a widget', function () {
+
+                    var sandbox = createWiget();
+                    var widget = sandbox.getHost();
+                    var $el = widget.$el;
+
+                    $el.length.should.to.equal(1);
+                    widget._name.should.to.equal('hello');
+                    widget.sandbox.should.to.equal(sandbox);
+                    $el.parent().get(0).should.to.equal($host.get(0));
+                    $el.hasClass(app.core.constant.WIDGET_CLASS).should.to.be.true;
+                    (sandbox instanceof app.sandboxes.ctor()).should.to.be.true;
+                });
+            });
+            describe('.stop', function () {
+                it('should run ok when incoming Sandbox', function () {
+                    var sandbox = createWiget();
+
+                    app.widget.stop(sandbox);
+
+                    should.not.exist(app.sandboxes.get(sandbox.id));
+                    $host.children().length.should.to.equal(0);
+                });
+                it('should run ok when incoming jQuery element', function () {
+                    var sandbox = createWiget();
+
+                    app.widget.stop($host);
+
+                    $host.children().length.should.to.equal(0);
+                });
+                it('should run ok when incoming widget name', function () {
+                    var sandbox = createWiget();
+
+                    app.widget.stop(sandbox.name);
+
+                    $host.children().length.should.to.equal(0);
+                });
+            });
+        })
+
+
+        describe('view', function () {
+
+        });
     });
 });
