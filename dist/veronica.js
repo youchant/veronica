@@ -2831,7 +2831,6 @@ define('app/page',[], function () {
             change: function (name, params) {
                 var page = this;
                 var config = page.get(name);
-                var proms = core.util.donePromise(config);
 
                 // 自动生成页面配置
                 if (!config && app.config.autoBuildPage) {
@@ -2840,6 +2839,9 @@ define('app/page',[], function () {
                     page.add(obj);
                     config = page.get(name);
                 }
+
+                // 修复BUG
+                var proms = core.util.donePromise(config);
 
                 // 未找到页面配置，则从该路径后台读取页面配置
                 if (!config) {
@@ -2938,8 +2940,9 @@ define('app/layout',[
                 var layout = this.get(name);
 
                 if (!layout) {
-                    app.core.logger.warn('Could not find the layout configuration! layout name: ' + name);
-                    return app.core.util.failPromise();;
+                    //app.core.logger.warn('Could not find the layout configuration! layout name: ' + name);
+                    //return app.core.util.failPromise();
+                    return app.core.util.donePromise();
                 }
 
                 /**
