@@ -2384,7 +2384,7 @@ define('core/application',[
             features: ['dialog', 'plugin', 'spa'],
             autoParseWidgetName: false,  // 自动解析 widget 名称
             releaseWidgetPath: './widgets',  // 发布后的 widget 路径
-            widgetNamePattern: /(\w*)-?(\w*)-?(\w*)/g,  // 解析  widget 名称的正则
+            widgetNamePattern: /(\w*)-?(\w*)-?(\w*)/,  // 解析  widget 名称的正则
 
             global: false,  // 全局 app
             plugins: {},
@@ -4966,6 +4966,9 @@ define('app/view',[
              *   }
              */
             delegateModelEvents: noop,
+
+            rendered: noop,
+
             instance: noop,
             /**
              * 绑定方法
@@ -5085,11 +5088,11 @@ define('app/view',[
 
                 this._loadPlugin();
 
-                this.aspect();
+                this._invoke('aspect');
 
                 this._defaultListen();
 
-                this.listen();  // 添加子视图监听
+                this._invoke('listen');  // 添加子视图监听
 
                 if (this.options.autoResize) {
                     this.listenTo(this, 'rendered', function () {
@@ -5109,11 +5112,11 @@ define('app/view',[
                 }
 
                 // 初始化自定义属性
-                this.initAttr();
+                this.initAttr(app, _, $);
 
-                this.subscribe();  // 初始化广播监听
+                this.subscribe(app, _, $);  // 初始化广播监听
 
-                this.init();
+                this.init(app, _, $);
 
                 this._autoAction();
 
@@ -5140,6 +5143,7 @@ define('app/view',[
                     // 在渲染视图后重新绑定视图模型
                     this._bindViewModel();
                     this.options.autoST && this.setTriggers();
+                    this._invoke('rendered');
 
                 });
             },
@@ -5162,6 +5166,12 @@ define('app/view',[
                     this.options.plugin.call(this);
                 }
                 app.plugin && app.plugin.execute(sandbox.name, this);
+            },
+            _invoke: function () {
+                var args = _.toArray(arguments);
+                args = args.concat([app, _, $]);
+                var methodName = args[0];
+                this[methodName].apply(this, _.rest(args));
             },
             /**
              * 获取设置属性
@@ -5217,7 +5227,7 @@ define('app/view',[
             },
             _firstRender: function () {
                 if (this.options.domReady) {
-                    this.enhance();
+                    this._invoke('enhance');
                     this.trigger('rendered');
                 } else {
                     this.render();
@@ -5296,7 +5306,7 @@ define('app/view',[
                 this._rendered = true;
 
                 this._activeUI();
-                this.enhance();
+                this._invoke('enhance');
 
                 /**
                  * 渲染完毕
@@ -5389,7 +5399,7 @@ define('app/view',[
                 if (actionName.indexOf('Handler') < 0) {
                     actionName = actionName + 'Handler';
                 }
-                context[actionName] && context[actionName](e);
+                context[actionName] && context[actionName](e, app, _, $);
             },
             _getViewTriggerOptions: function (attr) {
                 var nameParts = attr.split('?');
