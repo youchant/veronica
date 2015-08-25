@@ -4969,6 +4969,10 @@ define('app/view',[
 
             rendered: noop,
 
+            modelBound: noop,
+
+            mixins: noop,
+
             instance: noop,
             /**
              * 绑定方法
@@ -5086,6 +5090,9 @@ define('app/view',[
                 // 混入AOP方法
                 app.core.util.extend(this, app.core.aspect);
 
+                // 应用mixins
+                this._applyMixins();
+
                 this._loadPlugin();
 
                 this._invoke('aspect');
@@ -5123,6 +5130,17 @@ define('app/view',[
                 // 渲染
                 this.options.autoRender && this._firstRender();
             },
+            _applyMixins: function () {
+                //TODO: 这里应将同名的属性或方法进行合并
+                var me = this;
+                _.each(this._invoke('mixins'), function (mixin) {
+                    _.each(mixin, function (value, key) {
+                        if (me[key] == null) {
+                            me[key] = value;
+                        }
+                    });
+                });
+            },
             _defaultListen: function () {
                 var me = this;
                 this.listenTo(this, 'modelBound', function (model) {
@@ -5132,6 +5150,7 @@ define('app/view',[
                             view.model(view.shareModel(model));
                         }
                     });
+                    me._invoke('modelBound');
                 });
                 this.listenTo(this, 'rendering', function () {
                     // 自动创建子视图
@@ -5153,8 +5172,8 @@ define('app/view',[
                     this.events || (this.events = {});
                     $.extend(this.events, {
                         'click [data-action]': '_actionHandler',
-                        'click [data-view]': '_viewHandler',
-                        'click [data-widget]': '_widgetHandler'
+                        'click [data-dlg-view]': '_dlgViewHandler',
+                        'click [data-dlg-widget]': '_dlgWidgetHandler'
                     });
                 }
             },
@@ -5401,6 +5420,7 @@ define('app/view',[
                 }
                 context[actionName] && context[actionName](e, app, _, $);
             },
+            // 获取触发视图配置项
             _getViewTriggerOptions: function (attr) {
                 var nameParts = attr.split('?');
                 var name = nameParts[0];
@@ -5411,9 +5431,9 @@ define('app/view',[
                 options._viewName = name;
                 return options;
             },
-            _viewHandler: function (e) {
+            _dlgViewHandler: function (e) {
                 var $el = $(e.currentTarget);
-                var options = this._getViewTriggerOptions($el.attr('data-view'));
+                var options = this._getViewTriggerOptions($el.attr('data-dlg-view'));
 
                 var initializer = function (options) {
                     var ctor = app.view.ctor(options._viewName);
@@ -5421,9 +5441,9 @@ define('app/view',[
                 };
                 this.viewWindow(options._viewName, initializer, options);
             },
-            _widgetHandler: function (e) {
+            _dlgWidgetHandler: function (e) {
                 var $el = $(e.currentTarget);
-                var options = this._getViewTriggerOptions($el.attr('data-widget'));
+                var options = this._getViewTriggerOptions($el.attr('data-dlg-widget'));
 
                 this.widgetWindow(options._viewName, options);
             },
