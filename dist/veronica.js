@@ -5190,7 +5190,7 @@ define('app/view',[
                 var args = _.toArray(arguments);
                 args = args.concat([app, _, $]);
                 var methodName = args[0];
-                this[methodName].apply(this, _.rest(args));
+                return this[methodName].apply(this, _.rest(args));
             },
             /**
              * 获取设置属性
@@ -5640,10 +5640,6 @@ define('app/router',[],function () {
 
     return function (app) {
         var _ = app.core._;
-        // 延迟页面切换
-        var _changePage = _.throttle(function (page, params) {
-            app.page.change(page, params);
-        }, 500);
 
         /**
          * Backbone 的 Router
@@ -5656,6 +5652,12 @@ define('app/router',[],function () {
          * @memberOf Application#
          */
         var router = {};
+
+        // 页面切换
+        router.changePage = _.throttle(function (page, params) {
+            app.page.change(page, params);
+        }, 500);
+
 
         var base = {
 
@@ -5671,7 +5673,7 @@ define('app/router',[],function () {
                 // this.route(new RegExp(app.config.router.pagePattern), 'openPage');
             },
             entry: function (params) {
-                _changePage(app.config.homePage, params);
+                router.changePage(app.config.homePage, params);
             },
             executeWidget: function (widgetName, source) {
                 app.sandbox.startWidgets({
@@ -5683,7 +5685,7 @@ define('app/router',[],function () {
                 });
             },
             openPage: function (page, params) {
-                _changePage(page, params);
+                router.changePage(page, params);
             }
 
         };
