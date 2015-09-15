@@ -54,7 +54,7 @@ module.exports = function (grunt) {
                     verbose: true,
                     destination: './site/api',
                     configure: 'jsdoc-conf.json',
-                    template: 'node_modules/jaguarjs-jsdoc',
+                    template: 'node_modules/jaguarjs-jsdoc-patched',
                     'private': false
                 }
             }
