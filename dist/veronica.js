@@ -2224,6 +2224,105 @@ define('util/aspect',[
 
 });
 
+define('core/querystring',[
+    'underscore'
+], function (_) {
+    var qs = {};
+
+    function QueryString(choice) {
+        this.choice = choice;
+    }
+
+    function qsToJSON (str) {
+        str || (str = location.search.slice(1));
+        var pairs = str.split('&');
+
+        var result = {};
+        _.each(pairs, function (pair) {
+            pair = pair.split('=');
+            result[pair[0]] = decodeURIComponent(pair[1] || '');
+        });
+
+        return JSON.parse(JSON.stringify(result));
+    }
+
+    function updateQueryString(uri, key, value) {
+        var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+        var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+        if (uri.match(re)) {
+            return uri.replace(re, '$1' + key + "=" + value + '$2');
+        }
+        else {
+            return uri + separator + key + "=" + value;
+        }
+    }
+
+    /**@lends QueryString.prototype */
+    var qs = QueryString.prototype;
+
+    qs._getUrl = function () {
+        var str = this.choice;
+        if (this.choice === 0) {
+            str = window.location.search
+        }
+        if (this.choice === 1) {
+            str = window.location.hash;
+        }
+        return str;
+    };
+
+    qs.set = function (key, value) {
+        var str = this._getUrl();
+
+        if (_.isObject(key)) {
+            _.each(key, function (val, k) {
+                str = updateQueryString(str, k, val);
+            });
+        } else {
+            str = updateQueryString(str, key, value);
+        }
+
+        if (this.choice == 1) {
+            window.location.hash = str;
+        } else {
+            window.location.search = str;
+        }
+
+    };
+
+    qs.get = function (key) {
+        var url = this._getUrl();
+
+        key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + key + "=([^&#]*)");
+        var results = regex.exec(url);
+
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    };
+
+    qs.toJSON = function () {
+        var url = this._getUrl();
+
+        var obj1;
+        if (this.choice !== 0 && this.choice !== 1) {
+            obj1 = qsToJSON(url);
+        }
+        var obj2 = qsToJSON(window.location.search);
+
+        var matches = /([^\?]*)\?([^\?]+)/.exec(url);
+        if (matches != null) {
+            url = '?' + matches[2];
+        }
+        var obj3 = qsToJSON(url);
+
+        return _.extend({}, obj2, obj3, obj1);
+    };
+
+    return function (choice) {
+        return new QueryString(choice);
+    };
+});
+
 define('core/core',[
     'jquery',
     'underscore',
@@ -2235,9 +2334,10 @@ define('core/core',[
     './loader',
     '../util/logger',
     '../util/util',
-    '../util/aspect'
+    '../util/aspect',
+    './querystring'
 ], function ($, _, EventEmitter, Events,
-    View, history, Router, loader, Logger, util, aspect) {
+    View, history, Router, loader, Logger, util, aspect, querystring) {
 
     'use strict';
 
@@ -2355,6 +2455,8 @@ define('core/core',[
     }
 
     veronica.mediator = new EventEmitter(emitterConfig);
+
+    veronica.qs = querystring;
 
     return veronica;
 });
@@ -4278,10 +4380,73 @@ define('app/view/view-mvvm',[],function () {
         var _ = app.core._;
         var noop = $.noop;
 
+        /**
+         * **`重定义`** 模型绑定，编写视图模型如何与视图进行绑定的逻辑
+         * @memberOf View#
+         * @name _bind
+         * @type {function}
+         * @returns {void}
+         * @example
+         *   app.view.base._bind = function () {
+         *     var vm = this.model();
+         *     vm.$mount(this.$el.get(0));
+         *   }
+         */
+        app.view.base._bind = noop;
+
+        /**
+         * **`重定义`** 创建模型，编写视图模型创建的逻辑
+         * @memberOf View#
+         * @name _createViewModel
+         * @type {function}
+         * @param {object} obj - 数据对象
+         * @returns {object} 视图模型对象
+         * @example
+         *   app.view.base._createViewModel = function () {
+         *     return kendo.observable(data);
+         *   }
+         */
         app.view.base._createViewModel = function (obj) {
             return obj;
         };
-        // 装载视图模型（数据， 是否更新视图绑定-默认更新）
+
+        /**
+         * **`可重写`** 处理与视图模型有关的事件绑定
+         * @type {function}
+         * @default
+         * @example
+         *   delegateModelEvents: function(vm){
+         *     vm.bind('change', function () {
+         *         // 处理代码
+         *     });
+         *     vm.bind('change.xxx', function () { });
+         *     
+         *     this._invoke(this.base.delegateModelEvents, vm);
+         *   }
+         */
+        app.view.base.delegateModelEvents = noop;
+
+        /**
+         * **`重写`** 模型改变处理函数
+         * @type {object}
+         * @example
+         *   modelChanged: {
+         *     'data.name': function(vm, e){
+         *        vm.set('data.fullname', e.value);
+         *     }
+         *   }
+         */
+        app.view.base.modelChanged = {};
+
+        /**
+         * 获取或设置视图模型
+         * @memberOf View#
+         * @name model
+         * @function
+         * @param {object|string} data(propName) - 数据对象 | 属性名称
+         * @param {bool} [bind=true] - 设置视图模型后，是否进行视图绑定
+         * @returns {object} 视图模型对象
+         */
         app.view.base.model = function (data, bind) {
             if (!_.isUndefined(data)) {
 
@@ -4350,7 +4515,7 @@ define('app/view/view-view',[],function () {
         var noop = $.noop;
 
 
-        // 创建已配置的子视图
+        // 创建多个子视图
         app.view.base._createSubviews = function (views) {
             var me = this;
             views || (views = this.views);
@@ -4365,31 +4530,31 @@ define('app/view/view-view',[],function () {
                 this.options.activeView && this.active(this.options.activeView);
             }
         };
-        // 创建子视图
+        // 创建单个子视图
         app.view.base._createSubview = function (view, name) {
-            if (_.isFunction(view)) {  // 方法
-                view = view.apply(this);
-            }
-
             if (view.cid) {  // 视图对象
                 view._name = name;
                 return view;
             }
 
-            // 配置对象
-            view.options = view.options || {};
-            if (_.isString(view.options.host)) {
-                view.options.host = this.$(view.options.host);
+            var viewConfig = view;
+            if (_.isFunction(view)) {  // 方法
+                viewConfig = view.apply(this);
             }
 
             // 确保 initializer 是个方法
-            view.initializer = app.view._createExecutor(view.initializer);
+            var viewInitializer = app.view._createExecutor(view.initializer);
+            var viewOptions = $.extend({}, view.options) || {};
 
-            return view.initializer(_.extend({
+            if (_.isString(viewOptions.host)) {
+                viewOptions.host = this.$(viewOptions.host);
+            }
+
+            return viewInitializer(_.extend({
+                _name: name,
                 sandbox: this.options.sandbox,
-                host: view.options.el ? false : this.$el,
-                _name: name
-            }, view.options));
+                host: viewOptions.el ? false : this.$el
+            }, viewOptions));
         };
 
         // 销毁视图
@@ -4418,11 +4583,11 @@ define('app/view/view-view',[],function () {
 
         /**
          * 获取或设置子视图
-         * @name view
          * @memberOf View#
+         * @name view
          * @function
          * @param {string} name 视图名称
-         * @param {View} view 视图对象
+         * @param {View} view 视图配置对象
          */
         app.view.base.view = function (name, view) {
             var me = this;
@@ -4451,7 +4616,6 @@ define('app/view/view-view',[],function () {
          * @memberOf View#
          * @param {string} name - 视图名称
          */
-        // 
         app.view.base.active = function (name) {
             var me = this;
             var targetView;
@@ -4474,8 +4638,21 @@ define('app/view/view-view',[],function () {
             targetView.trigger('active');
         };
 
+        /**
+         * **`可重写`** 激活UI，界面渲染完毕后执行的方法，可用于进行 jQuery 插件初始化
+         * 以及其他控件的初始化等
+         * @name _activeUI
+         * @function
+         * @memberOf View#
+         * @example
+         *   var baseActiveUI = app.view.base._activeUI;
+         *   app.view.base._activeUI = function () {
+         *     baseActiveUI();
+         *     // 放置你的自定义代码
+         *   }
+         */
         // 激活UI
-        app.view.base._activeUI = function () {
+        app.view.base._activeUI = function (app) {
 
             // 启用布局控件
             if ($.layout) {
@@ -4491,7 +4668,6 @@ define('app/view/view-view',[],function () {
                         });
                     });
                 }, 0);
-              
             }
 
         }
@@ -4527,7 +4703,7 @@ define('app/view/view-window',[],function () {
             var $root = getChildRoot(wnd);
 
             var paramConfigs = _(configs).map(function (refConfig) {
-                var config = $.extend({}, refConfig);
+                var config = $.extend(true, {}, refConfig);  // 深拷贝
                 config.options || (config.options = {});
                 config.options.host = config.options.host ? $root.find(config.options.host) : $root;
                 config.options.parentWnd = wnd;
@@ -4852,24 +5028,28 @@ define('app/view',[
              * @default
              */
             className: 'ver-view',
+
             /**
              * 模板
              * @type {string|function}
              * @default
              */
             template: null,
+
             /**
              * 该视图的默认参数
              * @type {object}
              * @default
              */
             defaults: {},
+
             /**
              * 配置该视图的子视图
              * @type {function|object}
              * @default
              */
             views: null,
+
             /**
              * 配置该视图的子视图 **`重写`**
              * @type {function}
@@ -4883,6 +5063,7 @@ define('app/view',[
              *   }
              */
             aspect: noop,
+
             /**
              * 订阅消息 **`重写`**
              * @type {function}
@@ -4896,6 +5077,7 @@ define('app/view',[
              *   }
              */
             subscribe: noop,
+
             /**
              * 监听自身和子视图事件 **`重写`**
              * @type {function}
@@ -4911,6 +5093,7 @@ define('app/view',[
              *   }
              */
             listen: noop,
+
             /**
              *  **`重写`** 进行UI增强（在 `render` 过程中，需要自定义的一些行为，
              * 通常放置一些不能被绑定初始化的控件初始化代码）
@@ -4925,12 +5108,14 @@ define('app/view',[
              *   }
              */
             enhance: noop,
+
             /**
              * **`重写`** 视图的自定义初始化代码
              * @type {function}
              * @default
              */
             init: noop,
+
             /**
              * **`重写`** 初始化属性
              * @type {function}
@@ -4946,53 +5131,90 @@ define('app/view',[
              *  }
              */
             initAttr: noop,
+
             /**
              * **`重写`** 重写该方法，使视图自适应布局，当开启 `autoResize` 后，窗口大小变化时，该方法会被调用，
              * 如果有必要，在该方法中应编写窗口大小变化时，该视图对应的处理逻辑
              * @type {function}
              */
             resize: noop,
+
             /**
-             * 处理与视图模型有关的事件绑定
+             * **`重写`** 视图渲染完毕后执行的方法
              * @type {function}
-             * @default
              * @example
-             *   delegateModelEvents: function(){
-             *       var viewModel = this.model();
-             *       viewModel.bind('change', function(){
-             *           // 处理代码
-             *       });
-             *       viewModel.bind('change.xxx', function(){ });
+             *   rendered: function () {
+             *       this.getModel();
              *   }
              */
-            delegateModelEvents: noop,
-
             rendered: noop,
 
+            /**
+             * **`重写`** 模型绑定完成后执行的方法
+             * @type {function}
+             * @example
+             *   modelBound: function () {
+             *       this.loadData();
+             *   }
+             */
             modelBound: noop,
 
+            /**
+             * **`重写`** 混入其他视图方法
+             * @type {function}
+             * @returns {array}
+             * @example
+             *   mixins: function () {
+             *       return [editHelper];
+             *   }
+             */
             mixins: noop,
 
-            instance: noop,
             /**
-             * 绑定方法
-             * @inner
+             * **`重定义`** 根据元素获取该元素上创建的界面控件的实例
+             * @type {function}
+             * @returns {object}
+             * @example
+             *   instance: function (el) {
+             *       return this.$(el).data('instance');
+             *   }
              */
-            _bind: noop,
+            instance: noop,
+
             /**
-             * 自定义销毁
-             * @inner
+             * **`重写`** 自定义销毁，通常用于释放视图使用的全局资源
+             * @type {function}
+             * @example
+             *   _customDestory: function () {
+             *     $(window).off('resize', this.resizeHanlder);
+             *   }
              */
             _customDestory: noop,
+
             /**
              * 可切换的视图集合
              */
             switchable: [],
+
+            /**
+             * **`重写`** 视图的静态视图模型，所有视图实例和不同的模型对象都会包含的模型属性
+             * @type {function|object}
+             * @example
+             *   staticModel: function (app) {
+             *     return {
+             *       listSource: app.data.source()
+             *     };
+             *   }
+             */
+            staticModel: {},
+
+            attrChanged: {},
+
             /**
              * 视图初始化
              * @function
              * @inner
-             * @listens View#rendered
+             * @listens View#initialize
              */
             initialize: function (options) {
 
@@ -5022,7 +5244,7 @@ define('app/view',[
                  * @name baseModel
                  * @memberOf View#
                  */
-                this.baseModel = {};
+                this.baseModel = _.result(this, 'staticModel');
                 this.viewModel = {};  // 该视图的视图模型
                 this._activeViewName = null;
                 this._name = options._name;
@@ -5163,7 +5385,13 @@ define('app/view',[
                     this._bindViewModel();
                     this.options.autoST && this.setTriggers();
                     this._invoke('rendered');
+                });
 
+                // 监听属性变更
+                this.listenTo(this, 'attr-changed', function (name, value) {
+                    var handler = this.attrChanged[name];
+                    if (handler == null) { handler = this.attrChanged['defaults'] };
+                    this._invoke(handler, value, name);
                 });
             },
             _autoAction: function () {
@@ -5190,7 +5418,57 @@ define('app/view',[
                 var args = _.toArray(arguments);
                 args = args.concat([app, _, $]);
                 var methodName = args[0];
-                return this[methodName].apply(this, _.rest(args));
+                var method = methodName;
+                if (_.isString(methodName)) {
+                    method = this[methodName];
+                }
+                return method.apply(this, _.rest(args));
+            },
+            /**
+             * 定义属性
+             * @function
+             * @param {object} options - 配置项
+             * @param {string} options.name - 属性名称
+             * @param {function} [options.getter] - 获取数据的方法
+             * @param {string} [options.origin=options] - 数据来源（包括：'options', 'global', 'querystring'）
+             * @param {string} [options.event=rendered] - 初始化时机（所有该视图相关的事件名称）
+             * @param {string} [options.originName] - 原始数据的字段名称
+             */
+            defineAttr: function (options) {
+                if (options.origin == null) options.origin = 'options';
+                if (options.event == null) options.event = 'rendered';
+                if (options.originKey == null) options.originKey = options.name;
+
+                var me = this;
+                if (options.origin === 'options') {
+                    if (options.getter == null) {
+                        options.getter = function (data) {
+                            return this.options[data.originKey];
+                        }
+                    }
+                }
+
+                if (options.origin === 'querystring') {
+                    if (options.getter == null) {
+                        options.getter = function (opt) {
+                            return app.qs.get(opt.originKey);
+                        }
+                    }
+                    // 监听查询字符串改变
+                    this.sub('qs-changed', function (obj, name, value) {
+                        if (name === options.originKey) {
+                            me.attr(options.name, value);
+                        }
+                    });
+                }
+
+                // 当事件发生时，设置该属性
+                this.listenTo(this, options.event, function () {
+                    var val = this._invoke(options.getter, options);
+
+                    this.attr(options.name, val);
+                });
+
             },
             /**
              * 获取设置属性
@@ -5199,7 +5477,7 @@ define('app/view',[
             attr: function (name, value) {
                 if (!_.isUndefined(value)) {
                     this._attributes[name] = value;
-                    this.trigger('attr-change', name, value);
+                    this.trigger('attr-changed', name, value);
                 }
                 return this._attributes[name];
             },
@@ -5315,6 +5593,7 @@ define('app/view',[
                 // append
                 if (this.options.host && this._appended !== true) {
                     var placeMethod = options._place === 1 ? 'prependTo' : 'appendTo';
+                    // 只有当前页面与 view 所属页面相同时，才呈现到界面上
                     if (!this.options._page || this.options._page === app.page.active()) {
                         this.$el[placeMethod](this.options.host);
                         this._appended = true;
@@ -5324,7 +5603,7 @@ define('app/view',[
                 sandbox.log(this.cid + ' rendered');
                 this._rendered = true;
 
-                this._activeUI();
+                this._invoke('_activeUI');
                 this._invoke('enhance');
 
                 /**
@@ -5487,6 +5766,7 @@ define('app/view',[
          * 基础配置对象
          */
         view.base = base;
+
 
         /**
          * 创建一个 View 执行器
@@ -5800,6 +6080,47 @@ define('app/ajax',[
             }, options));
         }
 
+        request.getBundle = function () {
+            var urls = Array.prototype.slice.call(arguments);
+            var requests = $.map(urls, function (item) {
+                if (_.isString(item)) {
+                    return $.get(item);
+                } else {
+                    return item.done ? item : $.get(item.url, item.data);
+                }
+            });
+            var deferred = $.Deferred();
+            $.when.apply($, requests).done(function () {
+                var args = _.toArray(arguments);
+                var result = _.map(args, function (prop) {
+                    return _.isArray(prop) ? (prop[1] === 'success' ? prop[0] : prop) : prop;
+                });
+                deferred.resolve.apply(deferred, result);
+            }).fail(function () {
+                deferred.reject(arguments);
+            });
+
+            return deferred.promise();
+        }
+
+        request.download = function (settings) {
+            settings || (settings = {}); //eg: { url: '', data: [object] }
+            if (settings.url == undefined) {
+                return;
+            }
+            if (!_.isString(settings.data)) {
+                settings.data = $.param(settings.data, true);
+            }
+            if (!isChromeFrame()) {  //当使用ChromeFrame时，采用新窗口打开
+                if ($('#global-download-iframe').length === 0) {
+                    $('<iframe id="global-download-iframe" src="" style="width:0;height:0;display: inherit;border:0;" \>').appendTo(document.body);
+                }
+                $('#global-download-iframe').attr('src', settings.url + '?' + settings.data);
+            } else {
+                window.open(settings.url + '?' + settings.data, "newwindow");
+            }
+        };
+
         app.request = request;
     };
 });
@@ -5837,6 +6158,34 @@ define('app/hash',[
 
         return hash;
 
+    };
+});
+
+define('app/qs',[
+], function () {
+    return function (app) {
+
+        var $ = app.core.$;
+
+        /**
+         * @namespace
+         * @memberOf Application#
+         */
+
+        var changeMode = function (mode) {
+            var qs = app.core.qs(mode);
+            var originSet = qs.set;
+
+            qs.set = function(name, value){
+                originSet.call(qs, name, value);
+                app.sandbox.emit('qs-changed', qs.toJSON(), name, value);
+            };
+            return qs;
+        };
+
+        var qs = changeMode(1);
+
+        app.qs = qs;
     };
 });
 
@@ -7555,10 +7904,11 @@ define('app/app',[
     './router',
     './ajax',
     './hash',
+    './qs',
     './ui/dialog'
 ], /**@lends veronica */function (core, Application, emitQueue, page, layout, module,
     navigation, plugin, sandboxes, widget, parser, view, data, templates, router,
-    ajax, hash, dialog) {
+    ajax, hash, qs, dialog) {
 
     'use strict';
 
@@ -7625,6 +7975,7 @@ define('app/app',[
         data(app);
         templates(app);
         hash(app);
+        qs(app);
 
         if ($.inArray('dialog', app.config.features) > -1) {
             // dialog

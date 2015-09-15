@@ -10,6 +10,17 @@ define([
             autoAction: true
         },
         template: tpl,
+        initAttr: function () {
+            this.defineAttr({
+                name: 'code',
+                origin: 'querystring'
+            })
+        },
+        attrChanged: {
+            'code': function (value) {
+                alert(value);
+            }
+        },
         views: {
             'sub': {
                 initializer: subView,
@@ -17,6 +28,9 @@ define([
                     host: '.subView'
                 }
             }
+        },
+        changeHandler: function (e, app) {
+            app.qs.set('code', '12312222')
         }
     };
 });
