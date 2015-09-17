@@ -5027,7 +5027,7 @@ define('app/view',[
              * @type {string}
              * @default
              */
-            className: 'ver-view',
+            className: '',
 
             /**
              * 模板
@@ -5315,6 +5315,8 @@ define('app/view',[
                 // 应用mixins
                 this._applyMixins();
 
+                this.$el.addClass('ver-view');
+
                 this._loadPlugin();
 
                 this._invoke('aspect');
@@ -5348,6 +5350,8 @@ define('app/view',[
                 this.init(app, _, $);
 
                 this._autoAction();
+
+                this.trigger('init');
 
                 // 渲染
                 this.options.autoRender && this._firstRender();
@@ -5430,40 +5434,42 @@ define('app/view',[
              * @param {object} options - 配置项
              * @param {string} options.name - 属性名称
              * @param {function} [options.getter] - 获取数据的方法
-             * @param {string} [options.origin=options] - 数据来源（包括：'options', 'global', 'querystring'）
-             * @param {string} [options.event=rendered] - 初始化时机（所有该视图相关的事件名称）
-             * @param {string} [options.originName] - 原始数据的字段名称
+             * @param {string} [options.source=options] - 数据来源（包括：'options', 'global', 'querystring'）
+             * @param {string} [options.setup=rendered] - 初始化时机（所有该视图相关的事件名称）
+             * @param {string} [options.sourceKey] - 原始数据的字段名称
              */
             defineAttr: function (options) {
-                if (options.origin == null) options.origin = 'options';
-                if (options.event == null) options.event = 'rendered';
-                if (options.originKey == null) options.originKey = options.name;
+                if (options.source == null) options.source = 'options';
+                if (options.setup == null) options.setup = 'rendered';
+                if (options.sourceKey == null) options.sourceKey = options.name;
 
                 var me = this;
-                if (options.origin === 'options') {
+                if (options.source === 'options') {
                     if (options.getter == null) {
                         options.getter = function (data) {
-                            return this.options[data.originKey];
+                            return this.options[data.sourceKey];
                         }
                     }
                 }
 
-                if (options.origin === 'querystring') {
+                if (options.source === 'querystring') {
                     if (options.getter == null) {
                         options.getter = function (opt) {
-                            return app.qs.get(opt.originKey);
+                            return app.qs.get(opt.sourceKey);
                         }
                     }
                     // 监听查询字符串改变
-                    this.sub('qs-changed', function (obj, name, value) {
-                        if (name === options.originKey) {
+                    this.sub('qs-changed', function (obj) {
+                        var value = obj[options.sourceKey];
+                        var originalValue = me.attr(options.name);
+                        if (value != originalValue) {
                             me.attr(options.name, value);
                         }
                     });
                 }
 
                 // 当事件发生时，设置该属性
-                this.listenTo(this, options.event, function () {
+                this.listenToOnce(this, options.setup, function () {
                     var val = this._invoke(options.getter, options);
 
                     this.attr(options.name, val);
@@ -6174,12 +6180,6 @@ define('app/qs',[
 
         var changeMode = function (mode) {
             var qs = app.core.qs(mode);
-            var originSet = qs.set;
-
-            qs.set = function(name, value){
-                originSet.call(qs, name, value);
-                app.sandbox.emit('qs-changed', qs.toJSON(), name, value);
-            };
             return qs;
         };
 
