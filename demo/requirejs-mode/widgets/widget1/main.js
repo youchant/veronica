@@ -1,11 +1,11 @@
 define([
     'text!./index.html',
     './subView',
-    'ver!world'
+    'ver!widget2'
 ], function (tpl, subView) {
 
     return {
-        name: 'hello',
+        name: 'view1',
         defaults: {
             autoAction: true
         },

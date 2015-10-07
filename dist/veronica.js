@@ -1783,12 +1783,13 @@ define('core/loader',[
 
     /**
      * @namespace
-     * @memberOf Veronica
+     * @memberOf veronica
      */
     var loader = {};
 
     /**
      * 使用全局的require变量
+     * @returns {Object} RequireJS 的 require 变量（修复使用 almond 后本地 require 被覆盖的问题）
      */
     loader.useGlobalRequire = function () {
         return window.require ? window.require : require;
@@ -1796,6 +1797,7 @@ define('core/loader',[
 
     /**
      * 使用全局的requirejs变量
+     * @returns {Object} RequireJS 的 requirejs 变量（修复使用 almond 后本地 requirejs 被覆盖的问题）
      */
     loader.useGlobalRequirejs = function () {
         return window.requirejs ? window.requirejs : requirejs;
@@ -1888,6 +1890,7 @@ define('util/logger',[], function () {
     /**
      * @classdesc 浏览器控制台日志对象
      * @class Logger
+     * @memberOf veronica
      */
     function Logger(name) {
         this.name = name || DEFAULT_NAME;
@@ -1899,7 +1902,7 @@ define('util/logger',[], function () {
         return this;
     }
 
-    /**@lends Logger#*/
+    /**@lends veronica.Logger#*/
     var proto = {
         constructor: Logger,
         /**设置名称*/
@@ -2229,6 +2232,24 @@ define('core/querystring',[
 ], function (_) {
     var qs = {};
 
+    /**
+     * 查询字符串的来源
+     * @enum
+     * @type {number}
+     */
+    var QueryStringType = {
+        /** 浏览器 URL 的查询部分 */
+        SEARCH: 0,
+        /** 浏览器 URL 的 hash 部分 */
+        HASH: 1
+    };
+
+    /**
+     * 查询字符串处理类
+     * @class QueryString
+     * @memberOf veronica
+     * @param {QueryStringType} choice - 查询字符串来源
+     */
     function QueryString(choice) {
         this.choice = choice;
     }
@@ -2257,9 +2278,13 @@ define('core/querystring',[
         }
     }
 
-    /**@lends QueryString.prototype */
+    /**@lends veronica.QueryString# */
     var qs = QueryString.prototype;
 
+    /**
+     * 获取查询字符串的 url
+     * @private
+     */
     qs._getUrl = function () {
         var str = this.choice;
         if (this.choice === 0) {
@@ -2271,6 +2296,11 @@ define('core/querystring',[
         return str;
     };
 
+    /**
+     * 设置
+     * @param {string} key
+     * @param {Any} value
+     */
     qs.set = function (key, value) {
         var str = this._getUrl();
 
@@ -2290,6 +2320,11 @@ define('core/querystring',[
 
     };
 
+    /**
+     * 获取值
+     * @param {string} key
+     * @returns {string} 结果
+     */
     qs.get = function (key) {
         var url = this._getUrl();
 
@@ -2300,6 +2335,10 @@ define('core/querystring',[
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     };
 
+    /**
+     * 整个转换为对象
+     * @returns {Object} 结果
+     */
     qs.toJSON = function () {
         var url = this._getUrl();
 
@@ -2342,39 +2381,34 @@ define('core/core',[
     'use strict';
 
     /**
+     * `veronica` 或者通过 `app.core`
      * @namespace veronica
-     * @description `veronica` 或者 通过 `app.core`
      */
+
+    /** @lends veronica# */
     var veronica = {
         /**
          * jquery 对象
-         * @memberOf veronica
          */
         $: $,
         /**
          * underscore 对象
-         * @memberOf veronica
          */
         _: _,
         /**
          * 扩展对象
-         * @memberOf veronica
+         * @deprecated
          */
         ext: {},
         /**
          * 帮助对象
-         * @memberOf veronica
          */
         helper: {},
         View: View,
         Router: Router,
         history: history,
         Events: Events,
-        i18n: {
-            defaultDialogTitle: '对话框',
-            windowCloseText: '关闭',
-            loadingText: '加载中...'
-        },
+
         /**
          * 所有常量
          */
@@ -2386,13 +2420,34 @@ define('core/core',[
             WIDGET_TAG: 'ver-tag',
             SANDBOX_REF_NAME: '__sandboxRef__'
         },
-        /**
-         * 所有枚举
-         * @namespace
-         * @memberOf veronica
-         */
-        enums: { }
+
     };
+
+    /**
+     * 显示文本（国际化）
+     * @namespace
+     * @memberOf veronica
+     */
+    var i18n = {
+        /**
+         * 对话框标题
+         * @default
+         */
+        defaultDialogTitle: '对话框',
+        /** 对话框关闭文本 */
+        windowCloseText: '关闭',
+        /** 加载中文本 */
+        loadingText: '加载中...'
+    };
+    veronica.i18n = i18n;
+
+    /**
+     * 所有枚举
+     * @namespace
+     * @memberOf veronica
+     */
+    var enums = { }
+    veronica.enums = enums;
 
     /**
      * 沙箱宿主枚举
@@ -2406,15 +2461,12 @@ define('core/core',[
     }
     veronica.enums.hostType = hostType;
 
-    /**
-     * 加载器
-     * @memberOf veronica
-     */
     veronica.loader = loader;
+
     /**
      * 工具方法
+     * @namespace util
      * @memberOf veronica
-     * @namespace
      */
     veronica.util = util;
 
@@ -2422,7 +2474,8 @@ define('core/core',[
 
     /**
      * 获取全局配置
-     * @function veronica.getConfig
+     * @function
+     * @return {Object}
      */
     veronica.getConfig = (function () {
         var requirejs = veronica.loader.useGlobalRequirejs();
@@ -2437,10 +2490,21 @@ define('core/core',[
         };
     }());
 
+    /**
+     * 日志记录
+     * @type {Logger}
+     */
     veronica.logger = new Logger();
+
     if (veronica.getConfig().debug) {
         veronica.logger.enable();
     }
+
+    /**
+     * 事件发送者
+     * @external EventEmitter
+     * @see {@link https://github.com/asyncly/EventEmitter2}
+     */
 
     // 中介者
     var emitterConfig = _.defaults(veronica.getConfig() || {}, {
@@ -2454,8 +2518,20 @@ define('core/core',[
         return new EventEmitter(emitterConfig);
     }
 
+
+
+    /**
+     * 消息中介者对象
+     * @type {EventEmitter}
+     */
     veronica.mediator = new EventEmitter(emitterConfig);
 
+    /**
+     * 创建查询字符串处理对象
+     * @function
+     * @param {QueryStringType} choice - 查询字符串来源
+     * @return {QueryString}
+     */
     veronica.qs = querystring;
 
     return veronica;
@@ -2473,6 +2549,7 @@ define('core/application',[
      * @class Application
      * @param {object} [options] - 选项
      * @param {string} options.name
+     * @memberOf veronica
      */
     function Application(options) {
         var $ = core.$;
@@ -2488,7 +2565,7 @@ define('core/application',[
             releaseWidgetPath: './widgets',  // 发布后的 widget 路径
             widgetNamePattern: /(\w*)-?(\w*)-?(\w*)/,  // 解析  widget 名称的正则
 
-            global: false,  // 全局 app
+            global: true,  // 全局 app
             plugins: {},
             defaultPage: 'default',
             homePage: 'home',
@@ -2527,7 +2604,7 @@ define('core/application',[
             options.modules = [options.module.defaultModule];
         }
 
-        /**@lends Application#*/
+        /**@lends veronica.Application#*/
         var prop = {
             _extensions: [],
             /**
@@ -2536,6 +2613,7 @@ define('core/application',[
             name: options.name,
             /**
              * veronica 对象
+             * @see {@link veronica}
              */
             core: core,
             /**
@@ -2553,7 +2631,7 @@ define('core/application',[
     }
 
 
-    /**@lends Application.prototype */
+    /**@lends veronica.Application# */
     var proto = {
         constructors: Application,
         /**
@@ -2605,8 +2683,8 @@ define('core/application',[
         },
         /**
          * 使用用户扩展
-         * @param {function} 扩展函数
-         * @returns {object} this
+         * @param {Function} ext - 扩展函数
+         * @returns {Object} this
          * @example
          *  var extension = function(app){
          *      app.ext.sayHello = function(){
@@ -2627,9 +2705,9 @@ define('core/application',[
         },
         /**
          * 混入
-         * @param {object} mixin 混入的对象
+         * @param {Object} mixin 混入的对象
          * @param {boolean} [isExtend=true] 是否扩展到该实例上
-         * @returns {object} this
+         * @returns {Object} this
          */
         mixin: function (mixin, isExtend) {
             if (isExtend == null) {
@@ -2719,11 +2797,13 @@ define('app/page',[], function () {
         }
 
         /**
-         * 页面相关
-         * @namespace
-         * @memberOf Application#
+         * 无法通过构造函数直接构造
+         * @classdesc 页面相关
+         * @class veronica.Page
          */
-        var page = {
+
+        /** @lends veronica.Page# */
+        var lit = {
             _pages: {
                 // 页面的基类
                 '_common': {
@@ -2748,8 +2828,11 @@ define('app/page',[], function () {
             },
             /**
              * 获取当前页面名称
+             * @function
+             * @name currName
+             * @memberOf Page#
              */
-            getCurrentName: function () {
+            currName: function () {
                 return this.get('currPageName');
             },
             /**
@@ -2768,7 +2851,7 @@ define('app/page',[], function () {
                         });
                     }
                 }
-                var currPageName = this.getCurrentName();
+                var currPageName = this.currName();
                 var currPageConfig;
                 var dfd = $.Deferred();
                 var proms = core.util.donePromise();
@@ -2965,7 +3048,12 @@ define('app/page',[], function () {
             }
         }
 
-        app.page = page;
+        /**
+         * @name page
+         * @memberOf veronica.Application#
+         * @type {veronica.Page}
+         */
+        app.page = lit;
 
     };
 });
@@ -2988,9 +3076,12 @@ define('app/layout',[
          */
 
         /**
-         * @namespace
-         * @memberOf Application#
+         * 无法直接构造
+         * @class veronica.Layout
+         * @classdesc 布局
          */
+
+        /** @lends veronica.Layout# */
         var layout = {
             /**
              * 布局存储
@@ -3090,6 +3181,12 @@ define('app/layout',[
             html: '<div class="' + PAGEVIEW_CLASS + '"></div>'
         };
 
+        /**
+         * 布局
+         * @name layout
+         * @memberOf veronica.Application#
+         * @type {veronica.Layout}
+         */
         app.layout = layout;
     };
 
@@ -3110,7 +3207,7 @@ define('app/module',[
             /**
              * 不直接调用构造函数，通过 `app.module.create` 创建
              * @classdesc 应用程序模块
-             * @class Module
+             * @class veronica.Module
              * @param {moduleConfig} options - 配置项
              * @param {function} [execution] - 入口执行方法
              * @example
@@ -3153,7 +3250,7 @@ define('app/module',[
             }
 
             /**
-             * @lends Module#
+             * @lends veronica.Module#
              */
             var proto = {
                 constructor: Mod,
@@ -3249,9 +3346,12 @@ define('app/module',[
          */
 
         /**
-         * @namespace
-         * @memberOf Application#
+         * 无法直接构造
+         * @classdesc 模块
+         * @class veronica.ModuleHandler
          */
+
+        /** @lends veronica.ModuleHandler# */
         var module = {
             _modules: {},
             /** 
@@ -3266,6 +3366,7 @@ define('app/module',[
              * 创建模块
              * @param {moduleConfig} options - 配置项
              * @param {function} execution - 入口执行方法
+             * @returns {veronica.Module}
              */
             create: function (options, execution) {
                 return new Mod(options, execution);
@@ -3280,6 +3381,7 @@ define('app/module',[
             /**
              * 获取模块，不传名称则获取所有模块
              * @param {string} [name] - 模块名称
+             * @returns {veronica.Module}
              */
             get: function (name) {
                 return name == null ? this._modules : this._modules[name];
@@ -3290,6 +3392,11 @@ define('app/module',[
             }
         };
 
+        /**
+         * @name module
+         * @type {veronica.ModuleHandler}
+         * @memberOf veronica.Application#
+         */
         app.module = module;
     };
 
@@ -3479,6 +3586,7 @@ define('core/sandbox',[
     /**
      * @classdesc 沙箱，管理公共方法、消息传递、宿主生命周期维护
      * @class Sandbox
+     * @memberOf veronica
      */
     function Sandbox(options) {
 
@@ -3516,7 +3624,7 @@ define('core/sandbox',[
 
     }
 
-    /**@lends Sandbox# */
+    /**@lends veronica.Sandbox# */
     var proto = {
         constructor: Sandbox,
         /**
@@ -3688,10 +3796,12 @@ define('app/sandboxes',[
         var _ = core._;
 
         /**
-         * 管理所有沙箱
-         * @namespace
-         * @memberOf Application#
+         * 无法直接构造
+         * @classdesc 管理所有沙箱
+         * @class veronica.Sandboxes
          */
+
+        /** @lends veronica.Sandboxes# */
         var sandboxes = {
             _sandboxPool: {}
         };
@@ -3751,6 +3861,11 @@ define('app/sandboxes',[
             });
         };
 
+        /**
+         * @name sandboxes
+         * @memberOf veronica.Application#
+         * @type {veronica.Sandboxes}
+         */
         app.sandboxes = sandboxes;
     };
 
@@ -3761,12 +3876,13 @@ define('core/widget',[],function () {
     'use strict';
 
     /**
-     * @classdesc Widget
+     * @classdesc widget 对象一般是一个视图，称为“主视图”
      * @class Widget
+     * @memberOf veronica
      * @param {function} executor - 创建 widget 基础对象的方法
      * @param {WidgetConfig} options - 配置
-     * @param {Application} app - 当前应用程序
-     * @see {@link View} 查看关于视图的更多信息（widget 对象一般是一个视图，称为“主视图”）
+     * @param {veronica.Application} app - 当前应用程序
+     * @see {@link veronica.View}
      */
     var Widget = function (executor, options, app) {
         var core = app.core;
@@ -3789,7 +3905,7 @@ define('core/widget',[],function () {
         options = $.extend(defaults, options);
 
         // 将对象转换成执行函数
-        executor = app.view._createExecutor(executor);
+        executor = app.view.define(executor, true);
 
         if (_.isFunction(executor)) { funcResult = executor(options); }
         if (_.isUndefined(funcResult)) {
@@ -3846,9 +3962,11 @@ define('app/widget',[
         var require = core.loader.useGlobalRequire();  // 使用 requirejs，而不是
 
         /**
-         * @namespace
-         * @memberOf Application#
+         * @classdesc 部件操作类
+         * @class veronica.WidgetHandler
          */
+
+        /** @lends veronica.WidgetHandler# */
         var widget = {
             /**
              * 本地 widget 初始化器
@@ -4229,7 +4347,7 @@ define('app/widget',[
                     if (sandbox.getHost) {
                         widgetObj = sandbox.getHost();
                         // TODO: 这里为什么不移除？？
-                        if (widgetObj && widgetObj.loadingTemplate) { return; }
+                        if (widgetObj && widgetObj.state.templateIsLoading) { return; }
                     }
 
                     // 从父元素中移除该沙箱
@@ -4318,6 +4436,11 @@ define('app/widget',[
 
         };
 
+        /**
+         * @name widget
+         * @type {veronica.WidgetHandler}
+         * @memberOf veronica.Application#
+         */
         app.widget = widget;
 
     };
@@ -4333,344 +4456,278 @@ define('app/parser',[
         var $ = app.core.$;
         var VER_ROLE = 'data-ver-role';
 
-        app.parser = {}
+        /**
+         * 无法直接构造
+         * @classdesc 页面 parser
+         * @class Parser
+         * @memberOf veronica
+         */
 
-        app.parser.parse = function (dom, type) {
-            dom || (dom = 'body');
+        /** @lends veronica.Parser# */
+        var parser = {
+            /**
+             * 解析页面，初始化指定 DOM 下的 widget
+             * @param {string|Object} [dom] - dom 元素或选择器
+             */
+            parse: function (dom) {
+                dom || (dom = 'body');
 
-            var widgetList = [];
-            $(dom).find('[' + VER_ROLE + ']').each(function (idx, el) {
-                var $el = $(el);
-                var data = $el.data();
+                var widgetList = [];
+                $(dom).find('[' + VER_ROLE + ']').each(function (idx, el) {
+                    var $el = $(el);
+                    var data = $el.data();
 
-                data.options || (data.options = {});
-                data.options.el = $el;
-                widgetList.push({
-                    name: data.verRole,
-                    options: data.options
+                    data.options || (data.options = {});
+                    data.options.el = $el;
+                    widgetList.push({
+                        name: data.verRole,
+                        options: data.options
+                    });
                 });
-            });
 
-            app.sandbox.startWidgets(widgetList);
+                app.sandbox.startWidgets(widgetList);
+            },
+
+            /**
+             * 解析 widget 下的所有视图
+             * @param {Widget} widget - widget
+             * @param {object} views - 初始化器键值对
+             */
+            parseView: function (widget, views) {
+                $(widget.$el).find('[' + VER_ROLE + ']').each(function (idx, el) {
+                    var $el = $(el);
+                    var data = $el.data();
+
+                    data.options || (data.options = {});
+                    data.options.el = $el;
+                    widget.view(data.verRole, {
+                        name: data.verRole,
+                        initializer: views[data.verRole],
+                        options: data.options
+                    });
+                });
+            }
         }
 
-        app.parser.parseView = function (widget, views) {
-            $(widget.$el).find('[' + VER_ROLE + ']').each(function (idx, el) {
-                var $el = $(el);
-                var data = $el.data();
 
-                data.options || (data.options = {});
-                data.options.el = $el;
-                widget.view(data.verRole, {
-                    name: data.verRole,
-                    initializer: views[data.verRole],
-                    options: data.options
-                });
-            });
-        }
+
+        /**
+         * 页面 parser
+         * @name parser
+         * @memberOf veronica.Application#
+         * @type {veronica.Parser}
+         */
+        app.parser = parser;
     };
 
 });
 define('app/view/view-mvvm',[],function () {
 
-    //var WND_CONTAINER = '#ver-modal';
-
     return function (app) {
         var $ = app.core.$;
         var _ = app.core._;
         var noop = $.noop;
 
-        /**
-         * **`重定义`** 模型绑定，编写视图模型如何与视图进行绑定的逻辑
-         * @memberOf View#
-         * @name _bind
-         * @type {function}
-         * @returns {void}
-         * @example
-         *   app.view.base._bind = function () {
-         *     var vm = this.model();
-         *     vm.$mount(this.$el.get(0));
-         *   }
-         */
-        app.view.base._bind = noop;
-
-        /**
-         * **`重定义`** 创建模型，编写视图模型创建的逻辑
-         * @memberOf View#
-         * @name _createViewModel
-         * @type {function}
-         * @param {object} obj - 数据对象
-         * @returns {object} 视图模型对象
-         * @example
-         *   app.view.base._createViewModel = function () {
-         *     return kendo.observable(data);
-         *   }
-         */
-        app.view.base._createViewModel = function (obj) {
-            return obj;
+        var options = {
+            bindEmptyModel: false,
+            sharedModel: null,
+            sharedModelProp: null
         };
 
-        /**
-         * **`可重写`** 处理与视图模型有关的事件绑定
-         * @type {function}
-         * @default
-         * @example
-         *   delegateModelEvents: function(vm){
-         *     vm.bind('change', function () {
-         *         // 处理代码
-         *     });
-         *     vm.bind('change.xxx', function () { });
-         *     
-         *     this._invoke(this.base.delegateModelEvents, vm);
-         *   }
-         */
-        app.view.base.delegateModelEvents = noop;
+        /** @lends veronica.View# */
+        var configs = {
+            /**
+             * **`重写`** 视图的静态视图模型，所有视图实例和不同的模型对象都会包含的模型属性
+             * @type {function|object}
+             * @example
+             *   staticModel: function (app) {
+             *     return {
+             *       listSource: app.data.source()
+             *     };
+             *   }
+             */
+            staticModel: {},
 
-        /**
-         * **`重写`** 模型改变处理函数
-         * @type {object}
-         * @example
-         *   modelChanged: {
-         *     'data.name': function(vm, e){
-         *        vm.set('data.fullname', e.value);
-         *     }
-         *   }
-         */
-        app.view.base.modelChanged = {};
+            /**
+             * **`重写`** 处理与视图模型有关的事件绑定
+             * @type {function}
+             * @default
+             * @example
+             *   delegateModelEvents: function(vm){
+             *     vm.bind('change', function () {
+             *         // 处理代码
+             *     });
+             *     vm.bind('change.xxx', function () { });
+             *     
+             *     this._invoke(this.base.delegateModelEvents, true, vm);
+             *   }
+             */
+            delegateModelEvents: noop,
 
-        /**
-         * 获取或设置视图模型
-         * @memberOf View#
-         * @name model
-         * @function
-         * @param {object|string} data(propName) - 数据对象 | 属性名称
-         * @param {bool} [bind=true] - 设置视图模型后，是否进行视图绑定
-         * @returns {object} 视图模型对象
-         */
-        app.view.base.model = function (data, bind) {
-            if (!_.isUndefined(data)) {
+            /**
+             * **`重写`** 模型改变处理函数
+             * @type {object}
+             * @example
+             *   modelChanged: {
+             *     'data.name': function(vm, e){
+             *        vm.set('data.fullname', e.value);
+             *     }
+             *   }
+             */
+            modelChanged: {},
 
-                if (_.isString(data) && this.viewModel) {
-                    return this.viewModel.get(data);
-                }
+            /**
+             * **`重写`** 模型绑定完成后执行的方法
+             * @type {function}
+             * @example
+             *   modelBound: function () {
+             *       this.loadData();
+             *   }
+             */
+            modelBound: noop,
 
-                if (data.toJSON) { // 本身就是viewModel对象
-                    this.viewModel = data;
-                } else {
-                    this.viewModel = this._createViewModel($.extend({}, this.baseModel, data));
-                }
-
-                this.delegateModelEvents(this.viewModel);
-                if (bind !== false) {
-                    this._bindViewModel();
-                }
-            }
-            return this.viewModel;
+            /**
+             * **`重定义`** 根据元素获取该元素上创建的界面控件的实例
+             * @type {function}
+             * @returns {object}
+             * @example
+             *   instance: function (el) {
+             *       return this.$(el).data('instance');
+             *   }
+             */
+            instance: noop
         };
-        // 创建共享视图模型
-        app.view.base.shareModel = function (model) {
-            if (_.isUndefined(model)) {
-                model = this.options.sharedModel;
-            }
-            var props = this.options.sharedModelProp;
-            if (model) {
-                if (props) {
-                    var r = {};
+
+        /** @lends veronica.View# */
+        var methods = {
+
+            /**
+             * **`重定义`** 创建模型，编写视图模型创建的逻辑
+             * @type {function}
+             * @param {object} obj - 数据对象
+             * @returns {object} 视图模型对象
+             * @example
+             *   app.view.base._createViewModel = function () {
+             *     return kendo.observable(data);
+             *   }
+             */
+            _createViewModel: function (obj) {
+                return obj;
+            },
+
+            /**
+             * **`重定义`** 模型绑定，编写视图模型如何与视图进行绑定的逻辑
+             * @type {function}
+             * @returns {void}
+             * @example
+             *   app.view.base._bind = function () {
+             *     var vm = this.model();
+             *     vm.$mount(this.$el.get(0));
+             *   }
+             */
+            _bind: noop,
+
+            /**
+             * 获取或设置视图模型
+             * @function
+             * @param {object|string} data(propName) - 数据对象 | 属性名称
+             * @param {bool} [bind=true] - 设置视图模型后，是否进行视图绑定
+             * @returns {object} 视图模型对象
+             */
+            model: function (data, bind) {
+                if (!_.isUndefined(data)) {
+
+                    if (_.isString(data) && this.viewModel) {
+                        return this.viewModel.get(data);
+                    }
+
+                    if (data.toJSON) { // 本身就是viewModel对象
+                        this.viewModel = data;
+                    } else {
+                        this.viewModel = this._createViewModel($.extend({}, this.baseModel, data));
+                    }
+
+                    this.delegateModelEvents(this.viewModel);
+                    if (bind !== false) {
+                        this._bindViewModel();
+                    }
+                }
+                return this.viewModel;
+            },
+
+            /**
+             * 从外部模型设置视图模型
+             * @function
+             * @param {object} model - 外部的视图模型对象
+             * @param {bool} [isForce=false] - 是否强制设置（默认情况下，当未设置 sharedModel 或 sharedModelProp 参数时，不能从外部接收视图模型
+             * @returns {object} 视图模型
+             */
+            externalModel: function (model, isForce) {
+                if (isForce == null) { isForce = false; }
+                var acceptExternal = isForce === true ? true : (this.options.sharedModel || this.options.sharedModelProp);
+
+                if (acceptExternal) {
+                   return this.model(this._convertExternalModel(model));
+                }
+                return null;
+            },
+
+            // 从外部模型初始化视图模型
+            _initModel: function () {
+                if (this.options.sharedModel != null) {
+                    this.model(this._convertExternalModel(this.options.sharedModel), false);
+                }
+            },
+
+            // 创建共享视图模型
+            _convertExternalModel: function (model) {
+                var props = this.options.sharedModelProp;
+                var me = this;
+
+                if (model == null) { model = this.options.sharedModel || {}; }
+
+                if (model && props) {
+                    var _model = {};
                     _.each(props, function (prop) {
+                        var targetKey, originKey;
                         if (_.isString(prop)) {
-                            r[prop] = model.get(prop);
+                            targetKey = prop; originKey = prop;
                         } else {
-                            r[prop[0]] = model.get(prop[1]);
+                            targetKey = prop[0]; originKey = prop[1];
                         }
+
+                        _model[targetKey] = me._getModelValue(originKey, model);
                     });
-                    return r;
+
+                    model = _model;
                 }
                 return model;
-            }
-            return {};
-        };
-        // 绑定视图模型
-        app.view.base._bindViewModel = function () {
-            var sandbox = this.options.sandbox;
-            if (!this.options.bindEmptyModel && $.isEmptyObject(this.viewModel)) {
-                return;
-            }
-
-            this._bind();
-
-            if (!this.$el.hasClass('k-bind-block')) {
-                this.$el.addClass('k-bind-block');
-            }
-            this.trigger('modelBound', this.viewModel);
-            sandbox.log(this.cid + ' modelBound');
-        };
-    };
-});
-
-define('app/view/view-view',[],function () {
-
-    return function (app) {
-        var $ = app.core.$;
-        var _ = app.core._;
-        var noop = $.noop;
-
-
-        // 创建多个子视图
-        app.view.base._createSubviews = function (views) {
-            var me = this;
-            views || (views = this.views);
-            if (views) {
-                var views = _.result(this, 'views');
-                // 渲染子视图
-                _.each(views, function (func, name) {
-                    if (_.isString(func)) { return; }  // 为了排除 active: 'xxx' 的情况
-                    me.view(name, func);
-                });
-                // 设置默认活动视图
-                this.options.activeView && this.active(this.options.activeView);
-            }
-        };
-        // 创建单个子视图
-        app.view.base._createSubview = function (view, name) {
-            if (view.cid) {  // 视图对象
-                view._name = name;
-                return view;
-            }
-
-            var viewConfig = view;
-            if (_.isFunction(view)) {  // 方法
-                viewConfig = view.apply(this);
-            }
-
-            // 确保 initializer 是个方法
-            var viewInitializer = app.view._createExecutor(view.initializer);
-            var viewOptions = $.extend({}, view.options) || {};
-
-            if (_.isString(viewOptions.host)) {
-                viewOptions.host = this.$(viewOptions.host);
-            }
-
-            return viewInitializer(_.extend({
-                _name: name,
-                sandbox: this.options.sandbox,
-                host: viewOptions.el ? false : this.$el
-            }, viewOptions));
-        };
-
-        // 销毁视图
-        app.view.base._destroyView = function (viewName) {
-            var me = this;
-            if (_.isUndefined(viewName)) {
-                // 销毁所有子视图
-                _(this._views).each(function (view, name) {
-                    me._destroyView(name);
-                });
-            } else {
-                var view = this.view(viewName);
-                if (view) {
-                    view.stopChildren && view.stopChildren();
-                    view.unsub && view.unsub();
-                    view.destroy && view.destroy();
-                    view.remove && view.remove();
-                    view.sandbox && (view.sandbox = null);
-
-                    // 移除对该 view 的引用
-                    this._views[viewName] = null;
-                    delete this._views[viewName]
+            },
+            // 绑定视图模型
+            _bindViewModel: function () {
+                var sandbox = this.options.sandbox;
+                if (!this.options.bindEmptyModel && $.isEmptyObject(this.viewModel)) {
+                    return;
                 }
+
+                this._bind();
+
+                if (!this.$el.hasClass('k-bind-block')) {
+                    this.$el.addClass('k-bind-block');
+                }
+                this.trigger('modelBound', this.viewModel);
+                sandbox.log(this.cid + ' modelBound');
+            },
+            // 获取模型数据
+            _getModelValue: function (name, model) {
+                model || (model = this.model());
+                return model.get(name);
             }
         };
 
-        /**
-         * 获取或设置子视图
-         * @memberOf View#
-         * @name view
-         * @function
-         * @param {string} name 视图名称
-         * @param {View} view 视图配置对象
-         */
-        app.view.base.view = function (name, view) {
-            var me = this;
-            if (_.isUndefined(view)) {
-                // 获取子视图
-                view = this._views[name];
-            } else {
-                this._destroyView(name);
-
-                view = this._views[name] = this._createSubview(view, name);
-
-                // 取出延迟监听的事件，并进行监听
-                _.chain(this._delayEvents).filter(function (obj) {
-                    return obj.name === name;
-                }).each(function (obj) {
-                    me.listenTo(view, obj.event, obj.callback);
-                });
-            }
-            return view;
-        };
-
-        /**
-         * 激活子视图
-         * @name active
-         * @function
-         * @memberOf View#
-         * @param {string} name - 视图名称
-         */
-        app.view.base.active = function (name) {
-            var me = this;
-            var targetView;
-            if (_.isUndefined(name)) {
-                targetView = this.view(this._activeViewName);
-                return targetView;
-            }
-
-            this._activeViewName = name;
-            targetView = this.view(this._activeViewName);
-
-            _(this.switchable).each(function (name) {
-                me.view(name) && me.view(name).hide();
-            });
-
-            targetView.show();
-
-            // 触发事件
-            this.trigger('activeView', this._activeViewName);
-            targetView.trigger('active');
-        };
-
-        /**
-         * **`可重写`** 激活UI，界面渲染完毕后执行的方法，可用于进行 jQuery 插件初始化
-         * 以及其他控件的初始化等
-         * @name _activeUI
-         * @function
-         * @memberOf View#
-         * @example
-         *   var baseActiveUI = app.view.base._activeUI;
-         *   app.view.base._activeUI = function () {
-         *     baseActiveUI();
-         *     // 放置你的自定义代码
-         *   }
-         */
-        // 激活UI
-        app.view.base._activeUI = function (app) {
-
-            // 启用布局控件
-            if ($.layout) {
-                var me = this;
-                setTimeout(function () {
-                    _.each(this.$('[data-part=layout]'), function (el) {
-                        $(el).layout({
-                            applyDemoStyles: false,
-                            closable: false,
-                            resizable: false,
-                            slidable: false,
-                            spacing_open: 0
-                        });
-                    });
-                }, 0);
-            }
-
-        }
+        $.extend(app.view.base._defaults, options);
+        $.extend(app.view.base, configs);
+        $.extend(app.view.base, methods);
     };
 });
 
@@ -4680,12 +4737,77 @@ define('app/view/view-window',[],function () {
         var core = app.core;
         var $ = app.core.$;
         var _ = app.core._;
-        var noop = $.noop;
 
-
+        // 默认的对话框模板
         var defaultWndTpl = '<div class="fn-wnd fn-wnd-placeholder"><span class="ui-dialog-loading fn-s-loading">' + core.i18n.loadingText + '</span></div>';
+
+        // 默认的对话框footer
         var footerTpl = '<div class="k-footer"><button class="btn btn-default fn-close">' + core.i18n.windowCloseText + '</button></div>';
 
+        /**
+         * 对话框内容类型
+         * @readonly
+         * @enum {string}
+         */
+        var DlgChildType = {
+            WIDGET: 'widget',
+            VIEW: 'view'
+        };
+
+        /**
+         * 对话框配置参数
+         * @typedef DialogOptions
+         * @property {string} [name] - 对话框名称
+         * @property {DlgChildType} [type] - 默认的内容组件类型
+         * @property {object} [el] - 对话框的内容元素 
+         * @property {object} [positionTo] - 停靠的位置元素
+         * @property {boolean} [center=true] - 对话框是否居中
+         * @property {boolean} [footer=false] - 对话框是否具有页脚
+         * @property {boolean} [destroyedOnClose=true] - 是否在关闭后自动销毁
+         * @property {DialogUIOptions} [options] - 对话框UI控件的配置参数
+         * @property {Array.<DialogChildOptions>} [children] - 对话框内部的内容组件
+         */
+
+        /**
+         * 对话框内容组件配置参数
+         * @typedef DialogChildOptions
+         * @property {DlgChildType} [type] - 类型（如果不设置则使用对话框配置参数中的内容组件类型）
+         * @property {string} name - 组件名称（如果 type 是 "widget"，则指定 widget 名称）
+         * @property {object} [initializer] - 组件初始化器（仅 type 为 "view" 时才有效） 
+         * @property {ViewOptions|WidgetOptions} options - 组件的配置参数
+         */
+
+        // 默认对话框配置
+        var dlgDefaultOptions = {
+            name: '',  // 窗口的唯一标识码
+            type: '',
+            el: null,
+            positionTo: null,
+            center: true,
+            footer: false,
+            destroyedOnClose: true,
+            // 窗口配置
+            options: {
+                animation: {
+                    open: false,
+                    close: false
+                },
+                width: 300,
+                height: 200,
+                resizable: false,
+                draggable: false,
+                show: false,
+                visible: false,
+                pinned: false,
+                modal: false
+            },
+            children: null
+        };
+
+        // 生成唯一的窗口名称
+        function generateWindowName() {
+            return _.uniqueId('wnd_');
+        };
 
         function removeLoading($el) {
             $el.find('.fn-s-loading').remove();
@@ -4735,7 +4857,7 @@ define('app/view/view-window',[],function () {
                     view.$el.addClass(view.options.sandbox.name);
                 }
 
-                if (view._rendered) {
+                if (view.state.isRendered) {
                     wnd.rendered(parentView);
                 } else {
                     view.listenTo(view, 'rendered', function () {
@@ -4751,245 +4873,1346 @@ define('app/view/view-window',[],function () {
 
         };
 
-        // 创建对话框实例
-        app.view.base._windowInstance = function ($el, config) {
+        var options = {
+            windowOptions: false
+        };
 
-            // window 实例
-            var dlg = app.ui.dialog($.extend({
-                title: core.i18n.defaultDialogTitle,
-                content: $el, // $el.get(0),
-                fixed: true,
-                drag: config.options.draggable
-            }, config.options)).close();  // 解决开始对话框默认显示的问题
+        /**
+         * @typedef WidgetOptions
+         * @augments ViewOptions
+         */
 
-            var wnd = {
-                element: $el,
-                core: dlg,
-                config: config,
-                positionTo: config.positionTo,
-                close: function () {
-                    this.core.remove();
-                },
-                destroy: function () {
 
-                },
-                center: function () {
-                    this.core.reset();
-                },
-                open: function () {
-                    if (config.options.modal === true) {
-                        this.core.showModal(this.positionTo);
-                    } else {
-                        this.core.show(this.positionTo);
-                    }
-                },
-                rendered: function (view) {
-                    var $f = view.$el.find('.footer');
-                    if ($f.length > 0 || config.footer === true) {
-                        $f.addClass('modal-footer').closest('.ui-dialog-body').addClass('with-footer');
-                    }
-                    removeLoading(this.element);
-                    this.center();
-                },
-                setOptions: function (opt) {
-                    opt.width && this.core.width(opt.width);
-                    opt.height && this.core.height(opt.height);
-                    opt.title && this.core.title(opt.title);
+        /** @lends veronica.View# */
+        var methods = {
+            // 重设父对话框的一些属性
+            _resetParentWnd: function () {
+                // 初始化窗口大小
+                if (this.options.parentWnd && this.options.windowOptions) {
+                    this.options.parentWnd.setOptions(this.options.windowOptions);
+                    // TODO: 这里遇到 positionTo 的 window，调整大小后可能会错位
+                    this.options.parentWnd.config.center && this.options.parentWnd.center();
                 }
-            };
+            },
 
-            wnd.core.addEventListener('remove', function () {
-                $.each($('.fn-wnd-placeholder:hidden'), function (i, el) {
-                    if ($(el).closest('.ui-dialog').length === 0) {
-                        $(el).remove();
-                    }
+            /**
+             * 生成唯一的对话框名称
+             * @returns {string}
+             */
+            uniqWindowName: function () {
+                return _.uniqueId('wnd_');
+            },
+
+            /**
+             * 创建一个显示view的对话框
+             * @function
+             * @param {string} viewName - 视图名称
+             * @param {object|function} viewInitializer - 视图定义对象或初始化器
+             * @param {ViewOptions} options - 视图初始化配置参数
+             * @param {DialogOptions}  [dlgOptions] - 对话框初始化配置参数
+             */
+            viewWindow: function (viewName, viewInitializer, options, dlgOptions) {
+                return this.window($.extend({
+                    name: 'wnd_' + viewName,
+                    children: [{
+                        type: 'view',
+                        name: viewName,
+                        initializer: viewInitializer,
+                        options: options
+                    }]
+                }, dlgOptions));
+            },
+
+            /**
+             * 创建一个显示 widget 的对话框
+             * @function
+             * @param {string} name - widget 名称
+             * @param {WidgetOptions} options - widget 配置参数
+             * @param {DialogOptions}  [dlgOptions] - 对话框初始化配置参数
+             */
+            widgetWindow: function (name, options, dlgOptions) {
+                return this.window($.extend({
+                    name: 'wnd_' + name,
+                    children: [{
+                        type: 'widget',
+                        name: name,
+                        options: options
+                    }]
+                }, dlgOptions));
+            },
+
+            /**
+             * 创建显示普通HTML的对话框（必须传入window name）
+             * @param {string} html - 对话框内容
+             * @param {DialogUIOptions} [options] - 对话框UI组件初始化配置参数
+             * @param {DialogOptions} [dlgOptions] - 对话框初始化配置参数
+             */
+            htmlWindow: function (html, options, dlgOptions) {
+                return this.window($.extend({
+                    options: options,
+                    el: html
+                }, dlgOptions));
+            },
+
+            /**
+             * 获取或创建一个对话框
+             * @function
+             * @param {DialogOptions|string} options - 创建对话框的配置参数或对话框名称
+             * @param {boolean} isShow - 是否在创建后立即显示
+             * @returns {Dialog} 对话框对象
+             */
+            window: function (options, isShow) {
+
+                var me = this;
+                var windows = this._windows;
+                // 获取窗口
+                if (_.isString(options)) {
+                    return windows[options];
+                }
+                if (windows[options.name]) {
+                    return windows[options.name];
+                }
+
+
+                if (options.positionTo) {   // 如果设置了 positionTo, 强制不居中
+                    options.center = false;
+                }
+
+                if (isShow == null) { isShow = true };
+
+                options = $.extend(true, dlgDefaultOptions, options);
+
+                if (options.name === '') { options.name = me.uniqWindowName(); }
+
+                var isHtmlContet = _.isString(options.el);
+
+                var $el = isHtmlContet ? $(defaultWndTpl).html(options.el)
+                    : (options.el == null ? $(defaultWndTpl) : $(options.el));
+
+                // 创建 window 实例
+                var wnd = me._windowInstance($el, options);
+
+                wnd.vToBeDestroyed = {};  // window 中应该被销毁的 view
+
+                wnd.vLazyLayout = _.debounce(_.bind(function () {
+                    this.center();
+                }, wnd), 300);
+
+                wnd.core.addEventListener('beforeremove', _.bind(function () {
+                    this._destroyWindow(options.name);
+                }, this));
+
+
+                // 创建所有 children 实例
+                if (options.children) {
+                    var widgets = [];
+                    var views = [];
+                    _.each(options.children, function (conf) {
+                        var type = conf.type || options.type;
+                        if (type === DlgChildType.VIEW) { views.push(conf) };
+                        if (type === DlgChildType.WIDGET) { widgets.push(conf) };
+                    });
+
+                    createView.call(this, views, wnd);
+                    createWidget.call(this, widgets, wnd);
+                } else {
+                    removeLoading(wnd.element);
+                }
+
+                if (wnd) {
+                    windows[options.name] = wnd;
+                }
+
+                if (options.center) {
+                    wnd.center();
+                    $(window).on('resize', wnd.vLazyLayout);
+                }
+                if (options.footer) {
+                    $el.find('.fn-close').on('click', function () {
+                        wnd.close();
+                    });
+                    $el.parents(".ui-dialog-body").addClass('with-footer');
+                    //$el.find('.fn-wnd').addClass('with-footer');
+                }
+
+                if (isShow) {
+                    // $('body').addClass('modal-open');
+                    setTimeout(function () {
+                        wnd.open();
+                    }, 200);
+                    // $(WND_CONTAINER).scrollTop(0).show();
+                }
+
+                return wnd;
+
+            },
+
+            // 销毁对话框
+            _destroyWindow: function (name) {
+                var me = this;
+
+                if (name == null) {
+                    // 关闭所有弹出窗口
+                    _(this._windows).each(function (window) {
+                        window.close();
+                    });
+
+                    return;
+                }
+
+                var wnd = this._windows[name];
+                var $el = wnd.element;
+                var app = this.options.sandbox.app;
+
+                // 销毁窗口内的子视图
+                $.each(wnd.vToBeDestroyed, function (name, view) {
+                    me._destroyView(name);
                 });
-            });
 
-            return wnd;
+                // 销毁窗口内的子部件
+                app.widget.stop($el);
+
+                $(window).off('resize', wnd.vLazyLayout);
+
+                if (wnd.destroy) {
+                    wnd.destroy();
+                } else {
+                    $(wnd).remove();
+                }
+
+                delete this._windows[name];
+            },
+
+            // 创建对话框界面控件
+            _windowInstance: function ($el, config) {
+
+                // 对话框控件实例
+                var dlg = app.ui.dialog($.extend({
+                    title: core.i18n.defaultDialogTitle,
+                    content: $el, // $el.get(0),
+                    fixed: true,
+                    drag: config.options.draggable
+                }, config.options)).close();  // 解决开始对话框默认显示的问题
+
+                /**
+                 * 对话框
+                 * @class veronica.Dialog
+                 */
+
+                /** @lends veronica.Dialog# */
+                var wnd = {
+                    /**
+                     * 对话框元素
+                     */
+                    element: $el,
+                    /**
+                     * 对话框内部UI控件
+                     */
+                    core: dlg,
+                    /**
+                     * 打开对话框
+                     */
+                    config: config,
+                    positionTo: config.positionTo,
+                    /**
+                     * 关闭对话框
+                     */
+                    close: function () {
+                        this.core.remove();
+                    },
+                    destroy: function () {
+
+                    },
+                    center: function () {
+                        this.core.reset();
+                    },
+                    /**
+                     * 打开对话框
+                     */
+                    open: function () {
+                        if (config.options.modal === true) {
+                            this.core.showModal(this.positionTo);
+                        } else {
+                            this.core.show(this.positionTo);
+                        }
+                    },
+                    rendered: function (view) {
+                        var $f = view.$el.find('.footer');
+                        if ($f.length > 0 || config.footer === true) {
+                            $f.addClass('modal-footer').closest('.ui-dialog-body').addClass('with-footer');
+                        }
+                        removeLoading(this.element);
+                        this.center();
+                    },
+                    setOptions: function (opt) {
+                        opt.width && this.core.width(opt.width);
+                        opt.height && this.core.height(opt.height);
+                        opt.title && this.core.title(opt.title);
+                    }
+                };
+
+                wnd.core.addEventListener('remove', function () {
+                    $.each($('.fn-wnd-placeholder:hidden'), function (i, el) {
+                        if ($(el).closest('.ui-dialog').length === 0) {
+                            $(el).remove();
+                        }
+                    });
+                });
+
+                return wnd;
+            }
         };
 
-        // 创建一个显示view的窗口
-        app.view.base.viewWindow = function (viewName, viewInitializer, options, wndOptions) {
-            return this.window($.extend({
-                name: 'wnd_' + viewName,
-                children: [{
-                    type: 'view',
-                    name: viewName,
-                    initializer: viewInitializer,
-                    options: options
-                }]
-            }, wndOptions));
+        $.extend(app.view.base._defaults, options);
+        $.extend(app.view.base, methods);
+    };
+});
+
+define('app/view/view-attr',[],function () {
+
+    return function (app) {
+        var $ = app.core.$;
+        var _ = app.core._;
+        var noop = $.noop;
+
+        var configs = {
+            /**
+             * **`重写`** 属性变化
+             * @type {Object}
+             * @example
+             *   attrChanged: {
+             *       code: function (value): {
+             *         alert('code changed' + value);
+             *       }
+             *   }
+             */
+            attrChanged: {},
+            /**
+             * **`重写`** 初始化属性
+             * @type {Function}
+             * @default
+             * @example
+             *  initAttr: function(){
+             *      this.message = 'hello';
+             *      this.baseModel = {
+             *          data: {
+             *              name: 'veronica'
+             *          }
+             *      }
+             *  }
+             */
+            initAttr: noop
         };
 
-        app.view.base.widgetWindow = function (name, options, wndOptions) {
-            return this.window($.extend({
-                name: 'wnd_' + name,
-                children: [{
-                    type: 'widget',
-                    name: name,
-                    options: options
-                }]
-            }, wndOptions));
+        var methods = {
+            /**
+             * 定义属性
+             * 注意：属性的变更是单向的，就是说 origin 变化会引起 attr 变化，但 attr 变化不会引起 origin 变化
+             * @function
+             * @param {object} options - 配置项
+             * @param {string} options.name - 属性名称
+             * @param {function} [options.getter] - 获取数据的方法
+             * @param {string} [options.source=options] - 数据来源（包括：'options', 'global', 'querystring'）
+             * @param {string} [options.setup=rendered] - 初始化时机（所有该视图相关的事件名称）
+             * @param {string} [options.sourceKey] - 原始数据的字段名称
+             */
+            defineAttr: function (options) {
+                // if (options.source == null) options.source = 'options';
+                if (options.setup == null) options.setup = 'rendered';
+                if (options.sourceKey == null) options.sourceKey = options.name;
+
+                var me = this;
+
+                if (options.source === 'options') {
+                    if (options.getter == null) {
+                        options.getter = function (data) {
+                            return this.options[data.sourceKey];
+                        }
+                    }
+                }
+
+                if (options.source === 'querystring') {
+                    if (options.getter == null) {
+                        options.getter = function (opt) {
+                            return app.qs.get(opt.sourceKey);
+                        }
+                    }
+                    // 监听查询字符串改变
+                    this.sub('qs-changed', function (obj) {
+                        var value = obj[options.sourceKey];
+                        var originalValue = me.attr(options.name);
+                        if (value != originalValue) {
+                            me.attr(options.name, value);
+                        }
+                    });
+
+
+                }
+
+                // 当事件发生时，设置该属性
+                this.listenToOnce(this, options.setup, function () {
+                    var val = this._invoke(options.getter, true, options);
+
+                    this.attr(options.name, val);
+                });
+
+            },
+
+            /**
+             * 获取设置属性
+             * @function
+             */
+            attr: function (name, value) {
+                if (!_.isUndefined(value)) {
+                    this._attributes[name] = value;
+                    this.trigger('attr-changed', name, value);
+                }
+                return this._attributes[name];
+            }
         };
 
-        app.view.base.windowName = function () {
-            return _.uniqueId('wnd_');
-        };
+        $.extend(app.view.base, configs);
+        $.extend(app.view.base, methods);
+    };
+});
 
-        // 创建显示普通HTML的窗口（必须传入window name）
-        app.view.base.htmlWindow = function (html, options, wndOptions) {
-            return this.window($.extend({
-                options: options,
-                el: html
-            }, wndOptions));
+define('app/view/view-action',[],function () {
+
+    return function (app) {
+        var $ = app.core.$;
+        var _ = app.core._;
+        var noop = $.noop;
+
+        app.view.base._autoAction = function () {
+            if (this.options.autoAction) {
+                // 代理默认的事件处理程序
+                this.events || (this.events = {});
+                $.extend(this.events, {
+                    'click [data-action]': '_actionHandler',
+                    'click [data-dlg-view]': '_dlgViewHandler',
+                    'click [data-dlg-widget]': '_dlgWidgetHandler'
+                });
+            }
         }
 
-        // 获取或创建一个window
-        app.view.base.window = function (config, isShow) {
+        app.view.base._actionHandler = function (e, context) {
+            e.preventDefault();
+            //e.stopImmediatePropagation();
 
-            var me = this;
-            var windows = this._windows;
-            // 获取窗口
-            if (_.isString(config)) {
-                return windows[config];
-            }
-            if (windows[config.name]) {
-                return windows[config.name];
+            context || (context = this);
+            var $el = $(e.currentTarget);
+            if ($el.closest('script').length > 0) return;
+
+            var actionName = $el.data().action;
+            if (actionName.indexOf('Handler') < 0) {
+                actionName = actionName + 'Handler';
             }
 
-            // 默认配置
-            var defaults = {
-                name: '',  // 窗口的唯一标识码
-                type: '',
-                el: null,
-                center: true,
-                footer: false,
-                destroyedOnClose: true,
-                // 窗口配置
-                options: {
-                    animation: {
-                        open: false,
-                        close: false
-                    },
-                    width: 300,
-                    height: 200,
-                    resizable: false,
-                    draggable: false,
-                    show: false,
-                    visible: false,
-                    pinned: false,
-                    modal: false
-                },
-                children: null
+            context[actionName] && context[actionName](e, app, _, $);
+        }
+
+        // 获取触发视图配置项
+        app.view.base._getViewTriggerOptions = function (attr) {
+            var nameParts = attr.split('?');
+            var name = nameParts[0];
+            var options = {};
+            if (nameParts[1]) {
+                options = app.core.util.qsToJSON(nameParts[1]);
+            }
+            options._viewName = name;
+            return options;
+        }
+
+        app.view.base._dlgViewHandler = function (e) {
+            var $el = $(e.currentTarget);
+            var options = this._getViewTriggerOptions($el.attr('data-dlg-view'));
+
+            var initializer = function (options) {
+                var ctor = app.view.ctor(options._viewName);
+                return new ctor(options);
             };
+            this.viewWindow(options._viewName, initializer, options);
+        }
 
+        app.view.base._dlgWidgetHandler = function (e) {
+            var $el = $(e.currentTarget);
+            var options = this._getViewTriggerOptions($el.attr('data-dlg-widget'));
 
-
-            if (config.positionTo) {   // 如果设置了 positionTo, 强制不居中
-                config.center = false;
-            }
-
-
-            isShow = isShow == null ? true : isShow;
-
-            config = $.extend(true, defaults, config);
-
-            if (config.name === '') { config.name = me.windowName(); }
-
-            var $el = _.isString(config.el) ? $(defaultWndTpl).html(config.el)
-                : (config.el == null ? $(defaultWndTpl) : $(config.el));
-
-            // 创建 window 实例
-            var wnd = this._windowInstance($el, config);
-
-            wnd.vToBeDestroyed = {};  // window 中应该被销毁的 view
-
-            wnd.vLazyLayout = _.debounce(_.bind(function () {
-                this.center();
-            }, wnd), 300);
-
-            wnd.core.addEventListener('beforeremove', _.bind(function () {
-                this._destroyWindow(config.name);
-            }, this));
-
-
-            // 创建所有 children 实例
-            if (config.children) {
-                var widgets = [];
-                var views = [];
-                _.each(config.children, function (conf) {
-                    var type = conf.type || config.type;
-                    if (type === 'view') { views.push(conf) };
-                    if (type === 'widget') { widgets.push(conf) };
-                });
-
-                createView.call(this, views, wnd);
-                createWidget.call(this, widgets, wnd);
-            } else {
-                removeLoading(wnd.element);
-            }
-
-            if (wnd) {
-                windows[config.name] = wnd;
-            }
-
-            if (config.center) {
-                wnd.center();
-                $(window).on('resize', wnd.vLazyLayout);
-            }
-            if (config.footer) {
-                $el.find('.fn-close').on('click', function () {
-                    wnd.close();
-                });
-                $el.parents(".ui-dialog-body").addClass('with-footer');
-                //$el.find('.fn-wnd').addClass('with-footer');
-            }
-
-            if (isShow) {
-                // $('body').addClass('modal-open');
-                setTimeout(function () {
-                    wnd.open();
-                }, 200);
-                // $(WND_CONTAINER).scrollTop(0).show();
-            }
-
-            return wnd;
-
-        };
-
-        app.view.base._destroyWindow = function (name) {
-            var me = this;
-            var wnd = this._windows[name];
-            var $el = wnd.element;
-            var app = this.options.sandbox.app;
-
-            // 销毁窗口内的子视图
-            $.each(wnd.vToBeDestroyed, function (name, view) {
-                me._destroyView(name);
-            });
-
-            // 销毁窗口内的子部件
-            app.widget.stop($el);
-
-            $(window).off('resize', wnd.vLazyLayout);
-
-            if (wnd.destroy) {
-                wnd.destroy();
-            } else {
-                $(wnd).remove();
-            }
-
-            delete this._windows[name];
+            this.widgetWindow(options._viewName, options);
         };
     };
 });
 
+define('app/view/view-children',[],function () {
+
+    return function (app) {
+        var $ = app.core.$;
+        var _ = app.core._;
+
+        var options = {
+            activeView: null
+        };
+
+        /** @lends veronica.View# */
+        var configs = {
+            /**
+             * 设置哪些子视图在同一时间只能显示一个
+             * @type {Array}
+             */
+            switchable: [],
+            /**
+             * 设置子视图
+             * @type {Object|Function} 
+             */
+            views: null
+        };
+
+        /** @lends veronica.View# */
+        var methods = {
+            /**
+             * 获取或设置子视图
+             * @function
+             * @param {string} name 视图名称
+             * @param {Object} view 视图配置对象
+             * @return {veronica.View}
+             */
+            view: function (name, viewConfig) {
+                var me = this;
+                var view;
+                if (_.isUndefined(viewConfig)) {
+                    view = this._views[name];
+
+                    if (view == null) {
+                        viewConfig = this._viewConfig(name);
+                    }
+                } else {
+                    this._destroyView(name);
+                }
+                if (viewConfig) {
+                    view = this._views[name] = this._createView(viewConfig, name);
+                }
+
+                return view;
+            },
+
+            /**
+             * 激活子视图
+             * @function
+             * @param {string} name - 视图名称
+             */
+            active: function (name) {
+                var me = this;
+                var targetView;
+                if (_.isUndefined(name)) {
+                    targetView = this.view(this._activeViewName);
+                    return targetView;
+                }
+
+                this._activeViewName = name;
+                targetView = this.view(this._activeViewName);
+
+                _(this.switchable).each(function (name) {
+                    me.view(name) && me.view(name).hide();
+                });
+
+                targetView.show();
+
+                // 触发事件
+                this.trigger('activeView', this._activeViewName);
+                targetView.trigger('active');
+            },
+
+            /**
+             * 启用子部件，会自动附加该视图标识符作为标记
+             * @param {Array.<object>} list 部件配置列表
+             * @return {Promise}
+             */
+            startWidgets: function (list) {
+                return this.options.sandbox.startWidgets(list, null, this.cid);
+            },
+            stopChildren: function () {
+                this.options.sandbox.stopChildren(this.cid);
+            },
+            _createSubviews: function (views) {
+                var me = this;
+                views || (views = this.views);
+                if (views) {
+                    var views = _.result(this, 'views');
+                    // 渲染子视图
+                    _.each(views, function (viewConfig, name) {
+                        if (_.isString(viewConfig)) { return; }  //TODO: 为了排除 active: 'xxx' 的情况，待废弃
+                        me.view(name, viewConfig);
+                    });
+
+                    // 设置默认活动视图
+                    this.options.activeView && this.active(this.options.activeView);
+                }
+            },
+
+            // 获取视图配置
+            _viewConfig: function (name) {
+                var views = _.result(this, 'views');
+                if (name) {
+                    var viewConfig = views[name];
+                    if (_.isString(viewConfig)) { return; }
+                    return viewConfig;
+                }
+                return views;
+            },
+
+            // 创建视图
+            _createView: function (view, name) {
+                if (view.cid) {  // 视图对象
+                    view._name = name;
+                    return view;
+                }
+
+                var viewConfig = view;
+                if (_.isFunction(view)) {  // 方法
+                    viewConfig = view.apply(this);
+                }
+
+                // 确保 initializer 是个方法
+                var viewInitializer = app.view.define(viewConfig.initializer, true);
+                var viewOptions = $.extend({}, viewConfig.options) || {};
+
+                if (_.isString(viewOptions.host)) {
+                    viewOptions.host = this.$(viewOptions.host);
+                }
+
+                var viewObj = viewInitializer(_.extend({
+                    _name: name,
+                    sandbox: this.options.sandbox,
+                    host: viewOptions.el ? false : this.$el
+                }, viewOptions));
+
+                // 取出延迟监听的事件，并进行监听
+                var me = this;
+                _.chain(this._delayEvents).filter(function (obj) {
+                    return obj.name === name;
+                }).each(function (obj) {
+                    me.listenTo(viewObj, obj.event, obj.callback);
+                });
+
+                return viewObj;
+            },
+
+            // 销毁视图
+            _destroyView: function (viewName) {
+                var me = this;
+                if (_.isUndefined(viewName)) {
+                    // 销毁所有子视图
+                    _(this._views).each(function (view, name) {
+                        me._destroyView(name);
+                    });
+                } else {
+                    var view = this.view(viewName);
+                    if (view) {
+                        view.stopChildren && view.stopChildren();
+                        view.unsub && view.unsub();
+                        view.destroy && view.destroy();
+                        view.remove && view.remove();
+                        view.sandbox && (view.sandbox = null);
+
+                        // 移除对该 view 的引用
+                        this._views[viewName] = null;
+                        delete this._views[viewName]
+                    }
+                }
+            }
+        };
+
+        $.extend(app.view.base._defaults, options);
+        $.extend(app.view.base, configs);
+        $.extend(app.view.base, methods);
+
+    };
+});
+
+define('app/view/view-listen',[],function () {
+
+    return function (app) {
+
+        var noop = function () { };
+
+        var configs = {
+            /**
+             * **`重写`** 订阅消息
+             * @type {function}
+             * @example
+             *   subscribe: function(){
+             *       this.sub('setTriggers', function(){
+             *           alert('I received this message');
+             *       })
+             *       this.sub ...
+             *   }
+             */
+            subscribe: noop,
+
+            /**
+             * **`重写`** 监听自身和子视图事件
+             * @type {function}
+             * @example
+             *   listen: function(){
+             *       this.listenTo('rendered', function(){
+             *           // 处理代码
+             *       });
+             *       this.listenTo ...
+             *       this.listenToDelay('edit', 'saved', function(){
+             *       })
+             *   }
+             */
+            listen: noop
+        };
+
+        var methods = {
+
+            /**
+             * 延迟监听子视图
+             * @param {string} name - 子视图名称
+             * @param {string} event - 事件名称
+             * @param {eventCallback} callback - 回调
+             */
+            listenToDelay: function (name, event, callback) {
+
+                this._delayEvents.push({
+                    name: name,
+                    event: event,
+                    callback: callback
+                });
+                if (this.view(name)) {
+                    this.listenTo(this.view(name), event, callback);
+                }
+            },
+
+            // 默认的监听
+            _defaultListen: function () {
+                var me = this;
+                this.listenTo(this, 'modelBound', function (model) {
+                    // 更新子视图模型
+                    _(me._views).each(function (view) {
+                        view.externalModel(model);
+                    }); 
+                });
+                this.listenTo(this, 'rendering', function () {
+                    this.state.isRendered = false;
+                    // 自动创建子视图
+                    if (this.options.autoCreateSubview) {
+                        this._createSubviews();
+                    }
+                });
+                this.listenTo(this, 'rendered', function () {
+                    this.state.isRendered = true;
+                    // 在渲染视图后重新绑定视图模型
+                    this._bindViewModel();
+                    this.options.autoST && this.setTriggers();
+                });
+
+                // 监听属性变更
+                this.listenTo(this, 'attr-changed', function (name, value) {
+                    var handler = this.attrChanged[name];
+                    if (handler == null) { handler = this.attrChanged['defaults'] };
+                    this._invoke(handler, true, value, name);
+                });
+
+                _.each(['modelBound', 'rendered'], function (evt) {
+                    me[evt] && me.listenTo(me, evt, function () {
+                        this._invoke(evt);
+                    });
+                })
+
+                this._invoke('listen');  // 自定义监听
+            },
+
+            /**
+             * 订阅消息
+             * @param {string} name 消息名
+             * @param {messageCallback} listener 消息订阅处理函数
+             */
+            sub: function (name, listener) {
+
+                this.options.sandbox.on(name, listener, this, this.cid);
+            },
+
+            /**
+             * 发布消息
+             * @param {string} name 消息名
+             * @param {...*} msgParam 消息传递的参数
+             */
+            pub: function () {
+                this.options.sandbox.emit.apply(this.options.sandbox,
+                    Array.prototype.slice.call(arguments));
+            },
+
+            /**
+             * 取消该视图的所有消息订阅
+             */
+            unsub: function () {
+                this.options.sandbox.stopListening(this.cid);
+            }
+        };
+
+        $.extend(app.view.base, configs);
+        $.extend(app.view.base, methods);
+    };
+});
+
+define('app/view/view-render',[],function () {
+
+    return function (app) {
+        var $ = app.core.$;
+        var _ = app.core._;
+        var noop = $.noop;
+
+        var options = {
+            _place: 0,
+            autoRender: true,
+            autoCreateSubview: true
+        };
+
+        /** @lends veronica.View# */
+        var configs = {
+            /**
+             * 模板
+             * @type {string|Function}
+             */
+            template: null,
+
+            /**
+             * 模板路径
+             * @type {string|Function}
+             */
+            templateUrl: null,
+
+            /**
+             *  **`重写`** 进行UI增强（在 `render` 过程中，需要自定义的一些行为，
+             * 通常放置一些不能被绑定初始化的控件初始化代码）
+             * @type {function}
+             * @deprecated
+             * @example
+             *   enhance: function () {
+             *       this.$('.chart').chart({
+             *           type: 'pie',
+             *           data: ['0.3', '0.2']
+             *       })
+             *   }
+             */
+            enhance: noop,
+
+            /**
+             * **`重写`** 视图渲染完毕后执行的方法
+             * @type {function}
+             * @example
+             *   rendered: function (app) {
+             *       this.getModel();
+             *   }
+             */
+            rendered: noop
+        };
+
+        /** @lends veronica.View# */
+        var methods = {
+
+
+            updateEl: function (selector, url, data) {
+                var $el = this.$(selector);
+                if (arguments.length > 2) {
+                    $.get(url, data).done(function (resp) {
+                        $el.html(resp);
+                    });
+                } else {
+                    $el.html(url);
+                }
+            },
+
+            /**
+             * 渲染界面
+             * @param {string} [template] 模板
+             * @fires View#rendered
+             */
+            render: function (template) {
+                template || (template = this.template);
+
+                if (this.templateUrl) {
+                    this._refresh();
+                } else {
+                    if (this.options.el && !template) {
+                        // 将当前元素内容作为 template
+                        template = _.unescape(this.$el.html());
+                    }
+                    this._render(template);
+                }
+                return this;
+            },
+
+            _html: function (html) {
+                this.$el.get(0).innerHTML = html;
+            },
+
+            _render: function (template, isHtml) {
+                var hasTpl = !!template;
+                var options = this.options;
+                var sandbox = options.sandbox;
+                var html;
+
+                if (hasTpl) {
+                    if (isHtml) {
+                        html = template;  // 为了提高效率，不使用 jquery 的 html() 方法
+                    } else {
+                        var tpl = _.isFunction(template) ?
+                            template : _.template(template, { variable: 'data' });  // 如果使用 Lodash，这里调用方式有差异
+
+                        html = tpl(_.extend({ lang: app.lang[this.options.langClass] }, this.options));
+                    }
+
+                    html && (this._html(html));
+                }
+
+
+                this.trigger('rendering');
+
+                if (this.options.host && this.state.isAppended !== true) {
+                    var placeMethod = options._place === 1 ? 'prependTo' : 'appendTo';
+                    // 只有当前页面与 view 所属页面相同时，才呈现到界面上
+                    if (!this.options._page || this.options._page === app.page.currName()) {
+                        this.$el[placeMethod](this.options.host);
+                        this.state.isAppended = true;
+                    }
+                };
+
+
+                this._invoke('_activeUI');
+                this._invoke('enhance');
+
+                sandbox.log(this.cid + ' rendered');
+
+                /**
+                 * 渲染完毕
+                 * @event View#rendered
+                 */
+                this.trigger('rendered');
+
+                return this;
+            },
+
+            /**
+             * 刷新界面
+             * @private
+             * @param {string} [url] - 内容获取路径
+             * @param {*} [data] - 数据
+             */
+            _refresh: function (url, data) {
+                var me = this;
+                if (url == null) {
+                    url = _.result(this, 'templateUrl');
+                }
+                this.state.templateIsLoading = true;
+
+                $.get(url, data).done(function (template) {
+                    me.state.templateIsLoading = false;
+
+                    if (_.isString(template)) {  // 仅当获取到模板时，才进行渲染
+                        me._render(template, true);
+                        me.trigger('refresh');
+                    } else {
+                        me.trigger('refresh-fail');
+                    }
+                }).fail(function () {
+                    // 失败则关闭父级窗口
+                    me.options.parentWnd && me.options.parentWnd.close();
+                });
+            },
+            /**
+             * **`可重写`** 激活UI，界面渲染完毕后执行的方法，可用于进行 jQuery 插件初始化
+             * 以及其他控件的初始化等
+             * @private
+             * @function
+             * @example
+             *   var baseActiveUI = app.view.base._activeUI;
+             *   app.view.base._activeUI = function () {
+             *     baseActiveUI();
+             *     // 放置你的自定义代码
+             *   }
+             */
+            _activeUI: function (app) {
+
+                // 启用布局控件
+                if ($.layout) {
+                    var me = this;
+                    setTimeout(function () {
+                        _.each(this.$('[data-part=layout]'), function (el) {
+                            $(el).layout({
+                                applyDemoStyles: false,
+                                closable: false,
+                                resizable: false,
+                                slidable: false,
+                                spacing_open: 0
+                            });
+                        });
+                    }, 0);
+                }
+
+            }
+        };
+
+        $.extend(app.view.base._defaults, options);
+        $.extend(app.view.base, configs);
+        $.extend(app.view.base, methods);
+
+    };
+});
+
+define('app/view/view-resize',[],function () {
+
+    return function (app) {
+
+        var noop = function () { };
+
+        /**
+         * **`重写`** 重写该方法，使视图自适应布局，当开启 `autoResize` 后，窗口大小变化时，该方法会被调用，
+         * 如果有必要，在该方法中应编写窗口大小变化时，该视图对应的处理逻辑
+         * @type {function}
+         */
+        app.view.base.resize = noop;
+
+        app.view.base._autoResize = function () {
+            if (this.options.autoResize) {
+                this.listenTo(this, 'rendered', function () {
+                    _.defer(me.resize);
+                });
+                $(window).on('resize', this.resize);
+            }
+        };
+    };
+});
+
+define('app/view/view-trigger',[],function () {
+
+    return function (app) {
+        var $ = app.core.$;
+        var _ = app.core._;
+        var noop = $.noop;
+
+        var options = {
+            autoST: false,
+            toolbar: 'toolbar',
+            defaultToolbarTpl: '.tpl-toolbar'
+        };
+
+        var methods = {
+            /**
+             * 设置触发器
+             * @param {string} [toolbarTpl=options.defaultToolbarTpl] - 工具条选择器
+             * @returns void
+             * @fires View#setTriggers
+             */
+            setTriggers: function (toolbarTpl) {
+                toolbarTpl || (toolbarTpl = this.options.defaultToolbarTpl);
+                var sandbox = this.options.sandbox;
+
+                /**
+                 * **消息：** 设置触发器
+                 * @event View#setTriggers
+                 * @param {string} html - 工具条模板
+                 * @param {string} name - 目标名称
+                 * @param {View} view - 当前视图
+                 */
+                this.pub('setTriggers', this.$(toolbarTpl).html(),
+                    this.options.toolbar || this._name, this);
+            }
+        };
+
+        $.extend(app.view.base._defaults, options);
+        $.extend(app.view.base, methods);
+    };
+});
+
+define('app/view/view-base',[
+    './view-mvvm',
+    './view-window',
+    './view-attr',
+    './view-action',
+    './view-children',
+    './view-listen',
+    './view-render',
+    './view-resize',
+    './view-trigger'
+], function (mvvm, subwindow, attr, action, children, listen, render, resize, trigger) {
+
+    return function (app) {
+        var $ = app.core.$;
+        var _ = app.core._;
+        var noop = $.noop;
+
+        /**
+         * 选项
+         * @typedef ViewOptions
+         * @property {boolean} [autoAction=false] - 自动绑定Action事件
+         *   当在模板中使用如下写法时
+         *   ```html
+         *   <button data-action="add">添加</button> 
+         *   ```
+         *   如果该属性为 `true` 将自动查找该视图的 `addHandler` 方法作为该按钮点击事件的处理函数
+         *
+         * @property {boolean} [autoRender=true] - 自动渲染. 视图一初始化就进行渲染
+         * @property {number} [_place=0] - 插入位置（0：append，1：prepend）
+         * @property {string|object} [host] - 父元素，可以是选择器或jQuery对象
+         * @property {boolean} [autoResize=false] - 自适应窗口变化. 该属性设为true后当窗口大小变化时会自动调用`resize`方法，因此需要重写该方法
+         * @property {boolean} [autoCreateSubview=true] - 在视图渲染时，自动创建子视图，需设置 views 属性
+         * @property {boolean} [activeView=null] - 设置在switchable中默认活动的视图
+         * @property {boolean} [autoST=false] -自动设置触发器. 该属性为true后，会广播 `setTriggers` 消息可将该视图的工具条由defaultToolbarTpl 指定注入到其他widget，需要额外设置 `toolbar` 项指定该视图的注入到的widget名称
+         * @property {string} [toolbar='toolbar'] - 触发器放置的 widget name
+         * @property {string} [defaultToolbarTpl='.tpl-toolbar'] - 触发器默认模板的选择器
+         * @property {object} [windowOptions=false] - 设置当视图单独位于窗口中时，窗口的选项
+         * @property {object} [sharedModel=null] - 视图没有自己的视图模型，来源于该属性共享的视图模型
+         * @property {array} [sharedModelProp=null] - 共享视图模型的属性集合
+         *   ```
+         *   [['destPropName', 'originPropName'], 'propName2']
+         *   ```
+         * @property {string} [langClass=null] - 视图所属的 language class 在模板中，可通过`data.lang.xxx` 来访问特定的语言文本
+         * @property {boolean} [bindEmptyModel=false] - 当视图模型没赋值时 是否也进行绑定
+         * @property {string} [activeView=null] - 初始活动的子视图名称
+         */
+
+        /** @lends veronica.View# */
+        var base = {
+
+            /**
+             * 该视图的默认参数
+             * @type {object}
+             * @default
+             */
+            defaults: {},
+
+            /**
+             * 配置该视图的子视图 **`重写`**
+             * @type {function}
+             * @default
+             * @example
+             *   aspect: function(){
+             *     this.after('initAttr', function(){
+             *         this.param = { test: 'A' }
+             *     });
+             *     this.before // ...
+             *   }
+             */
+            aspect: noop,
+
+            /**
+             * **`重写`** 视图的自定义初始化代码
+             * @type {function}
+             * @default
+             */
+            init: noop,
+
+
+
+            /**
+             * **`重写`** 混入其他视图方法
+             * @type {function}
+             * @returns {array}
+             * @example
+             *   mixins: function () {
+             *       return [editHelper];
+             *   }
+             */
+            mixins: noop,
+
+            /**
+             * **`重写`** 自定义销毁，通常用于释放视图使用的全局资源
+             * @type {function}
+             * @example
+             *   _customDestory: function () {
+             *     $(window).off('resize', this.resizeHanlder);
+             *   }
+             */
+            _customDestory: noop,
+
+            _defaults: {
+                autoAction: false,
+
+                autoResize: false,
+                /**
+                 * @deprecated
+                 * @private
+                 */
+                lazyTemplate: false,
+                langClass: null
+            },
+
+            /**
+             * 视图初始化
+             * @function
+             * @inner
+             * @listens View#initialize
+             */
+            initialize: function (options) {
+
+                var me = this;
+
+                options || (options = {});
+
+                /**
+                 * 默认绑定视图对象到函数上下文的函数
+                 * @name binds
+                 * @memberOf View#
+                 */
+                this.binds = ['resize'];
+
+                this._windows = {};  // 子窗口集合
+                this._views = {};  // 子视图集合
+                this._delayEvents = [];
+                this._attributes = {};
+                this.state = {};  // 视图状态
+
+                this.baseModel = _.result(this, 'staticModel');
+                this.viewModel = {};  // 该视图的视图模型
+                this._activeViewName = null;
+                this._name = options._name;
+
+                /**
+                 * 视图的配置参数
+                 * @name options
+                 * @memberOf View#
+                 * @type {ViewOptions}
+                 * @todo 这里参数默认值合并使用了深拷贝，大多数时候其实没必要，目前实际测试速度影响暂时不大
+                 */
+                this.options = $.extend(true, this._defaults, this.defaults, options);
+
+                // 将方法绑定到当前视图
+                if (this.binds) {
+                    this.binds.unshift(this);
+                    _.bindAll.apply(_, this.binds);
+                }
+
+                // 混入AOP方法
+                app.core.util.extend(this, app.core.aspect);
+
+                // 应用mixins
+                this._applyMixins();
+
+                this.$el.addClass('ver-view');
+
+                this._invoke('_loadPlugin');
+
+                this._invoke('aspect');
+
+                this._invoke('_defaultListen');
+
+                this._invoke('_autoResize');
+
+                this._invoke('_resetParentWnd');
+
+                this._invoke('_initModel');
+
+                // 初始化自定义属性
+                this._invoke('initAttr');
+
+                this._invoke('subscribe');  // 初始化广播监听
+
+                this._invoke('_autoAction');
+
+                this._invoke('init');
+
+                this.trigger('init');
+
+                // 渲染
+                this.options.autoRender && this.render();
+            },
+            _applyMixins: function () {
+                //TODO: 这里应将同名的属性或方法进行合并
+                var me = this;
+                _.each(this._invoke('mixins'), function (mixin) {
+                    _.each(mixin, function (value, key) {
+                        if (me[key] == null) {
+                            me[key] = value;
+                        }
+                    });
+                });
+            },
+
+            _invoke: function (methodName, isWithDefaultParams) {
+                var args = _.toArray(arguments);
+                if (isWithDefaultParams == null) { isWithDefaultParams = true; }
+
+                if (isWithDefaultParams) {
+                    args = args.concat([app, _, $]);
+                }
+
+                var method = methodName;
+                if (_.isString(methodName)) {
+                    method = this[methodName];
+                }
+
+                return method && method.apply(this, args.slice(2));
+            },
+            /**
+              * 显示该视图
+              * @function
+              */
+            show: function () {
+                var me = this;
+                this.$el.show(false, function () {
+                    if (me.options.autoResize) {
+                        me.resize();
+                    }
+                });
+            },
+            /**
+              * 隐藏该视图
+              * @function
+              */
+            hide: function () {
+                this.$el.hide(false);
+            },
+
+            _destroy: function () {
+                // 清理在全局注册的事件处理器
+                this.options.autoResize && $(window).off('resize', this.resize);
+
+                this._invoke('_destroyWindow', false);
+
+                // 销毁该视图的所有子视图
+                this._invoke('_destroyView', false);
+
+                // 销毁第三方组件
+                this._invoke('_customDestory');
+
+                // 清除引用
+                this.viewModel = null;
+
+                this.options.sandbox.log('destroyed');
+            },
+            /**
+             * 销毁该视图
+             */
+            destroy: function () {
+                this._destroy();
+            }
+        };
+
+        /**
+         * @classdesc 视图
+         * @class veronica.View
+         * @augments Backbone.View
+         */
+        app.view.base = base;
+
+        mvvm(app);
+        subwindow(app);
+        attr(app);
+        action(app);
+        children(app);
+        listen(app);
+        render(app);
+        resize(app);
+        trigger(app);
+    };
+});
+
 define('app/view',[
-    './view/view-mvvm',
-    './view/view-view',
-    './view/view-window'
-], function (mvvm, subview, subwindow) {
+    './view/view-base'
+], function (base) {
 
     /**
      * Backbone View Object
@@ -5014,840 +6237,95 @@ define('app/view',[
         var $ = app.core.$;
         var _ = app.core._;
         var noop = $.noop;
-        /**
-         * @classdesc 视图
-         * @class View
-         * @augments Backbone.View
-         */
 
-        /**@lends View.prototype */
-        var base = {
-            /**
-             * 根元素自定义类名
-             * @type {string}
-             * @default
-             */
-            className: '',
-
-            /**
-             * 模板
-             * @type {string|function}
-             * @default
-             */
-            template: null,
-
-            /**
-             * 该视图的默认参数
-             * @type {object}
-             * @default
-             */
-            defaults: {},
-
-            /**
-             * 配置该视图的子视图
-             * @type {function|object}
-             * @default
-             */
-            views: null,
-
-            /**
-             * 配置该视图的子视图 **`重写`**
-             * @type {function}
-             * @default
-             * @example
-             *   aspect: function(){
-             *     this.after('initAttr', function(){
-             *         this.param = { test: 'A' }
-             *     });
-             *     this.before // ...
-             *   }
-             */
-            aspect: noop,
-
-            /**
-             * 订阅消息 **`重写`**
-             * @type {function}
-             * @default
-             * @example
-             *   subscribe: function(){
-             *       this.sub('setTriggers', function(){
-             *           alert('I received this message');
-             *       })
-             *       this.sub ...
-             *   }
-             */
-            subscribe: noop,
-
-            /**
-             * 监听自身和子视图事件 **`重写`**
-             * @type {function}
-             * @default
-             * @example
-             *   listen: function(){
-             *       this.listenTo('rendered', function(){
-             *           // 处理代码
-             *       });
-             *       this.listenTo ...
-             *       this.listenToDelay('edit', 'saved', function(){
-             *       })
-             *   }
-             */
-            listen: noop,
-
-            /**
-             *  **`重写`** 进行UI增强（在 `render` 过程中，需要自定义的一些行为，
-             * 通常放置一些不能被绑定初始化的控件初始化代码）
-             * @type {function}
-             * @default
-             * @example
-             *   enhance: function(){
-             *       this.$('.chart').chart({
-             *           type: 'pie',
-             *           data: ['0.3', '0.2']
-             *       })
-             *   }
-             */
-            enhance: noop,
-
-            /**
-             * **`重写`** 视图的自定义初始化代码
-             * @type {function}
-             * @default
-             */
-            init: noop,
-
-            /**
-             * **`重写`** 初始化属性
-             * @type {function}
-             * @default
-             * @example
-             *  initAttr: function(){
-             *      this.message = 'hello';
-             *      this.baseModel = {
-             *          data: {
-             *              name: 'veronica'
-             *          }
-             *      }
-             *  }
-             */
-            initAttr: noop,
-
-            /**
-             * **`重写`** 重写该方法，使视图自适应布局，当开启 `autoResize` 后，窗口大小变化时，该方法会被调用，
-             * 如果有必要，在该方法中应编写窗口大小变化时，该视图对应的处理逻辑
-             * @type {function}
-             */
-            resize: noop,
-
-            /**
-             * **`重写`** 视图渲染完毕后执行的方法
-             * @type {function}
-             * @example
-             *   rendered: function () {
-             *       this.getModel();
-             *   }
-             */
-            rendered: noop,
-
-            /**
-             * **`重写`** 模型绑定完成后执行的方法
-             * @type {function}
-             * @example
-             *   modelBound: function () {
-             *       this.loadData();
-             *   }
-             */
-            modelBound: noop,
-
-            /**
-             * **`重写`** 混入其他视图方法
-             * @type {function}
-             * @returns {array}
-             * @example
-             *   mixins: function () {
-             *       return [editHelper];
-             *   }
-             */
-            mixins: noop,
-
-            /**
-             * **`重定义`** 根据元素获取该元素上创建的界面控件的实例
-             * @type {function}
-             * @returns {object}
-             * @example
-             *   instance: function (el) {
-             *       return this.$(el).data('instance');
-             *   }
-             */
-            instance: noop,
-
-            /**
-             * **`重写`** 自定义销毁，通常用于释放视图使用的全局资源
-             * @type {function}
-             * @example
-             *   _customDestory: function () {
-             *     $(window).off('resize', this.resizeHanlder);
-             *   }
-             */
-            _customDestory: noop,
-
-            /**
-             * 可切换的视图集合
-             */
-            switchable: [],
-
-            /**
-             * **`重写`** 视图的静态视图模型，所有视图实例和不同的模型对象都会包含的模型属性
-             * @type {function|object}
-             * @example
-             *   staticModel: function (app) {
-             *     return {
-             *       listSource: app.data.source()
-             *     };
-             *   }
-             */
-            staticModel: {},
-
-            attrChanged: {},
-
-            /**
-             * 视图初始化
-             * @function
-             * @inner
-             * @listens View#initialize
-             */
-            initialize: function (options) {
-
-                var me = this;
-
-                options || (options = {});
-
-                /**
-                 * @var {string} cid - 视图唯一标识符
-                 * @memberOf View#
-                 */
-
-                /**
-                 * 默认绑定视图对象到函数上下文的函数
-                 * @name binds
-                 * @memberOf View#
-                 */
-                this.binds = ['resize'];
-
-                this._rendered = false;
-                this._windows = {};  // 子窗口集合
-                this._views = {};  // 子视图集合
-                this._delayEvents = [];
-                this._attributes = {};
-                /**
-                 * 默认的基础视图模型
-                 * @name baseModel
-                 * @memberOf View#
-                 */
-                this.baseModel = _.result(this, 'staticModel');
-                this.viewModel = {};  // 该视图的视图模型
-                this._activeViewName = null;
-                this._name = options._name;
-
-                /**
-                 * 选项
-                 * @name options
-                 * @memberOf View#
-                 * @property {boolean} [autoAction=false] - 自动绑定Action事件
-                 *   当在模板中使用如下写法时：
-                 *   ```html
-                 *   <button data-action="add">添加</button>
-                 *   ```
-                 *   如果该属性为 `true`，将自动查找该视图的 `addHandler` 方法作为该按钮点击事件的处理函数
-                 *
-                 * @property {boolean} [autoRender=true] - 自动渲染. 视图一初始化就进行渲染
-                 * @property {boolean} [autoResize=false] - 自适应窗口变化. 该属性设为true后，当窗口大小变化时，会自动调用`resize`方法，因此需要重写该方法
-                 * @property {boolean} [autoCreateSubview=true] - 在视图渲染时，自动创建子视图，需设置 views 属性
-                 * @property {boolean} [domReady=false] - 是否视图DOM元素已准备好，这会影响视图的首次渲染
-                 * @property {boolean} [autoST=false] -
-                 *   自动设置触发器. 该属性为true后，会广播 `setTriggers` 消息，可将该视图的工具条（由 defaultToolbarTpl 指定）
-                 *   注入到其他widget，需要额外设置 `toolbar` 项，指定该视图的注入到的widget名称
-                 * @property {string} [toolbar='toolbar'] - 触发器放置的 widget name
-                 * @property {string} [defaultToolbarTpl='.tpl-toolbar'] - 触发器默认模板的选择器
-                 * @property {object} [windowOptions=false] - 设置当视图单独位于窗口中时，窗口的选项
-                 * @property {object} [sharedModel=null] - 视图没有自己的视图模型，来源于该属性共享的视图模型
-                 * @property {array} [sharedModelProp=null] - 共享视图模型的属性集合
-                 *   ```
-                 *   [['destPropName', 'originPropName'], 'propName2']
-                 *   ```
-                 * @property {string} [langClass=null] - 视图所属的 language class，在模板中，可通过 `data.lang.xxx` 来访问特定的语言文本
-                 * @property {boolean} [bindEmptyModel=false] - 当视图模型没赋值时，是否也进行绑定
-                 * @property {string} [activeView=null] - 初始活动的子视图名称
-                 * @default {}
-                 * @todo 这里参数默认值合并使用了深拷贝，大多数时候其实没必要，目前实际测试速度影响暂时不大
-                 */
-                this.options = $.extend(true, {
-                    autoAction: false,
-                    autoRender: true,
-                    autoResize: false,
-                    autoCreateSubview: true,
-                    domReady: false,
-                    autoST: false,
-                    toolbar: 'toolbar',
-                    defaultToolbarTpl: '.tpl-toolbar',
-                    /**
-                     * @deprecated
-                     * @private
-                     */
-                    lazyTemplate: false,
-                    windowOptions: false,
-                    sharedModel: null,
-                    sharedModelProp: null,
-                    langClass: null,
-                    bindEmptyModel: false,
-                    activeView: null
-                }, this.defaults, options);
-
-                // 将方法绑定到当前视图
-                if (this.binds) {
-                    this.binds.unshift(this);
-                    _.bindAll.apply(_, this.binds);
-                }
-
-                // 混入AOP方法
-                app.core.util.extend(this, app.core.aspect);
-
-                // 应用mixins
-                this._applyMixins();
-
-                this.$el.addClass('ver-view');
-
-                this._loadPlugin();
-
-                this._invoke('aspect');
-
-                this._defaultListen();
-
-                this._invoke('listen');  // 添加子视图监听
-
-                if (this.options.autoResize) {
-                    this.listenTo(this, 'rendered', function () {
-                        _.defer(me.resize);
-                    });
-                    $(window).on('resize', this.resize);
-                }
-
-
-                (this.options.sharedModel != null) && this.model(this.shareModel(this.options.sharedModel), false);
-
-                // 初始化窗口大小
-                if (this.options.parentWnd && this.options.windowOptions) {
-                    this.options.parentWnd.setOptions(this.options.windowOptions);
-                    // TODO: 这里遇到 positionTo 的 window，调整大小后可能会错位
-                    this.options.parentWnd.config.center && this.options.parentWnd.center();
-                }
-
-                // 初始化自定义属性
-                this.initAttr(app, _, $);
-
-                this.subscribe(app, _, $);  // 初始化广播监听
-
-                this.init(app, _, $);
-
-                this._autoAction();
-
-                this.trigger('init');
-
-                // 渲染
-                this.options.autoRender && this._firstRender();
-            },
-            _applyMixins: function () {
-                //TODO: 这里应将同名的属性或方法进行合并
-                var me = this;
-                _.each(this._invoke('mixins'), function (mixin) {
-                    _.each(mixin, function (value, key) {
-                        if (me[key] == null) {
-                            me[key] = value;
-                        }
-                    });
-                });
-            },
-            _defaultListen: function () {
-                var me = this;
-                this.listenTo(this, 'modelBound', function (model) {
-                    // 更新子视图模型
-                    _(me._views).each(function (view) {
-                        if (view.options.sharedModel || view.options.sharedModelProp) {
-                            view.model(view.shareModel(model));
-                        }
-                    });
-                    me._invoke('modelBound');
-                });
-                this.listenTo(this, 'rendering', function () {
-                    // 自动创建子视图
-                    if (this.options.autoCreateSubview) {
-                        this._createSubviews();
-                    }
-                });
-                this.listenTo(this, 'rendered', function () {
-                    // 在渲染视图后重新绑定视图模型
-                    this._bindViewModel();
-                    this.options.autoST && this.setTriggers();
-                    this._invoke('rendered');
-                });
-
-                // 监听属性变更
-                this.listenTo(this, 'attr-changed', function (name, value) {
-                    var handler = this.attrChanged[name];
-                    if (handler == null) { handler = this.attrChanged['defaults'] };
-                    this._invoke(handler, value, name);
-                });
-            },
-            _autoAction: function () {
-                if (this.options.autoAction) {
-                    // 代理默认的事件处理程序
-                    this.events || (this.events = {});
-                    $.extend(this.events, {
-                        'click [data-action]': '_actionHandler',
-                        'click [data-dlg-view]': '_dlgViewHandler',
-                        'click [data-dlg-widget]': '_dlgWidgetHandler'
-                    });
-                }
-            },
-            // 加载插件
-            _loadPlugin: function () {
-                var sandbox = this.options.sandbox;
-                var app = sandbox.app;
-                if (this.options.plugin) {
-                    this.options.plugin.call(this);
-                }
-                app.plugin && app.plugin.execute(sandbox.name, this);
-            },
-            _invoke: function () {
-                var args = _.toArray(arguments);
-                args = args.concat([app, _, $]);
-                var methodName = args[0];
-                var method = methodName;
-                if (_.isString(methodName)) {
-                    method = this[methodName];
-                }
-                return method.apply(this, _.rest(args));
-            },
-            /**
-             * 定义属性
-             * @function
-             * @param {object} options - 配置项
-             * @param {string} options.name - 属性名称
-             * @param {function} [options.getter] - 获取数据的方法
-             * @param {string} [options.source=options] - 数据来源（包括：'options', 'global', 'querystring'）
-             * @param {string} [options.setup=rendered] - 初始化时机（所有该视图相关的事件名称）
-             * @param {string} [options.sourceKey] - 原始数据的字段名称
-             */
-            defineAttr: function (options) {
-                if (options.source == null) options.source = 'options';
-                if (options.setup == null) options.setup = 'rendered';
-                if (options.sourceKey == null) options.sourceKey = options.name;
-
-                var me = this;
-                if (options.source === 'options') {
-                    if (options.getter == null) {
-                        options.getter = function (data) {
-                            return this.options[data.sourceKey];
-                        }
-                    }
-                }
-
-                if (options.source === 'querystring') {
-                    if (options.getter == null) {
-                        options.getter = function (opt) {
-                            return app.qs.get(opt.sourceKey);
-                        }
-                    }
-                    // 监听查询字符串改变
-                    this.sub('qs-changed', function (obj) {
-                        var value = obj[options.sourceKey];
-                        var originalValue = me.attr(options.name);
-                        if (value != originalValue) {
-                            me.attr(options.name, value);
-                        }
-                    });
-                }
-
-                // 当事件发生时，设置该属性
-                this.listenToOnce(this, options.setup, function () {
-                    var val = this._invoke(options.getter, options);
-
-                    this.attr(options.name, val);
-                });
-
-            },
-            /**
-             * 获取设置属性
-             * @function
-             */
-            attr: function (name, value) {
-                if (!_.isUndefined(value)) {
-                    this._attributes[name] = value;
-                    this.trigger('attr-changed', name, value);
-                }
-                return this._attributes[name];
-            },
-            /**
-              * 替换模板文件
-              * @function
-              */
-            replaceTpl: function (origin, content, isDom) {
-                if (isDom) {
-                    this.template = $('<div>' + this.template + '</div>').find(origin).replaceWith(content).end().html();
-                } else {
-                    this.template = this.template.replace(origin, content);
-                }
-            },
-            /**
-              * 显示该视图
-              * @function
-              */
-            show: function () {
-                var me = this;
-                this.$el.show(false, function () {
-                    if (me.options.autoResize) {
-                        me.resize();
-                    }
-                });
-            },
-            /**
-              * 隐藏该视图
-              * @function
-              */
-            hide: function () {
-                this.$el.hide(false);
-            },
-
-            updateEl: function (selector, url, data) {
-                var $el = this.$(selector);
-                if (arguments.length > 2) {
-                    $.get(url, data).done(function (resp) {
-                        $el.html(resp);
-                    });
-                } else {
-                    $el.html(url);
-                }
-            },
-            _firstRender: function () {
-                if (this.options.domReady) {
-                    this._invoke('enhance');
-                    this.trigger('rendered');
-                } else {
-                    this.render();
-                }
-            },
-            /**
-             * 刷新界面
-             * @param {string} [url] - 内容获取路径
-             * @param {*} [data] - 数据
-             */
-            refresh: function (url, data) {
-                var me = this;
-                if (url == null) {
-                    url = _.result(this, 'templateUrl');
-                }
-                this.loadingTemplate = true;
-                $.get(url, data).done(function (template) {
-                    me.loadingTemplate = false;
-                    if (_.isString(template)) {  // 仅当获取到模板时，才进行渲染
-                        me._render(template, true);
-                        me.trigger('refresh');
-                    } else {
-                        me.trigger('refresh-fail');
-                    }
-                }).fail(function () {
-                    me.options.parentWnd && me.options.parentWnd.close();
-                });
-            },
-            /**
-             * 渲染界面
-             * @param {string} [template] 模板
-             * @fires View#rendered
-             */
-            render: function (template) {
-                template || (template = this.template);
-
-                if (this.templateUrl) {
-                    this.refresh();
-                } else {
-                    if (this.options.el && !template) {
-                        // 将当前元素内容作为 template
-                        template = _.unescape(this.$el.html());
-                    }
-                    this._render(template);
-                }
-                return this;
-            },
-            _render: function (template, isHtml) {
-                var hasTpl = !!template;
-                var options = this.options;
-                var sandbox = this.options.sandbox;
-
-                if (hasTpl) {
-                    if (isHtml) {
-                        this.$el.get(0).innerHTML = template;  // 为了提高效率，不使用 jquery 的 html() 方法
-                    } else {
-                        var tpl = _.isFunction(template) ?
-                            template : _.template(template, { variable: 'data' });  // 如果使用 Lodash，这里调用方式有差异
-                        var html = tpl(_.extend({ lang: app.lang[this.options.langClass] }, this.options));
-                        html && (this.$el.get(0).innerHTML = html);
-                    }
-                }
-
-                this.trigger('rendering');
-
-                // append
-                if (this.options.host && this._appended !== true) {
-                    var placeMethod = options._place === 1 ? 'prependTo' : 'appendTo';
-                    // 只有当前页面与 view 所属页面相同时，才呈现到界面上
-                    if (!this.options._page || this.options._page === app.page.active()) {
-                        this.$el[placeMethod](this.options.host);
-                        this._appended = true;
-                    }
-                };
-
-                sandbox.log(this.cid + ' rendered');
-                this._rendered = true;
-
-                this._invoke('_activeUI');
-                this._invoke('enhance');
-
-                /**
-                 * 渲染完毕
-                 * @event View#rendered
-                 */
-                this.trigger('rendered');
-
-                return this;
-            },
-            /**
-              * 延迟监听子视图
-              * @param {string} name - 子视图名称
-              * @param {string} event - 事件名称
-              * @param {eventCallback} callback - 回调
-              */
-            listenToDelay: function (name, event, callback) {
-
-                this._delayEvents.push({
-                    name: name,
-                    event: event,
-                    callback: callback
-                });
-                if (this.view(name)) {
-                    this.listenTo(this.view(name), event, callback);
-                }
-            },
-            /**
-              * 订阅消息
-              * @param {string} name 消息名
-              * @param {messageCallback} listener 消息订阅处理函数
-              */
-            sub: function (name, listener) {
-
-                this.options.sandbox.on(name, listener, this, this.cid);
-            },
-            /**
-              * 发布消息
-              * @param {string} name 消息名
-              * @param {...*} msgParam 消息传递的参数
-              */
-            pub: function () {
-                this.options.sandbox.emit.apply(this.options.sandbox,
-                    Array.prototype.slice.call(arguments));
-            },
-            /**
-              * 取消该视图的所有消息订阅
-              */
-            unsub: function () {
-                this.options.sandbox.stopListening(this.cid);
-            },
-            /**
-             * 启用子部件，会自动附加该视图标识符作为标记
-             * @param {object[]} list 部件配置列表
-             */
-            startWidgets: function (list) {
-                return this.options.sandbox.startWidgets(list, null, this.cid);
-            },
-            // 停用该视图创建的子部件
-            stopChildren: function () {
-                this.options.sandbox.stopChildren(this.cid);
-            },
-            /**
-             * 设置触发器
-             * @param {string} [toolbarTpl=options.defaultToolbarTpl] - 工具条选择器
-             * @returns void
-             * @fires View#setTriggers
-             */
-            setTriggers: function (toolbarTpl) {
-                toolbarTpl || (toolbarTpl = this.options.defaultToolbarTpl);
-                var sandbox = this.options.sandbox;
-
-                /**
-                 * **消息：** 设置触发器
-                 * @event View#setTriggers
-                 * @param {string} html - 工具条模板
-                 * @param {string} name - 目标名称
-                 * @param {View} view - 当前视图
-                 */
-                this.pub('setTriggers', this.$(toolbarTpl).html(),
-                    this.options.toolbar || this._name, this);
-            },
-            _actionHandler: function (e, context) {
-                e.preventDefault();
-                //e.stopImmediatePropagation();
-
-                context || (context = this);
-                var $el = $(e.currentTarget);
-                if ($el.closest('script').length > 0) return;
-                var actionName = $el.data().action;
-                if (actionName.indexOf('Handler') < 0) {
-                    actionName = actionName + 'Handler';
-                }
-                context[actionName] && context[actionName](e, app, _, $);
-            },
-            // 获取触发视图配置项
-            _getViewTriggerOptions: function (attr) {
-                var nameParts = attr.split('?');
-                var name = nameParts[0];
-                var options = {};
-                if (nameParts[1]) {
-                    options = app.core.util.qsToJSON(nameParts[1]);
-                }
-                options._viewName = name;
-                return options;
-            },
-            _dlgViewHandler: function (e) {
-                var $el = $(e.currentTarget);
-                var options = this._getViewTriggerOptions($el.attr('data-dlg-view'));
-
-                var initializer = function (options) {
-                    var ctor = app.view.ctor(options._viewName);
-                    return new ctor(options);
-                };
-                this.viewWindow(options._viewName, initializer, options);
-            },
-            _dlgWidgetHandler: function (e) {
-                var $el = $(e.currentTarget);
-                var options = this._getViewTriggerOptions($el.attr('data-dlg-widget'));
-
-                this.widgetWindow(options._viewName, options);
-            },
-            _destroy: function () {
-                // 清理在全局注册的事件处理器
-                this.options.autoResize && $(window).off('resize', this.resize);
-
-                // 关闭该组件下的所有弹出窗口
-                _(this._windows).each(function (window) {
-                    window.close();
-                });
-
-                // 销毁该视图的所有子视图
-                this._destroyView();
-
-                // 销毁第三方组件
-                this._customDestory();
-
-                // 清除引用
-                this.viewModel = null;
-
-                this.options.sandbox.log('destroyed');
-            },
-            /**
-             * 销毁该视图
-             */
-            destroy: function () {
-                this._destroy();
-            }
-        };
 
         /**
-         * @namespace
-         * @memberOf Application#
+         * 不能用构造器构造
+         * @classdesc 视图操作
+         * @class veronica.ViewHandler
          */
+
+        /** @lends veronica.ViewHandler# */
         var view = {
             _ctors: {}
         };
 
-        /**
-         * 基础配置对象
-         */
-        view.base = base;
 
-
-        /**
-         * 创建一个 View 执行器
-         * @private
-         */
-        view._createExecutor = function (executor) {
-            if (_.isObject(executor) && !_.isFunction(executor)) {
-
-                return function (options) {
-                    var app = options.sandbox.app;
-                    var View = app.view.define(executor);
-                    return new View(options);
-                }
-            } else {
-                if (executor.extend) {  // 检测是否是 Backbone.View 构造函数
-                    return function (options) {
-                        return new executor(options);
-                    }
-                } else {
-                    return executor;
-                }
-            }
-        }
 
         /**
          * 全局注册 View
          */
         view.register = function (name, ctor) {
-            if (app.view._ctors[name]) {
-                app.core.logger.warn('View naming conflicts: ' + name);
-            } else {
+            if (!app.view.ctor(name)) {  // 重复名称的不注册
                 app.view._ctors[name] = ctor;
+            } else {
+                // app.core.logger.warn('View naming conflicts: ' + name);
             }
         }
 
         // 查找 View 构造器
-        view.ctor = function (name) {
+        view.ctor = function (name, ctor) {
+            if (ctor != null) {
+                app.view._ctors[name] = ctor;
+            }
+
             return app.view._ctors[name];
         }
 
 
         /**
          * 创建一个自定义 View 定义
-         * @param {object} [obj={}] - 自定义属性或方法
+         * @param {object|function} [obj={}] - 自定义属性或方法
          * @param {array} [inherits=[]] - 继承的属性或方法组
-         * @param {boolean} [isFactory] - 是否该视图定义是个工厂方法
+         * @param {boolean} [isFactory=false] - 是否该视图定义是个工厂方法（不需要 `new`）
          */
         view.define = function (obj, inherits, isFactory) {
             if (_.isBoolean(inherits) && isFactory == null) {
                 isFactory = inherits;
                 inherits = [];
             }
-            if (isFactory == null) isFactory = false;
-            inherits || (inherits = []);
+
+            if (isFactory == null) { isFactory = false };
+            if (inherits == null) { inherits = [] };
+
             inherits.push(obj);
 
-            var ctor = app.core.View.extend($.extend.apply($, [true, {}, app.view.base].concat(inherits)));
+            var ctor;
+
+            if (_.isObject(obj) && !_.isFunction(obj)) {  // 普通对象
+                ctor = app.core.View.extend($.extend.apply($, [true, {}, app.view.base].concat(inherits)));
+            } else {
+                if (obj.extend) {  // 本身是 Backbone.View 构造函数
+                    ctor = obj;
+                } else {  // 工厂函数                   
+                    return obj;
+                }
+            }
+
+
             // 注册 View
             if (obj && obj.name) {
                 app.view.register(obj.name, ctor);
             }
-            // 使用工厂模式，不需要用 `new`
+
+            // 使用工厂模式
             if (isFactory) {
                 return function (options) {
                     return new ctor(options);
                 }
             }
+
             return ctor;
         };
 
+        /**
+         * @name view
+         * @memberOf veronica.Application#
+         * @type {veronica.ViewHandler}
+         */
         app.view = view;
 
-        mvvm(app);
-        subview(app);
-        subwindow(app);
+        base(app);
     };
 });
 
@@ -5855,38 +6333,46 @@ define('app/data',[], function () {
     return function (app) {
 
         /**
-         * 全局数据存储
-         * @namespace
-         * @memberOf Application#
+         * 无法直接构造
+         * @class veronica.Data
+         * @classdesc 全局数据缓存
+         * @memberOf veronica
          */
-        var data = { _data: {} };
 
-        /**
-         * 获取数据
-         * @param {string} name - 数据名称
-         */
-        data.get = function (name) {
-            return data._data[name];
-        };
-
-        /**
-         * 设置数据
-         * @param {string} name - 名称
-         * @param {*} value - 值
-         */
-        data.set = function (name, value) {
-            data._data[name] = value;
+        /** @lends veronica.Data# */
+        var Data = {
+            _data: {},
             /**
-             * **消息：** 数据改变时发布，消息名 'change.' + 数据名
-             *
-             * @event Application#data.change
-             * @type {object}
-             * @property {*} value - 数据值
+             * 获取数据
+             * @param {string} name - 数据名称
+             * @return {Object}
              */
-            app.sandbox.emit('change.' + name, value);
+            get: function (name) {
+                return data._data[name];
+            },
+            /**
+             * 设置数据
+             * @param {string} name - 名称
+             * @param {*} value - 值
+             */
+            set: function (name, value) {
+                data._data[name] = value;
+                /**
+                 * **消息：** 数据改变时发布，消息名 'change.' + 数据名
+                 *
+                 * @event Application#data.change
+                 * @type {object}
+                 * @property {*} value - 数据值
+                 */
+                app.sandbox.emit('change.' + name, value);
+            }
         };
-
-        app.data = data;
+        
+        /**
+         * @memberOf veronica.Application#
+         * @type {veronica.Data}
+         */
+        app.data = Data;
     };
 });
 
@@ -5933,14 +6419,29 @@ define('app/router',[],function () {
          */
 
         /**
-         * 前端路由
-         * @namespace
-         * @memberOf Application#
+         * 无法直接构造
+         * @classdesc 前端路由
+         * @class veronica.Router
          */
+
+        /** @lends veronica.Router# */
         var router = {};
+        var preParams;  // 前一个查询字符串参数
 
         // 页面切换
         router.changePage = _.throttle(function (page, params) {
+            var sameParams = preParams === params;
+            preParams = params;
+            
+            // 更新查询字符串
+            if (app.page.isCurrent(page)) {
+                if (!sameParams) {
+                    app.sandbox.emit('qs-changed', app.core.util.qsToJSON(params));
+                } else {
+                    return;
+                }
+            }
+
             app.page.change(page, params);
         }, 500);
 
@@ -5999,7 +6500,7 @@ define('app/router',[],function () {
              * 路由实例
              * @name instance
              * @type {Backbone.Router}
-             * @memberOf Application#router
+             * @memberOf veronica.Application#router
              */
             router.instance = r;
             app.core.history.start({ pushState: false });
@@ -6014,21 +6515,31 @@ define('app/router',[],function () {
             router.instance.navigate(fragment, options);
         }
 
+        /**
+         * @name router
+         * @memberOf veronica.Application#
+         * @type {veronica.Router}
+         */
         app.router = router;
 
         return router;
     };
 });
 
-define('app/ajax',[
+define('app/request',[
 ], function () {
     return function (app) {
 
         var $ = app.core.$;
 
         /**
-         * @namespace
-         * @memberOf Application#
+         * 无法直接构造
+         * @classdesc 网络请求
+         * @class veronica.Request
+         */
+
+        /**
+         * @lends veronica.Request#
          */
         var request = {};
 
@@ -6109,6 +6620,11 @@ define('app/ajax',[
             return deferred.promise();
         }
 
+        var isChromeFrame = function () {
+            var ua = navigator.userAgent.toLowerCase();
+            return ua.indexOf('chrome') >= 0 && window.externalHost;
+        };
+
         request.download = function (settings) {
             settings || (settings = {}); //eg: { url: '', data: [object] }
             if (settings.url == undefined) {
@@ -6117,7 +6633,7 @@ define('app/ajax',[
             if (!_.isString(settings.data)) {
                 settings.data = $.param(settings.data, true);
             }
-            if (!isChromeFrame()) {  //当使用ChromeFrame时，采用新窗口打开
+            if (!isChromeFrame()) {  // 当使用ChromeFrame时，采用新窗口打开
                 if ($('#global-download-iframe').length === 0) {
                     $('<iframe id="global-download-iframe" src="" style="width:0;height:0;display: inherit;border:0;" \>').appendTo(document.body);
                 }
@@ -6127,6 +6643,11 @@ define('app/ajax',[
             }
         };
 
+        /**
+         * @memberOf veronica.Application#
+         * @name request
+         * @type {veronica.Request}
+         */
         app.request = request;
     };
 });
@@ -6170,13 +6691,7 @@ define('app/hash',[
 define('app/qs',[
 ], function () {
     return function (app) {
-
         var $ = app.core.$;
-
-        /**
-         * @namespace
-         * @memberOf Application#
-         */
 
         var changeMode = function (mode) {
             var qs = app.core.qs(mode);
@@ -6185,7 +6700,62 @@ define('app/qs',[
 
         var qs = changeMode(1);
 
+        /**
+         * ��ѯ�ַ�������
+         * @type {veronica.QueryString}
+         * @memberOf veronica.Application#
+         */
         app.qs = qs;
+    };
+});
+
+define('app/cache',[
+], function () {
+    return function (app) {
+
+        // 客户端缓存
+        app.cache = {
+            enabled: false,
+            _cache: {},
+            config: {}
+        };
+
+        app.cache.config = function (options) {
+            $.each(options, function (value, key) {
+                app.cache.config[key] = value;
+            });
+            app.cache.config = options;
+        };
+
+        app.cache.load = function (key) {
+            var url = app.cache.config[key];
+            var store = app.cache._cache;
+            return $.get(url).done(function (resp) {
+                store[key] = resp;
+            });
+        }
+
+        app.cache.access = function (key) {
+            return app.cache._cache[key];
+        }
+
+        app.cache.get = function (key) {
+
+            var deferred = $.Deferred();
+
+            if (app.cache.enabled === false || app.cache._cache[key] == null) {
+                app.cache.load(key).done(function (resp) {
+                    deferred.resolve(resp);
+                }).fail(function () {
+                    deferred.reject();
+                });
+            } else {
+                var data = app.cache._cache[key];
+                deferred.resolve(data);
+            }
+
+            return deferred.promise();
+        }
     };
 });
 
@@ -7861,7 +8431,15 @@ define('app/ui/dialog',[
 ], function (dialog) {
     return function (app) {
         app.ui || (app.ui = {});
+
+        /**
+         * 对话框UI控件的配置参数（默认采用 artDialg）
+         * @typedef DialogUIOptions
+         * @see {@link http://aui.github.io/artDialog/doc/index.html}
+         */
+
         app.ui.dialog = dialog;
+
         app.ui.confirm = function (content, successCallback, cancelCallback) {
             if (window.confirm(content)) {
                 successCallback && successCallback();
@@ -7902,13 +8480,14 @@ define('app/app',[
     './data',
     './templates',
     './router',
-    './ajax',
+    './request',
     './hash',
     './qs',
+    './cache',
     './ui/dialog'
 ], /**@lends veronica */function (core, Application, emitQueue, page, layout, module,
     navigation, plugin, sandboxes, widget, parser, view, data, templates, router,
-    ajax, hash, qs, dialog) {
+    request, hash, qs, cache, dialog) {
 
     'use strict';
 
@@ -7917,18 +8496,12 @@ define('app/app',[
      * @typedef Promise
      */
 
-    /**
-     * 是一个 `Application` 类的实例，在`global` 设为 `true` 的情况下，可通过`window.__verApp`访问
-     * @name app
-     * @type {Application}
-     * @memberOf veronica
-     */
 
     var DEFAULT_MODULE_NAME = '__default__';
 
     /**
      * 创建 app
-     * @function veronica.createApp
+     * @function veronica#createApp
      * @param {object} [options={}]
      * @param {string} options.name='app' 应用程序名称
      * @param {array} options.features=['plugin','dialog','spa'] -
@@ -7955,6 +8528,7 @@ define('app/app',[
      *    * hasEntry: 有入口文件
      *   当每个模块配置参数为字符串时，该字符串指定该模块的名称，其他参数采用默认参数
      * @param {array} options.extensions=[] - 扩展列表
+     * @returns {veronica.Application}
      */
     core.createApp = function (options) {
 
@@ -7971,11 +8545,12 @@ define('app/app',[
         widget(app, Application);
         parser(app, Application);
         view(app, Application);
-        ajax(app);
+        request(app);
         data(app);
         templates(app);
         hash(app);
         qs(app);
+        cache(app);
 
         if ($.inArray('dialog', app.config.features) > -1) {
             // dialog
@@ -7996,6 +8571,13 @@ define('app/app',[
             plugin(app, Application);
         }
 
+
+        /**
+         * 是一个 `Application` 类的实例，在`global` 设为 `true` 的情况下，可通过`window.__verApp`访问
+         * @name app
+         * @type {Application}
+         * @memberOf veronica
+         */
         core.app = app;
 
         app.sandbox = app.sandboxes.create(app.name, core.enums.hostType.APP);

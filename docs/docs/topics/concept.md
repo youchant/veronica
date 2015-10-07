@@ -138,12 +138,11 @@ define(['./templates/index.html'], function(tpl){
 
 **widget 包放置的位置**
 
-远程加载包首先要解决一个从哪里加载的问题，默认情况下，应用程序加载部件包是从默认模块的widgets目录加载，例如，你调用 `app.widget.start({ name: 'widget1' })`，那么系统将会查找到 `./widgets/widget1/main.js` 作为该widget的入口脚本，如果未找到，则会报错，另外，也通过设置 `options._source` 可以指定应用程序从不同的源去查找包
+远程加载包首先要解决一个从哪里加载的问题，默认情况下，应用程序加载部件包是从默认模块的widgets目录加载，例如，你调用 `app.widget.start({ name: 'widget1' })`，
+那么系统将会查找到 `./widgets/widget1/main.js` 作为该widget的入口脚本，如果未找到，则会报错，另外，也通过设置 `options._source` 可以指定应用程序从不同的源去查找包
 
 
-
-
-**什么是”源“**
+**什么是“源”**
 
 源（source）是一个路径，表示可以从这个路径加载资源，同时也可以给这个路径命名，这样便可以直接使用源名指代这个路径
 

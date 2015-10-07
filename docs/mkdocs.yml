@@ -9,3 +9,9 @@ pages:
   - '使用RequireJS': 'tutorial/requirejs.md'
 - 主题:
   - '深入理解一些概念': 'topics/concept.md'
+  - '理解视图（1）——概览': 'topics/view.md'
+  - '理解视图（2）——渲染': 'topics/view-render.md'
+  - '理解视图（3）——数据': 'topics/view-data.md'
+  - '理解视图（4）——事件': 'topics/view-event.md'
+  - '理解视图（5）——子视图': 'topics/view-children.md'
+  - '理解视图（6）——对话框': 'topics/view-dlg.md'

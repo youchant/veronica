@@ -2,7 +2,7 @@ define([
     'text!./index.html',
     'ver!charts',
     'css!./index.css'
-], function (tpl, CC) {
+], function (tpl, Charts) {
     return {
         template: tpl,
         defaults: {
@@ -10,8 +10,18 @@ define([
             name: 'Veronica',
             autoAction: true
         },
+        views: function () {
+            return {
+                'charts': {
+                    initializer: Charts,
+                    options: {
+                        el: this.$('.sub')
+                    }
+                }
+            };
+        },
         openWndHandler: function () {
-            this.widgetWindow('charts');
+            this.widgetWindow('charts', null, { options: { modal: true } });
         }
     };
 });

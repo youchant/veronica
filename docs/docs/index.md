@@ -1,8 +1,6 @@
 
 # Veronica 
 
-<small>v0.2.3</small>
-
 Veronica 是一个Web前端开发库，用于以模块化的方式开发 Web 应用，当你尝试完成以下任务的时候你可以考虑使用它：
 
 * 构建大型单页面 Web 应用

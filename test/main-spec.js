@@ -163,7 +163,6 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
                     widget.sandbox.should.to.equal(sandbox);
                     $el.parent().get(0).should.to.equal($host.get(0));
                     $el.hasClass(app.core.constant.WIDGET_CLASS).should.to.be.true;
-                    (sandbox instanceof app.sandboxes.ctor()).should.to.be.true;
                 });
             });
             describe('.stop', function () {
@@ -192,9 +191,5 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
             });
         })
 
-
-        describe('view', function () {
-
-        });
     });
 });

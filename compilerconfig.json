@@ -1,0 +1,14 @@
+﻿[
+  {
+    "outputFile": "demo/with-requirejs-optimize/app/styles/index.css",
+    "inputFile": "demo/with-requirejs-optimize/app/styles/index.less"
+  },
+  {
+    "outputFile": "node_modules/ink-docstrap/styles/main.css",
+    "inputFile": "node_modules/ink-docstrap/styles/main.less"
+  },
+  {
+    "outputFile": "styles/main.css",
+    "inputFile": "styles/main.less"
+  }
+]

@@ -13,7 +13,7 @@ define(function () {
             });
 
             // 创建 widget: hello-veronica
-            app.widget.register('hello-veronica', {});
+            app.widget.register('widget-inline', {});
 
             app.launch().done(function () {
                 // 解析界面
