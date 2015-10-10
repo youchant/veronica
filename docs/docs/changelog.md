@@ -1,5 +1,24 @@
 # 更新日志
 
+## v 1.0.0
+
+* 移除在全局配置 paths 中 widgets 路径的特性
+* 移除 widgetMapping 特性
+* 移除 widget 中 的 _widgetRef
+* 移除 view 中的 instance 配置
+* 移除 autoReport的实现，改由用户自己实现
+* 移除 baseSource，
+
+* 修复 ajax 缺失 options 的bug
+* 修复 dialog 默认弹出的bug
+
+* 根据页面名称，自动跳转到页面，例如 ProjectDemo/Home/Index，则会去查找名为 ProjectDemo-Home-Index 的 Widget
+* 定义view时，支持直接返回对象
+* 新增requirejs 的插件 ver，这样不用手动注册 control 了
+
+* 修改 refresh 为 _refresh
+* 修复 _render 方法内的bug
+
 ## v 0.2.3
 
 * 废弃 veronica-mvc 项目

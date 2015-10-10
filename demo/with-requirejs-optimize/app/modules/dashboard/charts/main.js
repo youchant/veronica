@@ -4,12 +4,27 @@ define([
     return {
         name: 'charts',
         template: tpl,
-        defaults:{
+        defaults: {
             windowOptions: {
                 width: 500,
                 height: 300
+            },
+            autoAction: true
+        },
+        initAttr: function () {
+            this.defineAttr({
+                name: 'id',
+                source: 'querystring'
+            });
+        },
+        attrChanged: {
+            'id': function (value) {
+                this.$('.text').html(value);
             }
+        },
+        changeIdHandler: function (e) {
+            var currId = this.attr('id');
+            this.attr('id', ++currId);
         }
-
     };
 });

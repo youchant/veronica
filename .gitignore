@@ -6,3 +6,4 @@ npm-debug.log
 site
 app-release
 release
+*.js-temp

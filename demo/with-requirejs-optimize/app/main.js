@@ -1,7 +1,7 @@
 
 require(['./require-conf'], function (config) {
 
-    var devPath = 'http://192.168.1.18:8097/cdn/bower_components';
+    var devPath = '../../../bower_components';
     var releasePath = './vendor';
     require.config(config(devPath, releasePath));
 
