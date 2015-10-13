@@ -7,3 +7,6 @@ site
 app-release
 release
 *.js-temp
+compilerconfig.json
+compilerconfig.json.defaults
+vwd.webinfo
