@@ -1805,9 +1805,10 @@ define('core/loader',[
 
     /**
      * 请求一个脚本
-     * @param {array|object} modeuls - 要请求的模块（requirejs的require方法所需配置）
-     * @param {boolean} [condition=true] - 发起请求的条件，
-     * @param {object} [requireConfig] - require 配置
+     * @param {Array|Object} modeuls - 要请求的模块（requirejs的require方法所需配置）
+     * @param {boolean} [condition=true] - 发起请求的条件，如果不满足条件，则不进行请求
+     * @param {object} [requireConfig] - 额外的 require 配置
+     * @return {Promise}
      */
     loader.require = function (modules, condition, requireConfig) {
 
@@ -2650,6 +2651,7 @@ define('core/application',[
             _(this.config.extensions).each(function (ext) {
 
                 var dfd = core.loader.require(ext, _.isString(ext)).done(function (ext, fn) {
+                    if (fn == null) { fn = ext; }
                     _.isFunction(fn) && me.use(fn);
                 });
 
@@ -4284,6 +4286,7 @@ define('app/widget',[
             }
         }
 
+        // 是否允许该配置的 widget 加载
         widget._allowLoad = function (config) {
             var options = config.options || {};
             var host = options.host;
@@ -4304,18 +4307,22 @@ define('app/widget',[
                         (noSameNameWidget || !allSame);
         }
 
+        // 添加
         widget.add = function (wg) {
             widget._widgetsPool[wg.options.sandbox._id] = wg;
         }
 
+        // 创建
         widget.create = function (executor, options) {
             return Widget(executor, options, app);
         }
 
+        // 获取
         widget.get = function (id) {
             return widget._widgetsPool[id];
         }
 
+        // 移除
         widget.remove = function (id) {
             app.widget._widgetsPool[id] = null;
             delete app.widget._widgetsPool[id];
@@ -4672,6 +4679,15 @@ define('app/view/view-mvvm',[],function () {
                 return null;
             },
 
+            /**
+             * 获取后台请求的 url
+             * @param name - url 名称
+             * @return {string}
+             */
+            url: function (url) {
+                return this.options.url[url];
+            },
+
             // 从外部模型初始化视图模型
             _initModel: function () {
                 if (this.options.sharedModel != null) {
@@ -4703,6 +4719,7 @@ define('app/view/view-mvvm',[],function () {
                 }
                 return model;
             },
+
             // 绑定视图模型
             _bindViewModel: function () {
                 var sandbox = this.options.sandbox;
@@ -4718,6 +4735,7 @@ define('app/view/view-mvvm',[],function () {
                 this.trigger('modelBound', this.viewModel);
                 sandbox.log(this.cid + ' modelBound');
             },
+
             // 获取模型数据
             _getModelValue: function (name, model) {
                 model || (model = this.model());

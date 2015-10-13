@@ -1,36 +1,40 @@
 {
-    "name": "veronica",
-    "description": "A tiny web application library",
-    "homepage": "http://gochant.github.io/veronica",
-    "version": "1.0.0",
-    "main": [
-        "lib/main.js"
-    ],
-    "ignore": [
-        "demo",
-        "test",
-        "assets",
-        "tools",
-        "karma.conf.js",
-        "Gruntfile.js"
-    ],
-    "repository": {
-        "type": "https",
-        "url": "https://github.com/gochant/veronica.git"
-    },
-    "dependencies": {
-        "jquery": "^1.11",
-        "underscore": ">=1.7"
-    },
-    "devDependencies": {
-        "require-css": "^0.1.7",
-        "requirejs-text": "^2.0.14",
-        "eventemitter2": "^0.4.14",
-        "requirejs": "^2.1.18",
-        "almond": "^0.3.1",
-        "art-dialog": "^6.0.4",
-        "bootstrap": "^3.3.4",
-        "requirejs-ver": "~0.1.0",
-        "tinyui": "~0.1.0"
-    }
+  "name": "veronica",
+  "description": "A tiny web application library",
+  "homepage": "http://gochant.github.io/veronica",
+  "version": "1.0.0",
+  "main": [
+    "lib/main.js"
+  ],
+  "ignore": [
+    "demo",
+    "test",
+    "assets",
+    "tools",
+    "docs",
+    "out",
+    "styles",
+    "compilerconfig.json",
+    "karma.conf.js",
+    "Gruntfile.js"
+  ],
+  "repository": {
+    "type": "https",
+    "url": "https://github.com/gochant/veronica.git"
+  },
+  "dependencies": {
+    "jquery": "^1.11",
+    "underscore": ">=1.7"
+  },
+  "devDependencies": {
+    "require-css": "^0.1.7",
+    "requirejs-text": "^2.0.14",
+    "eventemitter2": "^0.4.14",
+    "requirejs": "^2.1.18",
+    "almond": "^0.3.1",
+    "art-dialog": "^6.0.4",
+    "bootstrap": "^3.3.4",
+    "requirejs-ver": "~0.1.0",
+    "tinyui": "~0.1.0"
+  }
 }
