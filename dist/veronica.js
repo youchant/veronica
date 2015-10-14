@@ -5467,10 +5467,10 @@ define('app/view/view-children',[],function () {
                 }
             },
 
-            // 获取视图配置
+            // 从配置中获取视图配置
             _viewConfig: function (name) {
                 var views = _.result(this, 'views');
-                if (name) {
+                if (name && views) {
                     var viewConfig = views[name];
                     if (_.isString(viewConfig)) { return; }
                     return viewConfig;
@@ -6092,7 +6092,7 @@ define('app/view/view-base',[
                 this._attributes = {};
                 this.state = {};  // 视图状态
 
-                this.baseModel = this._invoke('staticModel');
+                this.baseModel = _.isFunction(this.staticModel) ? this._invoke('staticModel') : this.staticModel;
                 this.viewModel = {};  // 该视图的视图模型
                 this._activeViewName = null;
                 this._name = options._name;
