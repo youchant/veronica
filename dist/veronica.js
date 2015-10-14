@@ -6071,6 +6071,15 @@ define('app/view/view-base',[
                 options || (options = {});
 
                 /**
+                 * 视图的配置参数
+                 * @name options
+                 * @memberOf View#
+                 * @type {ViewOptions}
+                 * @todo 这里参数默认值合并使用了深拷贝，大多数时候其实没必要，目前实际测试速度影响暂时不大
+                 */
+                this.options = $.extend(true, this._defaults, this.defaults, options);
+
+                /**
                  * 默认绑定视图对象到函数上下文的函数
                  * @name binds
                  * @memberOf View#
@@ -6083,19 +6092,10 @@ define('app/view/view-base',[
                 this._attributes = {};
                 this.state = {};  // 视图状态
 
-                this.baseModel = _.result(this, 'staticModel');
+                this.baseModel = this._invoke('staticModel');
                 this.viewModel = {};  // 该视图的视图模型
                 this._activeViewName = null;
                 this._name = options._name;
-
-                /**
-                 * 视图的配置参数
-                 * @name options
-                 * @memberOf View#
-                 * @type {ViewOptions}
-                 * @todo 这里参数默认值合并使用了深拷贝，大多数时候其实没必要，目前实际测试速度影响暂时不大
-                 */
-                this.options = $.extend(true, this._defaults, this.defaults, options);
 
                 // 将方法绑定到当前视图
                 if (this.binds) {
@@ -6151,6 +6151,7 @@ define('app/view/view-base',[
 
             _invoke: function (methodName, isWithDefaultParams) {
                 var args = _.toArray(arguments);
+                var sliceLen = args.length >= 2 ? 2 : 1;
                 if (isWithDefaultParams == null) { isWithDefaultParams = true; }
 
                 if (isWithDefaultParams) {
@@ -6162,7 +6163,7 @@ define('app/view/view-base',[
                     method = this[methodName];
                 }
 
-                return method && method.apply(this, args.slice(2));
+                return method && method.apply(this, args.slice(sliceLen));
             },
             /**
               * 显示该视图
