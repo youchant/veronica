@@ -31,6 +31,9 @@ define([
         },
         changeHandler: function (e, app) {
             app.qs.set('code', '12312222')
+        },
+        open2Handler: function (e, app) {
+            this.viewWindow('dd', subView)
         }
     };
 });
