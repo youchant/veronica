@@ -24,7 +24,7 @@
                 'css': framePath + '/require-css/css',
                 'normalize': framePath + '/require-css/normalize',
                 'css-builder': framePath + '/require-css/css-builder',
-                'veronica': '../../../dist/veronica',
+                'veronica': '../../dist/veronica',
                 'ver': framePath + '/requirejs-ver/ver'
             },
             shim: {

@@ -1,10 +1,10 @@
 define(function () {
     require(['require-conf'], function (config) {
-        // 设置 require.config
-        require.config(config('../../../bower_components'));
+        // init require.config
+        require.config(config('../../bower_components'));
 
         require(['veronica'], function (veronica) {
-            // 创建 app
+            // create app
             var app = veronica.createApp({
                 global: true,
                 plugins: {
@@ -12,11 +12,11 @@ define(function () {
                 }
             });
 
-            // 创建 widget: hello-veronica
+            // registe widget: hello-veronica
             app.widget.register('widget-inline', {});
 
             app.launch().done(function () {
-                // 解析界面
+                // parse page
                 app.parser.parse();
             });
         });
