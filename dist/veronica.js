@@ -5412,12 +5412,13 @@ define('app/view/view-children',[],function () {
                 if (_.isUndefined(viewConfig)) {
                     view = this._views[name];
 
-                    if (view == null) {
-                        viewConfig = this._viewConfig(name);
-                    }
+                    //if (view == null) {
+                    //    viewConfig = this._viewConfig(name);
+                    //}
                 } else {
                     this._destroyView(name);
                 }
+
                 if (viewConfig) {
                     view = this._views[name] = this._createView(viewConfig, name);
                 }
@@ -5938,7 +5939,6 @@ define('app/view/view-trigger',[],function () {
              */
             setTriggers: function (toolbarTpl) {
                 toolbarTpl || (toolbarTpl = this.options.defaultToolbarTpl);
-                var sandbox = this.options.sandbox;
 
                 /**
                  * **消息：** 设置触发器
