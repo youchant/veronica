@@ -1,10 +1,10 @@
 {
   "name": "veronica",
-  "version": "1.0.3",
-  "homepage": "",
-  "description": "",
+  "version": "1.0.4",
+  "homepage": "http://gochant.github.io/veronica",
+  "description": "A tiny web application library",
   "repository": {
-    "url": "https://github.com/gochant/veronica.git",
+    "url": "git@github.com:gochant/veronica.git",
     "type": "git"
   },
   "license": "MIT",
