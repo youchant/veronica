@@ -2,7 +2,7 @@
   "name": "veronica",
   "description": "A tiny web application library",
   "homepage": "http://gochant.github.io/veronica",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": [
     "lib/main.js"
   ],
@@ -19,8 +19,8 @@
     "Gruntfile.js"
   ],
   "repository": {
-    "type": "https",
-    "url": "https://github.com/gochant/veronica.git"
+    "type": "git",
+    "url": "git@github.com:gochant/veronica.git"
   },
   "dependencies": {
     "jquery": "^1.11",
