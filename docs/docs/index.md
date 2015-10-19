@@ -72,7 +72,7 @@ yo veronica
 |---|---|
 |[grunt-veronica](https://github.com/gochant/grunt-veronica)|grunt 插件，用于构建 veronica 搭建的项目|
 |[veronica-debugger](https://github.com/gochant/veronica-debugger)|chrome 插件，方便开发者更好的调试项目|
-|veronica-ui|veronica 的一个扩展，主要引入 KendoUI Core、Bootstrap 等进行数据绑定，界面构建等|
+|[veronica-ui](https://github.com/gochant/veronica-ui)|veronica 的一个扩展，主要引入 KendoUI Core、Bootstrap 等进行数据绑定，界面构建等|
 
 
 ## 授权协议
