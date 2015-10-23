@@ -1,6 +1,6 @@
 # 对话框的使用
 
-每个视图都可以通过调用 `this.window` 创建或获取特定的窗口，默认情况下，调用该方法可弹出一个模态窗口，并居中显示。
+每个视图都可以通过调用 `this.window` 创建或获取特定的窗口，默认情况下，调用该方法可弹出一个非模态窗口，并居中显示。
 
 ```
 var wnd = this.window(options, isShow);
@@ -16,119 +16,26 @@ var wnd = this.window(windowName);
 
 传入窗口名称获取该窗口，如果未创建窗口，则返回undefined。
 
-### 默认的配置项
+## 创建对话框
 
-#### name
+基本语法：
 
-窗口名称，该项是唯一用户必指定的项
+```js
+// 在 view 的成员方法内
+this.window({
+    name: 'wnd_test',
+    children: [{
+        type: 'view',
+        name: 'editview',
+        initializer: EditView,
+        options: {
+            host: '.dlg-body'
+        }
+    }]
+})
+```
 
-#### type
-
-默认的children类型，可能是 'view' 或 'widget'
-
-#### el
-
-窗口的宿主元素，传入选择器或jQuery对象，一般不设置，由程序自动创建
-
-#### center
-
-boolean *true* (*下版本将被废弃*使用新属性：position)
-
-窗口是否居中，默认居中
-
-#### footer
-: boolean *false*
-: 是否自动添加窗口脚栏，如果为false，最好自己添加一个footer
-
-#### destroyedOnClose
-: boolean *true*
-: 关闭窗口时，是否销毁子组件
-
-#### options
-: 窗口容器的配置项
-: （如果采用 kendo.window 作为容器，可参考 KendoUI 的相关文档）
-
-下面是一些比较重要的 options 配置项
-
-#### options.title
-
-* type: string
-* default: `"加载中..."`
-
-窗口标题
-
-#### options.width
-
-* type: `int` or `string`
-* default: `300`
-
-窗口宽度
-
-#### options.height
-
-* type: `int` or `string`
-* default: `200`
-
-窗口高度
-
-#### options.resizable
-
-* Type: `Boolean`
-* Default: `false`
-
-#### options.modal
-
-* Type: `Boolean`
-* Default: `true`
-
-#### options.draggable
-
-* Type: `Boolean`
-* Default: `false`
-
-#### children
-
-* Type: `Array`
-
-包含窗口内的子组件配置集合，有两种类型：view、widget
-
-* type 为 view 时的配置
-
-##### type
-
-组件类型，如果不指定，则采用窗口配置中的 type
-
-##### initializer
-
-视图的初始化函数
-
-##### options
-
-传入视图的参数
-
-##### options.host
-
-视图的宿主元素，如果不传入，则默认以整个窗口作为宿主元素
-
-* type 为 widget 的配置
-
-##### type
-
-组件类型，指定为 widget，如果不指定，则采用窗口配置中的 type
-
-##### name
-
-部件的名称
-
-##### options
-
-传入部件的参数
-
-##### options._source
-
-部件所在的源
-
-### 从已有元素创建窗口
+从已有元素创建窗口：
 
 ```
 this.window({
@@ -142,9 +49,14 @@ this.window({
 })
 ```
 
-使用方法 this.window 创建窗口，多次调用不会产生副作用。如果该窗口存在，则简单的打开该窗口，并返回窗口对象；如果该窗口不存在，才创建。
+> 使用方法 this.window 创建窗口，多次调用不会产生副作用。如果该窗口存在，则返回窗口对象；如果该窗口不存在，则创建后返回。
 
-**传入 widget 或 view**
+### 对话框的内容
+
+对话框的内容可能包括：普通HTML、视图、widget、iframe 内嵌网页等。view 和 widget 作为内容都应把创建所需的配置传入 `children` 参数，
+该参数配置对话框的所有子集
+
+* 使用 widget
 
 ```
 this.window({
@@ -159,6 +71,8 @@ this.window({
 })
 ```
 
+* 使用 view
+
 ```
 this.window({
     name: 'wnd-test',
@@ -169,13 +83,12 @@ this.window({
 })
 ```
 
-### 在view或widget内设置窗口属性
+**在view或widget内更改窗口属性**
 
-在窗口的widget或view中，可通过 options.parentWnd 访问窗口对象，利用这点，可完成一些常见的需求。
+在窗口的widget或view中，可通过 options.parentWnd 访问窗口对象，利用这点，可完成一些常见的需求，例如根据子对象自身的尺寸，动态设置父级对话框尺寸。如下：
 
-在窗口初始化过程中，我们可不指定窗口的尺寸和标题，而在窗口内部的视图中设置它的这些属性，示例代码如下：
-
-```
+```js
+// 我们不指定窗口的尺寸和标题，在窗口内部的视图中设置它的这些属性
 initAttr: function(){
 
     // 以下代码可写在任意初始化方法中
@@ -194,5 +107,42 @@ initAttr: function(){
 }
 ```
 
-如果配置了视图的 `windowOptions` 配置项，则会自动设置该视图在窗口中呈现时窗口的大小、标题属性。
+对于完成以上任务，还提供了更简便的方法，配置视图的 `windowOptions` 配置项，这样则会在视图创建之后自动设置该视图所在窗口的大小、标题属性。
+
+```js
+defaults: {
+    windowOptions: {
+        width: 200,
+        height: 150
+    }
+}
+```
+
+### 创建对话框的快捷方法
+
+提供了一些快捷方法用于特定类型的对话框创建
+
+* 包含单个视图的对话框 `viewWindow`
+
+```js
+this.viewWindow('viewName', EditView, { host: '.dlg-content' }, { modal: true });
+```
+
+* 包含单个 widget 的对话框 `widgetWindow`
+
+```js
+this.widgetWindow('widgetName', { host: '.dlg-content' });
+```
+
+* 普通 HTML 的对话框 `htmlWindow`
+
+```js
+this.htmlWindow('<b>Hello!</b>');
+```
+
+## 对话框的生命周期
+
+对话框的存在受制于创建它的视图，视图被销毁，对话框也被销毁
+
+对话框关闭后即被销毁，同时对话框的 children 内的内容也会被销毁，当再次打开对话框时，会重新创建对话框
 

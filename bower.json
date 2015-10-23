@@ -16,6 +16,10 @@
     "styles",
     "compilerconfig.json",
     "karma.conf.js",
+    ".bowerrc",
+    ".editorconfig",
+    ".gitignore",
+    "jsdoc-conf.json",
     "Gruntfile.js"
   ],
   "repository": {

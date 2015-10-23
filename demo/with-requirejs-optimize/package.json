@@ -1,18 +1,6 @@
 {
   "name": "",
   "devDependencies": {
-    "underscore": "latest",
-    "wrench": "latest",
-    "grunt": "latest",
-    "grunt-veronica": "latest",
-    "grunt-contrib-requirejs": "latest",
-    "grunt-contrib-concat": "latest",
-    "grunt-contrib-clean": "latest",
-    "grunt-contrib-copy": "^0.8.0",
-    "grunt-contrib-cssmin": "latest",
-    "grunt-contrib-uglify": "latest",
-    "grunt-css-combo": "latest",
-    "grunt-curl": "2.1.x",
-    "grunt-zip": "^0.16.2"
+    "grunt-veronica": "latest"
   }
 }
