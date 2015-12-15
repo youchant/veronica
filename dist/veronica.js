@@ -3877,12 +3877,24 @@ define('core/widget',[],function () {
 
     'use strict';
 
+
+    /**
+     * widget 配置，他继承部分启动时配置，不需要自己创建
+     * @typedef WidgetOptions
+     * @property {string} _name - widget名称
+     * @property {string} _page - 所属页面名称
+     * @property {string} _sandboxRef - 沙箱标识符（自动生成）
+     * @property {Sandbox} sandbox - 沙箱（自动生成）
+     * @property {boolean} _exclusive - 是否独占host
+     * @see {@link WidgetStartConfig} 其他属性请查看启动时配置的 `options` 属性
+     */
+
     /**
      * @classdesc widget 对象一般是一个视图，称为“主视图”
      * @class Widget
      * @memberOf veronica
      * @param {function} executor - 创建 widget 基础对象的方法
-     * @param {WidgetConfig} options - 配置
+     * @param {WidgetOptions} options - 配置
      * @param {veronica.Application} app - 当前应用程序
      * @see {@link veronica.View}
      */
@@ -3922,7 +3934,7 @@ define('core/widget',[],function () {
 
             widgetObj.sandbox = sandbox;
             /**
-             * @var {WidgetConfig} options - 配置项
+             * @var {WidgetOptions} options - 配置项
              * @memberOf Widget#
              */
             widgetObj.options || (widgetObj.options = options);
@@ -4067,16 +4079,16 @@ define('app/widget',[
                             if (name === '') {
                                 return memo;
                             }
-                            var cname = core.util.camelize(name);
+                            // var cname = core.util.camelize(name);
                             if (i === 1) {
                                 // 如果第一个与source名称相同，则不要重复返回路径
-                                if (cname === core.util.camelize(widgetSource)) {
+                                if (name === widgetSource) {
                                     return '';
                                 }
-                                return cname;
+                                return name;
                             }
 
-                            return core.util.camelize(memo) + '/' + cname;
+                            return memo + '/' + name;
 
                         });
                     }
@@ -4097,23 +4109,25 @@ define('app/widget',[
         };
 
         /**
-         * 加载 widget
+         * 加载单个 widget
          * @private
          */
         widget.load = function (nameTag, options, page) {
             var dfd = $.Deferred();
-            var pluginNameParts = [];
 
+            // 解析名称
             // nameTag = core.util.decamelize(nameTag);
             var widgetNameParts = app.core.util.splitNameParts(nameTag);
             widgetNameParts.source = options._source || widgetNameParts.source;
             var name = widgetNameParts.name;
             var nameParts = [widgetNameParts];
 
+            // 解析 plugin
             if (app.plugin) {
-                pluginNameParts = app.core.util.splitNameParts(app.plugin.getConfig(widgetNameParts.name));
+                var pluginNameParts = app.core.util.splitNameParts(app.plugin.getConfig(widgetNameParts.name));
                 nameParts = nameParts.concat(pluginNameParts);
             }
+
             var packages = app.widget.resolvePath(nameParts);
 
             options._name = name;
@@ -4123,27 +4137,30 @@ define('app/widget',[
             if (hasLocal(name)) {
                 var executor = getLocal(name);
                 dfd.resolve(executor, options);
-            } else {
-                core.loader.require(_.map(nameParts, function (p) { return p.name }), true, { packages: packages })
-                    .done(function (name, executors) {
-                        var others;
-                        var executor = executors;
-                        if (_.isArray(executor)) {
-                            executor = executors[0];
-                            others = executors.slice(1);
-                        }
-                        dfd.resolve(executor, options, others);
-                    }).fail(function (err) {
-                        if (err.requireType === 'timeout') {
-                            console && console.warn && console.warn('Could not load module ' + err.requireModules);
-                        } else {
-                            var failedId = err.requireModules && err.requireModules[0];
-                            require.undef(failedId);
-                            console && console.error && console.error(err);
-                        }
-                        dfd.reject();
-                    });
+                return dfd.promise();
             }
+
+            var names = _.map(nameParts, function (p) { return p.name });
+            core.loader.require(names, true, { packages: packages })
+                  .done(function (name, executors) {
+                      var others;
+                      var executor = executors;
+                      if (_.isArray(executor)) {
+                          executor = executors[0];
+                          others = executors.slice(1);
+                      }
+
+                      dfd.resolve(executor, options, others);
+                  }).fail(function (err) {
+                      if (err.requireType === 'timeout') {
+                          console && console.warn && console.warn('Could not load module ' + err.requireModules);
+                      } else {
+                          var failedId = err.requireModules && err.requireModules[0];
+                          require.undef(failedId);
+                          console && console.error && console.error(err);
+                      }
+                      dfd.reject();
+                  });
 
             return dfd.promise();
         };
@@ -4156,17 +4173,15 @@ define('app/widget',[
          * @property {string} options._source - 源
          * @property {string|DOM|jQueryObject} options.host - 附加到该DOM元素的子集
          * @property {string|DOM|jQueryObject} options.el - 附加到该DOM元素
-         * @property {string} options._exclusive - 是否独占式
-         */
-
-        /**
-         * widget 创建时配置，他继承部分启动时配置，不需要自己创建
-         * @typedef WidgetConfig
-         * @property {string} _name - widget名称
-         * @property {string} [_page] - 所属页面名称
-         * @property {string} _sandboxRef - 沙箱标识符（自动生成）
-         * @property {Sandbox} sandbox - 沙箱（自动生成）
-         * @see {@link WidgetStartConfig} 其他属性请查看启动时配置的 `options` 属性
+         * @property {string} [options._exclusive=false] - 是否独占式（为 true 时，则初始化该 widget 会导致相同 host 下的其他 widget 被卸载）
+         * @example
+         *   {
+         *     name: 'widget1',
+         *     options: {
+         *       _source: 'basic',
+         *       host: 'body'
+         *     }
+         *   }
          */
 
         /**
@@ -4190,15 +4205,16 @@ define('app/widget',[
             widget._cacheList(list, page);
 
             _.each(list, function (config) {
+                var name = config.name;  // widget name
                 var options = config.options || {};
                 var host = options.host;
-                var name = config.name;
 
                 if (name === 'empty') {
                     widget.clear(host, options._exclusive);
                 }
 
                 if (widget._allowLoad(config)) {
+                    // load widget
                     var loadDf = app.widget.load(name, options, page);
                     promises.push(loadDf);
                 }
@@ -4217,9 +4233,10 @@ define('app/widget',[
 
                     var pageName = options._page;
 
+                    // 缓存 plugin
                     if (others) app.plugin.cache(options._name, others);
 
-                    // 部件所在的页面不是当前页面，则不执行，修复频繁切换页面导致错误加载的bug
+                    // Bugfixed：修复频繁切换页面导致错误加载的bug，当部件所在的页面不是当前页面，则不执行
                     if (!(pageName && app.page && !app.page.isCurrent(pageName))) {
                         var wg = widget.create(executor, options);
                         widget.clear(options.host, options._exclusive);
@@ -6078,8 +6095,6 @@ define('app/view/view-base',[
              */
             initialize: function (options) {
 
-                var me = this;
-
                 options || (options = {});
 
                 /**
@@ -6089,7 +6104,7 @@ define('app/view/view-base',[
                  * @type {ViewOptions}
                  * @todo 这里参数默认值合并使用了深拷贝，大多数时候其实没必要，目前实际测试速度影响暂时不大
                  */
-                this.options = $.extend(true, this._defaults, this.defaults, options);
+                this.options = $.extend(true, {}, this._defaults, this.defaults, options);
 
                 /**
                  * 默认绑定视图对象到函数上下文的函数
@@ -6379,7 +6394,7 @@ define('app/data',[], function () {
              * @return {Object}
              */
             get: function (name) {
-                return data._data[name];
+                return this._data[name];
             },
             /**
              * 设置数据
@@ -6387,7 +6402,7 @@ define('app/data',[], function () {
              * @param {*} value - 值
              */
             set: function (name, value) {
-                data._data[name] = value;
+                this._data[name] = value;
                 /**
                  * **消息：** 数据改变时发布，消息名 'change.' + 数据名
                  *
@@ -6606,7 +6621,10 @@ define('app/request',[
         };
 
         /**
-         * $.post
+         * POST 简单对象
+         * @param {string} url - 请求路径
+         * @param {Object} data - 数据
+         * @returns {Deferred} 
          */
         request.post = function (url, data) {
             return $.post(url, data);
@@ -6628,6 +6646,11 @@ define('app/request',[
             }, options));
         }
 
+        /**
+         * 多个请求捆绑发送
+         * @param {...string|Object} url 或 延迟对象
+         * @returns {Deferred} 
+         */
         request.getBundle = function () {
             var urls = Array.prototype.slice.call(arguments);
             var requests = $.map(urls, function (item) {
@@ -6656,6 +6679,11 @@ define('app/request',[
             return ua.indexOf('chrome') >= 0 && window.externalHost;
         };
 
+        /**
+         * 下载文件
+         * @param {Object} settings - 配置对象 eg: { url: '', data: [object] }
+         * @returns {} 
+         */
         request.download = function (settings) {
             settings || (settings = {}); //eg: { url: '', data: [object] }
             if (settings.url == undefined) {
@@ -8604,7 +8632,7 @@ define('app/app',[
 
 
         /**
-         * 是一个 `Application` 类的实例，在`global` 设为 `true` 的情况下，可通过`window.__verApp`访问
+         * `Application` 类的实例，在`global` 设为 `true` 的情况下，可通过`window.__verApp`访问
          * @name app
          * @type {Application}
          * @memberOf veronica
