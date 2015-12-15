@@ -2,7 +2,7 @@
   "name": "veronica",
   "description": "A tiny web application library",
   "homepage": "http://gochant.github.io/veronica",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": [
     "lib/main.js"
   ],
