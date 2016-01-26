@@ -5305,7 +5305,7 @@ define('app/view/view-attr',[],function () {
                     this.sub('qs-changed', function (obj) {
                         var value = obj[options.sourceKey];
                         var originalValue = me.attr(options.name);
-                        if (value != originalValue) {
+                        if (value !== originalValue) {
                             me.attr(options.name, value);
                         }
                     });
@@ -5360,19 +5360,22 @@ define('app/view/view-action',[],function () {
         }
 
         app.view.base._actionHandler = function (e, context) {
-            e.preventDefault();
-            //e.stopImmediatePropagation();
-
             context || (context = this);
+
             var $el = $(e.currentTarget);
             if ($el.closest('script').length > 0) return;
+            if ($el.is('a, :submit, :button')) {
+                e.preventDefault();
+            }
+            e.stopPropagation();
+            //e.stopImmediatePropagation();
 
             var actionName = $el.data().action;
             if (actionName.indexOf('Handler') < 0) {
                 actionName = actionName + 'Handler';
             }
 
-            context[actionName] && context[actionName](e, app, _, $);
+            context[actionName] && this._invoke(context[actionName], e);
         }
 
         // 获取触发视图配置项
@@ -6150,23 +6153,22 @@ define('app/view/view-base',[
                 this._delayEvents = [];
                 this._attributes = {};
                 this.state = {};  // 视图状态
-
-                this.baseModel = _.isFunction(this.staticModel) ? this._invoke('staticModel') : this.staticModel;
                 this.viewModel = {};  // 该视图的视图模型
                 this._activeViewName = null;
                 this._name = options._name;
+
+                // 应用mixins
+                this._applyMixins();
+
+                // 混入AOP方法
+                app.core.util.extend(this, app.core.aspect);
 
                 // 将方法绑定到当前视图
                 if (this.binds) {
                     this.binds.unshift(this);
                     _.bindAll.apply(_, this.binds);
                 }
-
-                // 混入AOP方法
-                app.core.util.extend(this, app.core.aspect);
-
-                // 应用mixins
-                this._applyMixins();
+                this.baseModel = _.isFunction(this.staticModel) ? this._invoke('staticModel') : this.staticModel;
 
                 this.$el.addClass('ver-view');
 
@@ -6199,10 +6201,14 @@ define('app/view/view-base',[
             _applyMixins: function () {
                 var me = this;
                 var mixins = this._invoke('mixins');
-                var mixin = $.extend.apply($, [{}].concat(mixins));
+                var mixin = $.extend.apply($, [true, {}].concat(mixins));
                 _.each(mixin, function (value, key) {
-                    if (me[key] == null) {
-                        me[key] = value;
+                    if (key === 'defaults') {
+                        me[key] = $.extend(true, {}, value, me[key]);
+                    } else {
+                        if (me[key] == null) {
+                            me[key] = value;
+                        }
                     }
                 });
             },
