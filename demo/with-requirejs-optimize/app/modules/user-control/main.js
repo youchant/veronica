@@ -11,7 +11,7 @@ define(function (require) {
                 name: '用户列表',
                 layout: 'normal',
                 widgets: [
-                    'user-list@#hard@user-control'
+                    'user-list2@#hard@user-control'
                 ]
             }
         }]);

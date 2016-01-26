@@ -4570,7 +4570,7 @@ define('app/view/view-mvvm',[],function () {
              *     };
              *   }
              */
-            staticModel: {},
+            staticModel: null,
 
             /**
              * **`重写`** 处理与视图模型有关的事件绑定
@@ -4668,7 +4668,18 @@ define('app/view/view-mvvm',[],function () {
                     if (data.toJSON) { // 本身就是viewModel对象
                         this.viewModel = data;
                     } else {
-                        this.viewModel = this._createViewModel($.extend({}, this.baseModel, data));
+                        var me = this;
+
+                        // restore 原来模型的值
+                        var baseModel = {};
+                        if (this.viewModel != null && !$.isPlainObject(this.viewModel)) {
+                            _.each(this.baseModel, function (value, key) {
+                                baseModel[key] = me._getModelValue(key);
+                            });
+                        } else {
+                            baseModel = this.baseModel;
+                        }
+                        this.viewModel = this._createViewModel($.extend({}, baseModel, data));
                     }
 
                     this.delegateModelEvents(this.viewModel);
@@ -4707,34 +4718,40 @@ define('app/view/view-mvvm',[],function () {
 
             // 从外部模型初始化视图模型
             _initModel: function () {
+                if (this.staticModel != null) {
+                    this.model({}, false);
+                }
                 if (this.options.sharedModel != null) {
                     this.model(this._convertExternalModel(this.options.sharedModel), false);
                 }
             },
 
             // 创建共享视图模型
-            _convertExternalModel: function (model) {
+            _convertExternalModel: function (srcModel) {
                 var props = this.options.sharedModelProp;
                 var me = this;
+                var destModel = {};
+                if (srcModel == null) {
+                    srcModel = this.options.sharedModel || {};
+                }
 
-                if (model == null) { model = this.options.sharedModel || {}; }
-
-                if (model && props) {
-                    var _model = {};
-                    _.each(props, function (prop) {
+                if (srcModel && props) {
+                    _.each(props, function(prop) {
                         var targetKey, originKey;
                         if (_.isString(prop)) {
-                            targetKey = prop; originKey = prop;
+                            targetKey = prop;
+                            originKey = prop;
                         } else {
-                            targetKey = prop[0]; originKey = prop[1];
+                            targetKey = prop[0];
+                            originKey = prop[1];
                         }
 
-                        _model[targetKey] = me._getModelValue(originKey, model);
+                        destModel[targetKey] = me._getModelValue(originKey, srcModel);
                     });
-
-                    model = _model;
+                } else {
+                    destModel = srcModel;
                 }
-                return model;
+                return destModel;
             },
 
             // 绑定视图模型
@@ -5288,7 +5305,7 @@ define('app/view/view-attr',[],function () {
                     this.sub('qs-changed', function (obj) {
                         var value = obj[options.sourceKey];
                         var originalValue = me.attr(options.name);
-                        if (value != originalValue) {
+                        if (value !== originalValue) {
                             me.attr(options.name, value);
                         }
                     });
@@ -5343,19 +5360,22 @@ define('app/view/view-action',[],function () {
         }
 
         app.view.base._actionHandler = function (e, context) {
-            e.preventDefault();
-            //e.stopImmediatePropagation();
-
             context || (context = this);
+
             var $el = $(e.currentTarget);
             if ($el.closest('script').length > 0) return;
+            if ($el.is('a, :submit, :button')) {
+                e.preventDefault();
+            }
+            e.stopPropagation();
+            //e.stopImmediatePropagation();
 
             var actionName = $el.data().action;
             if (actionName.indexOf('Handler') < 0) {
                 actionName = actionName + 'Handler';
             }
 
-            context[actionName] && context[actionName](e, app, _, $);
+            context[actionName] && this._invoke(context[actionName], e);
         }
 
         // 获取触发视图配置项
@@ -5424,20 +5444,15 @@ define('app/view/view-children',[],function () {
              * @return {veronica.View}
              */
             view: function (name, viewConfig) {
-                var me = this;
                 var view;
                 if (_.isUndefined(viewConfig)) {
                     view = this._views[name];
-
-                    //if (view == null) {
-                    //    viewConfig = this._viewConfig(name);
-                    //}
                 } else {
                     this._destroyView(name);
-                }
-
-                if (viewConfig) {
-                    view = this._views[name] = this._createView(viewConfig, name);
+                    view = this._createView(viewConfig, name);
+                    if (view != null) {
+                        this._views[name] = view;
+                    }
                 }
 
                 return view;
@@ -5450,19 +5465,14 @@ define('app/view/view-children',[],function () {
              */
             active: function (name) {
                 var me = this;
-                var targetView;
-                if (_.isUndefined(name)) {
-                    targetView = this.view(this._activeViewName);
-                    return targetView;
-                }
 
-                this._activeViewName = name;
-                targetView = this.view(this._activeViewName);
+                this._activeViewName = _.isUndefined(name) ? this._activeViewName : name;
+                var targetView = this.view(this._activeViewName);
 
+                // 更新视图显示状态
                 _(this.switchable).each(function (name) {
                     me.view(name) && me.view(name).hide();
                 });
-
                 targetView.show();
 
                 // 触发事件
@@ -5485,7 +5495,7 @@ define('app/view/view-children',[],function () {
                 var me = this;
                 views || (views = this.views);
                 if (views) {
-                    var views = _.result(this, 'views');
+                    views = _.result(this, 'views');
                     // 渲染子视图
                     _.each(views, function (viewConfig, name) {
                         if (_.isString(viewConfig)) { return; }  //TODO: 为了排除 active: 'xxx' 的情况，待废弃
@@ -5502,7 +5512,7 @@ define('app/view/view-children',[],function () {
                 var views = _.result(this, 'views');
                 if (name && views) {
                     var viewConfig = views[name];
-                    if (_.isString(viewConfig)) { return; }
+                    if (_.isString(viewConfig)) { return null; }
                     return viewConfig;
                 }
                 return views;
@@ -5528,11 +5538,18 @@ define('app/view/view-children',[],function () {
                     viewOptions.host = this.$(viewOptions.host);
                 }
 
-                var viewObj = viewInitializer(_.extend({
+                viewOptions = _.extend({
                     _name: name,
                     sandbox: this.options.sandbox,
                     host: viewOptions.el ? false : this.$el
-                }, viewOptions));
+                }, viewOptions);
+
+                // host 不存在，则不创建视图
+                if (viewOptions.host != null && viewOptions.host.length === 0) {
+                    return null;
+                }
+
+                var viewObj = viewInitializer(viewOptions);
 
                 // 取出延迟监听的事件，并进行监听
                 var me = this;
@@ -5564,7 +5581,7 @@ define('app/view/view-children',[],function () {
 
                         // 移除对该 view 的引用
                         this._views[viewName] = null;
-                        delete this._views[viewName]
+                        delete this._views[viewName];
                     }
                 }
             }
@@ -5582,6 +5599,7 @@ define('app/view/view-listen',[],function () {
     return function (app) {
 
         var noop = function () { };
+        var baseListenTo = app.core.Events.listenTo;
 
         var configs = {
             /**
@@ -5614,7 +5632,24 @@ define('app/view/view-listen',[],function () {
         };
 
         var methods = {
+            listenTo: function (sender, event, handler) {
+                var baseListenToDeley = this.listenToDelay;
+                if (_.isString(sender)) {
+                    baseListenToDeley.call(this, sender, event, handler);
+                    return;
+                }
+                if (!_.isString(event)) {
+                    var objEvents = sender;
+                    handler = event;
+                    var me = this;
+                    _.each(objEvents, function (objEvent) {
+                        me.listenTo(objEvent[0], objEvent[1], handler);
+                    });
+                    return;
+                }
 
+                baseListenTo.call(this, sender, event, handler);
+            },
             /**
              * 延迟监听子视图
              * @param {string} name - 子视图名称
@@ -5663,11 +5698,11 @@ define('app/view/view-listen',[],function () {
                     this._invoke(handler, true, value, name);
                 });
 
-                _.each(['modelBound', 'rendered'], function (evt) {
-                    me[evt] && me.listenTo(me, evt, function () {
+                _.each(['modelBound', 'rendered'], function(evt) {
+                    me[evt] && me.listenTo(me, evt, function() {
                         this._invoke(evt);
                     });
-                })
+                });
 
                 this._invoke('listen');  // 自定义监听
             },
@@ -5852,7 +5887,7 @@ define('app/view/view-render',[],function () {
             _refresh: function (url, data) {
                 var me = this;
                 if (url == null) {
-                    url = _.result(this, 'templateUrl');
+                    url = this._invoke('templateUrl');
                 }
                 this.state.templateIsLoading = true;
 
@@ -5884,7 +5919,7 @@ define('app/view/view-render',[],function () {
              */
             _activeUI: function (app) {
 
-                // 启用布局控件
+                // 启用布局控件，示例
                 if ($.layout) {
                     var me = this;
                     setTimeout(function () {
@@ -6118,23 +6153,22 @@ define('app/view/view-base',[
                 this._delayEvents = [];
                 this._attributes = {};
                 this.state = {};  // 视图状态
-
-                this.baseModel = _.isFunction(this.staticModel) ? this._invoke('staticModel') : this.staticModel;
                 this.viewModel = {};  // 该视图的视图模型
                 this._activeViewName = null;
                 this._name = options._name;
+
+                // 应用mixins
+                this._applyMixins();
+
+                // 混入AOP方法
+                app.core.util.extend(this, app.core.aspect);
 
                 // 将方法绑定到当前视图
                 if (this.binds) {
                     this.binds.unshift(this);
                     _.bindAll.apply(_, this.binds);
                 }
-
-                // 混入AOP方法
-                app.core.util.extend(this, app.core.aspect);
-
-                // 应用mixins
-                this._applyMixins();
+                this.baseModel = _.isFunction(this.staticModel) ? this._invoke('staticModel') : this.staticModel;
 
                 this.$el.addClass('ver-view');
 
@@ -6165,14 +6199,17 @@ define('app/view/view-base',[
                 this.options.autoRender && this.render();
             },
             _applyMixins: function () {
-                //TODO: 这里应将同名的属性或方法进行合并
                 var me = this;
-                _.each(this._invoke('mixins'), function (mixin) {
-                    _.each(mixin, function (value, key) {
+                var mixins = this._invoke('mixins');
+                var mixin = $.extend.apply($, [true, {}].concat(mixins));
+                _.each(mixin, function (value, key) {
+                    if (key === 'defaults') {
+                        me[key] = $.extend(true, {}, value, me[key]);
+                    } else {
                         if (me[key] == null) {
                             me[key] = value;
                         }
-                    });
+                    }
                 });
             },
 
@@ -6190,7 +6227,7 @@ define('app/view/view-base',[
                     method = this[methodName];
                 }
 
-                return method && method.apply(this, args.slice(sliceLen));
+                return _.isFunction(method) ? method.apply(this, args.slice(sliceLen)) : method;
             },
             /**
               * 显示该视图
