@@ -5375,7 +5375,7 @@ define('app/view/view-action',[],function () {
                 actionName = actionName + 'Handler';
             }
 
-            context[actionName] && this._invoke(context[actionName], e);
+            context[actionName] && this._invoke(context[actionName], true, e);
         }
 
         // 获取触发视图配置项
@@ -5528,6 +5528,10 @@ define('app/view/view-children',[],function () {
                 var viewConfig = view;
                 if (_.isFunction(view)) {  // 方法
                     viewConfig = view.apply(this);
+                }
+
+                if (_.isString(viewConfig.initializer)) {
+                    viewConfig.initializer = app.widget._localWidgetExes[viewConfig.initializer];
                 }
 
                 // 确保 initializer 是个方法
@@ -6025,6 +6029,26 @@ define('app/view/view-base',[
         var $ = app.core.$;
         var _ = app.core._;
         var noop = $.noop;
+        var wrapFunction = function (fn, context, params) {
+            return function () {
+                fn.apply(context, params);
+            };
+        }
+
+        var createWrapFunction = function (fns) {
+            var fnqueue = [];
+            _.each(fns, function(fn) {
+                fnqueue.push(fn);
+            });
+            return function (params) {
+                var me = this;
+                while (fnqueue.length > 0) {
+                    var fn = fnqueue.shift();
+                    fn.call(me, params);
+                }
+            };
+
+        }
 
         /**
          * 选项
@@ -6201,13 +6225,30 @@ define('app/view/view-base',[
             _applyMixins: function () {
                 var me = this;
                 var mixins = this._invoke('mixins');
-                var mixin = $.extend.apply($, [true, {}].concat(mixins));
-                _.each(mixin, function (value, key) {
-                    if (key === 'defaults') {
-                        me[key] = $.extend(true, {}, value, me[key]);
+                var allKeys = _.union(_.map(mixins, function(mixin) {
+                    return _.keys(mixin);
+                }));
+
+                var allFns = {};
+
+                _.each(allKeys, function(key) {
+                    allFns[key] = [];
+                    _.each(mixins, function(mixin) {
+                        if(mixin[key] != null) {
+                            allFns[key].push(mixin[key]);
+                        }
+                    });
+                });
+
+              
+              //  var mixin = $.extend.apply($, [true, {}].concat(mixins));
+                _.each(allKeys, function (key) {
+                    var value = allFns[key];
+                    if (_.isObject(value)) {
+                        me[key] = $.extend.apply(true, [{}, me[key]].concat(value));
                     } else {
                         if (me[key] == null) {
-                            me[key] = value;
+                            me[key] = createWrapFunction(allFns[key]);
                         }
                     }
                 });

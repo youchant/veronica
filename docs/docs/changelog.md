@@ -1,5 +1,10 @@
 # 更新日志
 
+## v1.0.7
+
+* 视图的 view.initializer 可传入视图注册的名称，获取本地缓存视图
+* 修复 actionHandler 中，使用 invoke 调用报错的bug
+
 ## v 1.0.0
 
 
