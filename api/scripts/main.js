@@ -30,15 +30,11 @@ $(function () {
     });
 
     // Show an item related a current documentation automatically
-    //var filename = $('.page-title').data('filename').replace(/\.[a-z]+$/, '').replace(/\_/, '\\#');
-    //var $currentItem = $('.navigation .item[data-name*="' + filename + '"]:eq(0)');
-    var filename = $('.page-title').data('filename');
-    var $currentItem = $('.navigation .item [href="' + filename + '"]:eq(0)').closest('.item');
+    var filename = $('.page-title').data('filename').replace(/\.[a-z]+$/, '').replace("-", ":");
+    var $currentItem = $('.navigation .item[data-name*="' + filename + '"]:eq(0)');
 
     if ($currentItem.length) {
         $currentItem
-            .remove()
-            .prependTo('.navigation .list')
             .show()
             .find('.itemMembers')
                 .show();

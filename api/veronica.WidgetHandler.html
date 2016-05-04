@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Namespace: loader</title>
+    <title>Class: WidgetHandler</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -828,7 +828,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="veronica.loader.html">Namespace: loader</h1>
+        <h1 class="page-title" data-filename="veronica.WidgetHandler.html">Class: WidgetHandler</h1>
         
 
 
@@ -839,8 +839,10 @@
     <h2>
         <span class="ancestors"><a href="veronica.html">veronica</a>.</span>
     
-    loader
+    WidgetHandler
     </h2>
+    
+        <div class="class-description"><p>部件操作类</p></div>
     
 </header>  
 
@@ -850,8 +852,33 @@
     
     
         
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="WidgetHandler">
+            
+            new veronica.WidgetHandler<span class="signature">()</span>
+        </h4>
+    
         
+        <div class="tag-source">
+            app/widget.js, line 18
+        </div>
         
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
 <dl class="details">
     
         
@@ -876,8 +903,20 @@
     
 </dl>
 
-        
-        
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
     
     </div>
     
@@ -892,6 +931,55 @@
     
     
     
+        <h3 class="subsection-title">Members</h3>
+        
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="isLoading">isLoading</h4>
+    </div>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <p>当前批部件是否正在加载</p>
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        </dl>
+    
     
     
         <h3 class="subsection-title">Methods</h3>
@@ -900,14 +988,14 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id=".require">
+        <h4 class="name" id="clear">
             
-            <span class="type-signature static">static</span>veronica.loader.require<span class="signature">(modeuls, <span class="optional">condition</span>, <span class="optional">requireConfig</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="global.html#Promise">Promise</a>}</span>
+            clear<span class="signature">()</span>
         </h4>
     
         
         <div class="tag-source">
-            core/loader.js, line 37
+            app/widget.js, line 311
         </div>
         
     </div>
@@ -918,7 +1006,220 @@
     
     
     <div class="description">
-        <p>请求一个脚本</p>
+        <p>扫描某个宿主元素下的所有插件，对不在插件列表中插件进行删除</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="package">
+            
+            package<span class="signature">()</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            app/widget.js, line 62
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>声明widget为package，以便在其他widget中引用该widget</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="register">
+            
+            register<span class="signature">()</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            app/widget.js, line 79
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>注册 widget 为 本地 widget</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="start">
+            
+            start<span class="signature">(list, <span class="optional">callback</span>, <span class="optional">page</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="global.html#Promise">Promise</a>}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            app/widget.js, line 236
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>启动一个或一组 widget</p>
     </div>
     
 
@@ -939,8 +1240,6 @@
 		<th>Type</th>
 		
 		
-		<th>Default</th>
-		
 		
 		<th class="last">Description</th>
 	</tr>
@@ -951,25 +1250,21 @@
 	
         <tr>
             
-                <td class="name"><code>modeuls</code></td>
+                <td class="name"><code>list</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">Array</span>
+<span class="param-type">Array.&lt;<a href="global.html#WidgetStartConfig">WidgetStartConfig</a>></span>
 |
 
-<span class="param-type">Object</span>
+<span class="param-type"><a href="global.html#WidgetStartConfig">WidgetStartConfig</a></span>
 
 
             
             </td>
             
-            
-                <td class="default">
-                
-                </td>
             
             
             <td class="description last">
@@ -979,31 +1274,25 @@
                         
                     
                 
-                <p>要请求的模块（requirejs的require方法所需配置）</p></td>
+                <p>widget 配置（列表）</p></td>
         </tr>
 	
 	
 	
         <tr>
             
-                <td class="name"><code>condition</code></td>
+                <td class="name"><code>callback</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">boolean</span>
+<span class="param-type">function</span>
 
 
             
             </td>
             
-            
-                <td class="default">
-                
-                    true
-                
-                </td>
             
             
             <td class="description last">
@@ -1015,29 +1304,25 @@
                         
                     
                 
-                <p>发起请求的条件，如果不满足条件，则不进行请求</p></td>
+                <p>每个widget加载完毕后执行的回调</p></td>
         </tr>
 	
 	
 	
         <tr>
             
-                <td class="name"><code>requireConfig</code></td>
+                <td class="name"><code>page</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">string</span>
 
 
             
             </td>
             
-            
-                <td class="default">
-                
-                </td>
             
             
             <td class="description last">
@@ -1049,7 +1334,7 @@
                         
                     
                 
-                <p>额外的 require 配置</p></td>
+                <p>当前加载的widget列表所属的页面名称</p></td>
         </tr>
 	
 	
@@ -1083,6 +1368,13 @@
 </dl>
 
     
+    
+    <h5>Fires:</h5>
+    <ul>
+        <li><a href="Application_widget.html#.event:widgetLoaded">Application#widget.event:widgetLoaded</a></li>
+    
+        <li><a href="Application_widget.html#.event:widgetsLoaded">Application#widget.event:widgetsLoaded</a></li>
+    </ul>
     
 
     
@@ -1129,14 +1421,14 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id=".useGlobalRequire">
+        <h4 class="name" id="stop">
             
-            <span class="type-signature static">static</span>veronica.loader.useGlobalRequire<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
+            stop<span class="signature">(tag)</span>
         </h4>
     
         
         <div class="tag-source">
-            core/loader.js, line 18
+            app/widget.js, line 392
         </div>
         
     </div>
@@ -1147,7 +1439,7 @@
     
     
     <div class="description">
-        <p>使用全局的require变量</p>
+        <p>停止 widget</p>
     </div>
     
 
@@ -1155,6 +1447,60 @@
     
     
     
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>tag</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Sandbox.html">Sandbox</a></span>
+|
+
+<span class="param-type">string</span>
+|
+
+<span class="param-type">jQueryObject</span>
+|
+
+<span class="param-type">DOM</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                <p>传入sandbox、名称、jquery对象等</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
     
     
     
@@ -1191,135 +1537,6 @@
     
     
     
-    
-    <h5>Returns:</h5>
-    
-
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                        Object
-                        
-                    
-            </td>
-            <td class="description last">RequireJS 的 require 变量（修复使用 almond 后本地 require 被覆盖的问题）</td>
-        </tr>
-    
-    </tbody>
-</table>
-
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id=".useGlobalRequirejs">
-            
-            <span class="type-signature static">static</span>veronica.loader.useGlobalRequirejs<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
-        </h4>
-    
-        
-        <div class="tag-source">
-            core/loader.js, line 26
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>使用全局的requirejs变量</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                        Object
-                        
-                    
-            </td>
-            <td class="description last">RequireJS 的 requirejs 变量（修复使用 almond 后本地 requirejs 被覆盖的问题）</td>
-        </tr>
-    
-    </tbody>
-</table>
-
     
     
     
@@ -1342,7 +1559,7 @@
         
 
         <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Wed May 04 2016 22:09:20 GMT+0800 (China Standard Time)
+            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Wed May 04 2016 22:09:21 GMT+0800 (China Standard Time)
         </footer>
     </div>
 </div>

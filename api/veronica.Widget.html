@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Namespace: loader</title>
+    <title>Class: Widget</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -828,7 +828,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="veronica.loader.html">Namespace: loader</h1>
+        <h1 class="page-title" data-filename="veronica.Widget.html">Class: Widget</h1>
         
 
 
@@ -839,8 +839,10 @@
     <h2>
         <span class="ancestors"><a href="veronica.html">veronica</a>.</span>
     
-    loader
+    Widget
     </h2>
+    
+        <div class="class-description"><p>widget 对象一般是一个视图，称为“主视图”</p></div>
     
 </header>  
 
@@ -850,64 +852,16 @@
     
     
         
-        
-        
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-        
-        
-    
-    </div>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-        <h3 class="subsection-title">Methods</h3>
-        
-        <dl>
-            
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id=".require">
+        <h4 class="name" id="Widget">
             
-            <span class="type-signature static">static</span>veronica.loader.require<span class="signature">(modeuls, <span class="optional">condition</span>, <span class="optional">requireConfig</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="global.html#Promise">Promise</a>}</span>
+            new veronica.Widget<span class="signature">(executor, options, app)</span>
         </h4>
     
         
         <div class="tag-source">
-            core/loader.js, line 37
+            core/widget.js, line 17
         </div>
         
     </div>
@@ -916,10 +870,6 @@
 </dt>
 <dd>
     
-    
-    <div class="description">
-        <p>请求一个脚本</p>
-    </div>
     
 
     
@@ -939,8 +889,6 @@
 		<th>Type</th>
 		
 		
-		<th>Default</th>
-		
 		
 		<th class="last">Description</th>
 	</tr>
@@ -951,105 +899,69 @@
 	
         <tr>
             
-                <td class="name"><code>modeuls</code></td>
+                <td class="name"><code>executor</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">Array</span>
-|
-
-<span class="param-type">Object</span>
+<span class="param-type">function</span>
 
 
             
             </td>
             
             
-                <td class="default">
-                
-                </td>
-            
             
             <td class="description last">
                 
-                    
-                    
-                        
-                    
-                
-                <p>要请求的模块（requirejs的require方法所需配置）</p></td>
+                <p>创建 widget 基础对象的方法</p></td>
         </tr>
 	
 	
 	
         <tr>
             
-                <td class="name"><code>condition</code></td>
+                <td class="name"><code>options</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">boolean</span>
+<span class="param-type"><a href="global.html#WidgetOptions">WidgetOptions</a></span>
 
 
             
             </td>
             
             
-                <td class="default">
-                
-                    true
-                
-                </td>
-            
             
             <td class="description last">
                 
-                    
-                        <span class="optional">optional</span>
-                    
-                    
-                        
-                    
-                
-                <p>发起请求的条件，如果不满足条件，则不进行请求</p></td>
+                <p>配置</p></td>
         </tr>
 	
 	
 	
         <tr>
             
-                <td class="name"><code>requireConfig</code></td>
+                <td class="name"><code>app</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type"><a href="veronica.Application.html">veronica.Application</a></span>
 
 
             
             </td>
             
             
-                <td class="default">
-                
-                </td>
-            
             
             <td class="description last">
                 
-                    
-                        <span class="optional">optional</span>
-                    
-                    
-                        
-                    
-                
-                <p>额外的 require 配置</p></td>
+                <p>当前应用程序</p></td>
         </tr>
 	
 	
@@ -1078,105 +990,12 @@
     
     
     
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                        <a href="global.html#Promise">Promise</a>
-                        
-                    
-            </td>
-            <td class="description last"></td>
-        </tr>
-    
-    </tbody>
-</table>
-
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id=".useGlobalRequire">
-            
-            <span class="type-signature static">static</span>veronica.loader.useGlobalRequire<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
-        </h4>
-    
-        
-        <div class="tag-source">
-            core/loader.js, line 18
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>使用全局的require变量</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="veronica.View.html"><code>veronica.View</code></a></li>
+        </ul>
+    </dd>
     
     
     
@@ -1192,79 +1011,13 @@
     
     
     
-    <h5>Returns:</h5>
-    
-
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                        Object
-                        
-                    
-            </td>
-            <td class="description last">RequireJS 的 require 变量（修复使用 almond 后本地 require 被覆盖的问题）</td>
-        </tr>
-    
-    </tbody>
-</table>
-
-    
     
     
 </dd>
 
-        
-            
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id=".useGlobalRequirejs">
-            
-            <span class="type-signature static">static</span>veronica.loader.useGlobalRequirejs<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
-        </h4>
     
-        
-        <div class="tag-source">
-            core/loader.js, line 26
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>使用全局的requirejs变量</p>
     </div>
     
-
-    
-    
-    
-    
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
     
     
     
@@ -1277,55 +1030,6 @@
     
     
     
-    
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                        Object
-                        
-                    
-            </td>
-            <td class="description last">RequireJS 的 requirejs 变量（修复使用 almond 后本地 requirejs 被覆盖的问题）</td>
-        </tr>
-    
-    </tbody>
-</table>
-
-    
-    
-    
-</dd>
-
-        </dl>
     
     
     
@@ -1342,7 +1046,7 @@
         
 
         <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Wed May 04 2016 22:09:20 GMT+0800 (China Standard Time)
+            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Wed May 04 2016 22:09:21 GMT+0800 (China Standard Time)
         </footer>
     </div>
 </div>

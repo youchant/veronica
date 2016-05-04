@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Namespace: loader</title>
+    <title>Class: Parser</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -828,7 +828,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="veronica.loader.html">Namespace: loader</h1>
+        <h1 class="page-title" data-filename="veronica.Parser.html">Class: Parser</h1>
         
 
 
@@ -839,8 +839,10 @@
     <h2>
         <span class="ancestors"><a href="veronica.html">veronica</a>.</span>
     
-    loader
+    Parser
     </h2>
+    
+        <div class="class-description"><p>页面 parser</p></div>
     
 </header>  
 
@@ -850,8 +852,37 @@
     
     
         
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="Parser">
+            
+            new veronica.Parser<span class="signature">()</span>
+        </h4>
+    
         
+        <div class="tag-source">
+            app/parser.js, line 11
+        </div>
         
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>无法直接构造</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
 <dl class="details">
     
         
@@ -876,8 +907,20 @@
     
 </dl>
 
-        
-        
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
     
     </div>
     
@@ -900,14 +943,14 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id=".require">
+        <h4 class="name" id="parse">
             
-            <span class="type-signature static">static</span>veronica.loader.require<span class="signature">(modeuls, <span class="optional">condition</span>, <span class="optional">requireConfig</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="global.html#Promise">Promise</a>}</span>
+            parse<span class="signature">(<span class="optional">dom</span>)</span>
         </h4>
     
         
         <div class="tag-source">
-            core/loader.js, line 37
+            app/parser.js, line 24
         </div>
         
     </div>
@@ -918,7 +961,7 @@
     
     
     <div class="description">
-        <p>请求一个脚本</p>
+        <p>解析页面，初始化指定 DOM 下的 widget</p>
     </div>
     
 
@@ -939,8 +982,6 @@
 		<th>Type</th>
 		
 		
-		<th>Default</th>
-		
 		
 		<th class="last">Description</th>
 	</tr>
@@ -951,13 +992,13 @@
 	
         <tr>
             
-                <td class="name"><code>modeuls</code></td>
+                <td class="name"><code>dom</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">Array</span>
+<span class="param-type">string</span>
 |
 
 <span class="param-type">Object</span>
@@ -967,44 +1008,6 @@
             </td>
             
             
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last">
-                
-                    
-                    
-                        
-                    
-                
-                <p>要请求的模块（requirejs的require方法所需配置）</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>condition</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-            
-            
-                <td class="default">
-                
-                    true
-                
-                </td>
-            
             
             <td class="description last">
                 
@@ -1015,41 +1018,7 @@
                         
                     
                 
-                <p>发起请求的条件，如果不满足条件，则不进行请求</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>requireConfig</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last">
-                
-                    
-                        <span class="optional">optional</span>
-                    
-                    
-                        
-                    
-                
-                <p>额外的 require 配置</p></td>
+                <p>dom 元素或选择器</p></td>
         </tr>
 	
 	
@@ -1092,35 +1061,6 @@
     
     
     
-    <h5>Returns:</h5>
-    
-
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                        <a href="global.html#Promise">Promise</a>
-                        
-                    
-            </td>
-            <td class="description last"></td>
-        </tr>
-    
-    </tbody>
-</table>
-
-    
     
     
 </dd>
@@ -1129,14 +1069,14 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id=".useGlobalRequire">
+        <h4 class="name" id="parseView">
             
-            <span class="type-signature static">static</span>veronica.loader.useGlobalRequire<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
+            parseView<span class="signature">(widget, views)</span>
         </h4>
     
         
         <div class="tag-source">
-            core/loader.js, line 18
+            app/parser.js, line 48
         </div>
         
     </div>
@@ -1147,7 +1087,7 @@
     
     
     <div class="description">
-        <p>使用全局的require变量</p>
+        <p>解析 widget 下的所有视图</p>
     </div>
     
 
@@ -1155,6 +1095,74 @@
     
     
     
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>widget</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Widget.html">Widget</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                <p>widget</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>views</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                <p>初始化器键值对</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
     
     
     
@@ -1191,135 +1199,6 @@
     
     
     
-    
-    <h5>Returns:</h5>
-    
-
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                        Object
-                        
-                    
-            </td>
-            <td class="description last">RequireJS 的 require 变量（修复使用 almond 后本地 require 被覆盖的问题）</td>
-        </tr>
-    
-    </tbody>
-</table>
-
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id=".useGlobalRequirejs">
-            
-            <span class="type-signature static">static</span>veronica.loader.useGlobalRequirejs<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
-        </h4>
-    
-        
-        <div class="tag-source">
-            core/loader.js, line 26
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>使用全局的requirejs变量</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                        Object
-                        
-                    
-            </td>
-            <td class="description last">RequireJS 的 requirejs 变量（修复使用 almond 后本地 requirejs 被覆盖的问题）</td>
-        </tr>
-    
-    </tbody>
-</table>
-
     
     
     
