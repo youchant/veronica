@@ -5057,10 +5057,11 @@ define('app/view/view-window',[],function () {
                     this.center();
                 }, wnd), 300);
 
-                wnd.core.addEventListener('beforeremove', _.bind(function () {
-                    this._destroyWindow(options.name);
-                }, this));
-
+                if (options.destroyedOnClose) {
+                    wnd.core.addEventListener('beforeremove', _.bind(function () {
+                        this._destroyWindow(options.name);
+                    }, this));
+                }
 
                 // 创建所有 children 实例
                 if (options.children) {
@@ -5517,16 +5518,16 @@ define('app/view/view-children',[],function () {
 
             // 创建视图
             _createView: function (view, name) {
+                if (_.isFunction(view)) {  // 方法
+                    view = view.apply(this);
+                }
+
                 if (view.cid) {  // 视图对象
                     view._name = name;
                     return view;
                 }
 
                 var viewConfig = view;
-                if (_.isFunction(view)) {  // 方法
-                    viewConfig = view.apply(this);
-                }
-
                 // 确保 initializer 是个方法
                 var viewInitializer = app.view.define(viewConfig.initializer, true);
                 var viewOptions = $.extend({}, viewConfig.options) || {};
@@ -5598,6 +5599,7 @@ define('app/view/view-listen',[],function () {
         var noop = function () { };
         var baseListenTo = app.core.Events.listenTo;
 
+        /** @lends veronica.View# */
         var configs = {
             /**
              * **`重写`** 订阅消息
@@ -5628,7 +5630,14 @@ define('app/view/view-listen',[],function () {
             listen: noop
         };
 
+        /** @lends veronica.View# */
         var methods = {
+            /**
+             * 监听事件
+             * @param {object|string} sender - 事件的发送者，如果是字符串，则为视图的名称
+             * @param {string} event - 事件名称
+             * @param {eventCallback} callback - 回调
+             */
             listenTo: function (sender, event, handler) {
                 var baseListenToDeley = this.listenToDelay;
                 if (_.isString(sender)) {
@@ -5649,6 +5658,7 @@ define('app/view/view-listen',[],function () {
             },
             /**
              * 延迟监听子视图
+             * @private
              * @param {string} name - 子视图名称
              * @param {string} event - 事件名称
              * @param {eventCallback} callback - 回调
@@ -5958,7 +5968,7 @@ define('app/view/view-resize',[],function () {
         app.view.base._autoResize = function () {
             if (this.options.autoResize) {
                 this.listenTo(this, 'rendered', function () {
-                    _.defer(me.resize);
+                    _.defer(this.resize);
                 });
                 $(window).on('resize', this.resize);
             }
