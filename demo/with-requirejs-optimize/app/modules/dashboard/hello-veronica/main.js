@@ -21,7 +21,12 @@ define([
             };
         },
         openWndHandler: function () {
-            this.widgetWindow('charts', null, { options: { modal: true } });
+            this.widgetWindow('charts', null, { options: { modal: false } });
+        },
+        rebuildHandler: function () {
+            this.setOptions({
+                hi: 'rebuild'
+            });
         }
     };
 });

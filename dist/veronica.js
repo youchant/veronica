@@ -3439,7 +3439,7 @@ define('app/navigation',[
 
             create: function (data) {
                 createNav(data);
-                this._nav = _.compact(data);
+                this._nav = _.isArray(data) ? _.compact(data) : data;
             },
             get: function () {
                 return this._nav;
@@ -4285,7 +4285,7 @@ define('app/widget',[
                     var sameTag = w.options._tag === $item.data('verTag');
                     return hasClass && sameTag;
                 });
-                if (!expectExists || exclusive) {
+                if (!expectExists) {
                     var oldSandboxRef = $item.data(SANDBOX_REF_NAME);
                     oldSandboxRef && app.widget.stop(app.sandboxes.get(oldSandboxRef));
                 }
@@ -5034,7 +5034,7 @@ define('app/view/view-window',[],function () {
                 }
 
                 if (isShow == null) {
-                    isShow = true
+                    isShow = true;
                 }
 
                 options = $.extend(true, {}, dlgDefaultOptions, options);
@@ -5049,19 +5049,13 @@ define('app/view/view-window',[],function () {
                     : (options.el == null ? $(defaultWndTpl) : $(options.el));
 
                 // 创建 window 实例
-                var wnd = me._windowInstance($el, options);
+                var wnd = me._windowInstance($el, options, this);
 
                 wnd.vToBeDestroyed = {};  // window 中应该被销毁的 view
 
                 wnd.vLazyLayout = _.debounce(_.bind(function () {
                     this.center();
                 }, wnd), 300);
-
-                if (options.destroyedOnClose) {
-                    wnd.core.addEventListener('beforeremove', _.bind(function () {
-                        this._destroyWindow(options.name);
-                    }, this));
-                }
 
                 // 创建所有 children 实例
                 if (options.children) {
@@ -5070,10 +5064,10 @@ define('app/view/view-window',[],function () {
                     _.each(options.children, function (conf) {
                         var type = conf.type || options.type;
                         if (type === DlgChildType.VIEW) {
-                            views.push(conf)
+                            views.push(conf);
                         }
                         if (type === DlgChildType.WIDGET) {
-                            widgets.push(conf)
+                            widgets.push(conf);
                         }
 
                     });
@@ -5117,9 +5111,9 @@ define('app/view/view-window',[],function () {
                 var me = this;
 
                 if (name == null) {
-                    // 关闭所有弹出窗口
-                    _(this._windows).each(function (window) {
-                        window.close();
+                    // 销毁所有弹出窗口
+                    _(this._windows).each(function (wnd, name) {
+                        me._destroyWindow(name);
                     });
 
                     return;
@@ -5183,10 +5177,12 @@ define('app/view/view-window',[],function () {
                      * 关闭对话框
                      */
                     close: function () {
-                        this.core.remove();
+                        if (this.core.open) {
+                            this.core.close();
+                        }
                     },
                     destroy: function () {
-
+                        this.core.remove();
                     },
                     center: function () {
                         this.core.reset();
@@ -5216,6 +5212,12 @@ define('app/view/view-window',[],function () {
                     }
                 };
 
+                wnd.core.addEventListener('close', _.bind(function () {
+                    if (config.destroyedOnClose) {
+                        this._destroyWindow(config.name);
+                    }
+                }, this));
+
                 wnd.core.addEventListener('remove', function () {
                     $.each($('.fn-wnd-placeholder:hidden'), function (i, el) {
                         if ($(el).closest('.ui-dialog').length === 0) {
@@ -5240,6 +5242,7 @@ define('app/view/view-attr',[],function () {
         var _ = app.core._;
         var noop = $.noop;
 
+        /** @lends veronica.View# */
         var configs = {
             /**
              * **`重写`** 属性变化
@@ -5269,6 +5272,7 @@ define('app/view/view-attr',[],function () {
             initAttr: noop
         };
 
+        /** @lends veronica.View# */
         var methods = {
             /**
              * 定义属性
@@ -6234,9 +6238,9 @@ define('app/view/view-base',[
                 return _.isFunction(method) ? method.apply(this, args.slice(sliceLen)) : method;
             },
             /**
-              * 显示该视图
-              * @function
-              */
+             * 显示该视图
+             * @function
+             */
             show: function () {
                 var me = this;
                 this.$el.show(false, function () {
@@ -6246,9 +6250,9 @@ define('app/view/view-base',[
                 });
             },
             /**
-              * 隐藏该视图
-              * @function
-              */
+             * 隐藏该视图
+             * @function
+             */
             hide: function () {
                 this.$el.hide(false);
             },
@@ -6275,6 +6279,12 @@ define('app/view/view-base',[
              */
             destroy: function () {
                 this._destroy();
+            },
+            setOptions: function (options) {
+                this.destroy();
+                this.stopListening();
+                options = $.extend({}, this.options, options);
+                this.initialize(options);
             }
         };
 
