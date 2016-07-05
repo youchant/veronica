@@ -2548,14 +2548,41 @@ define('core/application',[
      * 不用构造函数调用来创建 application 实例，而是使用 `veronica.createApp`
      * @classdesc 应用程序类
      * @class Application
-     * @param {object} [options] - 选项
-     * @param {string} options.name
      * @memberOf veronica
      */
     function Application(options) {
         var $ = core.$;
 
-        // 默认配置
+        /**
+         * 应用程序配置参数
+         * @typedef AppOptions
+         * @property {string} [name='app'] - 应用程序名称
+         * @property {object} [homePage='home'] - 没有路由参数的起始页        
+         * @property {array} [extensions=[]] - 扩展列表
+         * @property {array.<ModuleConfig>} [modules=[]] - 模块配置，当每个模块配置参数为字符串时，该字符串指定该模块的名称，其他参数采用默认参数
+         * @property {boolean} [autoParseWidgetName=false] - 自动解析 widget 名称
+         * @property {string}  [releaseWidgetPath='./widgets'] - 发布后的 widget 路径
+         * @property {regex} [widgetNamePattern=/(\w*)-?(\w*)-?(\w*)/] - 解析  widget 名称的正则
+         * @property {object} [module.defaults] - 模块默认参数
+         * @property {object} [module.defaultModule] - 当未配置任何模块时，使用的默认模块配置
+         * @property {object} [page] - page 和 layout 的默认配置
+         * @property {array} [features=['dialog', 'plugin', 'spa']] -
+         *   设置创建的该应用程序需要启用哪些特性，目前包括：
+         *
+         *    * dialog: 支持对话框
+         *    * plugin: 支持插件扩展widget
+         *    * spa: 支持单页面应用程序的构建（页面、布局、路由，导航等）
+         *
+         * @property {boolean} [autoBuildPage=false] -
+         *   是否启用自动页面配置。当通过路由或 `app.page.change`访问某个页面时，
+         *   如果未找到对应的页面配置，启用自动页面配置时，会根据页面名称自动生成页面配置。
+         *
+         *   > **关于自动页面配置**
+         *   >
+         *   > 访问 basic/home/index 或 basic-home-index 时，系统会去查找名为 basic-home-index 的widget，并且添加 _common 的页面继承;
+         *   > 如果访问index，则会查找basic/Home/index，如果访问 home/index，则会查找basic/home/index
+         *
+         */
         var defaultOptions = {
             name: 'app',
             extensions: [],
@@ -2568,11 +2595,11 @@ define('core/application',[
 
             global: true,  // 全局 app
             plugins: {},
-            defaultPage: 'default',
             homePage: 'home',
             page: {
                 defaultLayout: 'default',  // 默认布局
                 defaultHost: '.v-render-body',  // 默认宿主元素
+                defaultLayoutRoot: 'v-render-body',  // 默认布局根
                 defaultSource: 'basic',  // 默认源
                 defaultInherit: '_common'  // 默认页面继承
             },
@@ -2581,19 +2608,20 @@ define('core/application',[
                 defaults: {
                     multilevel: false,
                     hasEntry: true,
-                    entryPath: 'main',
+                    entryPath: 'main',  // 暂时没使用
                     widgetPath: 'widgets',
-                    source: 'modules'
+                    parentPath: 'modules'
                 },
                 // 默认 module
                 defaultModule: {
                     name: core.constant.DEFAULT_MODULE_NAME,
-                    source: '.',
+                    parentPath: '.',
                     path: '.',
                     hasEntry: false,
-                    build: '{{ dir }}{{ baseUrl }}{{ type }}'
+                    build: '{{ dir }}{{ baseUrl }}{{ type }}'  // 暂时没使用
                 }
             },
+            defaultPage: 'default',  // 没用，废弃
             router: {
                 pagePattern: '\/?(.+)\??(.+)'  // 没用，移除
             }
@@ -2637,8 +2665,8 @@ define('core/application',[
         constructors: Application,
         /**
          * 启动应用程序
-         * @param {Object} [options={}] 启动参数
-         * @param {boolean} options.parse 是否解析当前页面
+         * @param {Object} [options={}] - 启动参数
+         * @param {boolean} [options.parse=false] - 是否解析当前页面
          * @returns {Promise}
          */
         launch: function (options) {
@@ -2978,7 +3006,7 @@ define('app/page',[], function () {
                             widgets: [{
                                 name: pageName,
                                 options: {
-                                    _host: appConfig.page.defaultHost,
+                                    host: appConfig.page.defaultHost,
                                     _source: appConfig.page.defaultSource
                                 }
                             }],
@@ -3068,7 +3096,6 @@ define('app/layout',[
     return function (app) {
         var _ = app.core._;
         var $ = app.core.$;
-        var PAGEVIEW_CLASS = 'v-render-body';
         var cst = app.core.constant;
 
         /**
@@ -3124,7 +3151,7 @@ define('app/layout',[
                 var me = this;
                 var dfd = app.core.util.donePromise();
 
-                var $pageView = $('.' + PAGEVIEW_CLASS);
+                var $pageView = $('.' + app.config.page.defaultLayoutRoot);
                 if ($pageView.length === 0) {
                     $pageView = $('body');
                 }
@@ -3134,6 +3161,7 @@ define('app/layout',[
 
                 var layout = this.get(name);
 
+                // 找不到布局，则不进行切换
                 if (!layout) {
                     //app.core.logger.warn('Could not find the layout configuration! layout name: ' + name);
                     //return app.core.util.failPromise();
@@ -3180,7 +3208,7 @@ define('app/layout',[
         };
 
         layout._layouts[cst.SCAFFOLD_LAYOUT_NAME] = {
-            html: '<div class="' + PAGEVIEW_CLASS + '"></div>'
+            html: '<div class="' + app.config.page.defaultLayoutRoot + '"></div>'
         };
 
         /**
@@ -3210,7 +3238,7 @@ define('app/module',[
              * 不直接调用构造函数，通过 `app.module.create` 创建
              * @classdesc 应用程序模块
              * @class veronica.Module
-             * @param {moduleConfig} options - 配置项
+             * @param {ModuleConfig} options - 配置项
              * @param {function} [execution] - 入口执行方法
              * @example
              *   var module = app.module.create({
@@ -3226,13 +3254,13 @@ define('app/module',[
                 if (_.isString(options)) {
                     options = {
                         name: options,
-                        source: app.config.module.defaults.source
+                        parentPath: app.config.module.defaults.parentPath
                     };
                 }
 
                 _.defaults(options, app.config.module.defaults);
 
-                var source = app.core.getConfig().sources[options.source] || options.source;
+                var parentPath = app.core.getConfig().sources[options.parentPath] || options.parentPath;
 
                 /**
                  * @lends Module#
@@ -3243,7 +3271,7 @@ define('app/module',[
                     /** 模块配置 */
                     config: options,
                     /** 路径 */
-                    path: options.path || source + '/' + options.name,
+                    path: options.path || parentPath + '/' + options.name,
                     /** 入口执行方法 */
                     execution: execution
                 };
@@ -3338,13 +3366,13 @@ define('app/module',[
 
         /**
          * 模块配置，有纯字符串的简写形式
-         * @typedef moduleConfig
+         * @typedef ModuleConfig
          * @property {string} name - 模块名称
-         * @property {string} [source='modules'] - 模块源（地址）
+         * @property {string} [parentPath='modules'] - 模块地址，可接受相对路径和URL，相对路径是相对当前加载器的基路径
          * @property {boolean} [hasEntry=true] - 模块是否有入口方法
-         * @property {string} [path=null] - 模块路径，如果不设置，根据模块源和模块名称计算得出
+         * @property {string} [path=null] - 模块路径，如果不设置，根据模块地址和模块名称计算得出
          * @property {boolean} [multilevel=false] - 内部 widget 放置是否是多层级的
-         * @property {string} [build=null] - 打包后模块的路径，如果不指定则按照默认规则放置
+         * @property {string} [build=null] - （暂未启用）打包后模块的路径，如果不指定则按照默认规则放置
          */
 
         /**
@@ -3562,8 +3590,32 @@ define('core/sandbox',[
             context = context || this;
             var callback = function () {
                 var args = Array.prototype.slice.call(arguments);
+                var condition = true;
+                // 有条件的触发监听器
+                if (context.options && context.options.sandbox
+                    && args.length > 0 && args[0]._target) {
+                    var target = args[0]._target;
+                    var senderId = args[0]._senderId;
+                    var app = context.sandbox.app;
+                    var sender = app.sandboxes.get(senderId);
+                    var thisId = context.options.sandbox._id;
+                    var expectList = [];
+                    condition = false;
 
-                listener.apply(context, args);  // 将该回调的上下文绑定到sandbox
+                    if (target === 'children') {
+                        expectList = sender.children();
+                    }
+                    if (target === 'parents') {
+                        expectList = sender.parents();
+                    }
+                    if (expectList.indexOf(thisId) > -1) {
+                        condition = true;
+                    }
+                }
+
+                if (condition) {
+                    listener.apply(context, args);  // 将该回调的上下文绑定到sandbox
+                }
 
             };
 
@@ -3588,6 +3640,7 @@ define('core/sandbox',[
     /**
      * @classdesc 沙箱，管理公共方法、消息传递、宿主生命周期维护
      * @class Sandbox
+     * @param {object} options - 参数对象
      * @memberOf veronica
      */
     function Sandbox(options) {
@@ -3699,8 +3752,14 @@ define('core/sandbox',[
             var eventData = Array.prototype.slice.call(arguments);
 
             var emitFunc = _.bind(function () {
+                if (eventData.length > 1) {
+                    // 这里取时间名称后的第一个参数
+                    if (eventData[1]._target) {
+                        eventData[1]._senderId = this._id;
+                    }
+                }
                 mediator.emit.apply(mediator, eventData);
-                eventData.unshift('emitted')
+                eventData.unshift('emitted');
                 this.log(eventData);
             }, this);
 
@@ -3774,10 +3833,51 @@ define('core/sandbox',[
 
         },
         /**
-         * 获取宿主对象
-         * @returns {Object}
+         * 获取沙箱拥有者
+         * @returns {Object} 拥有者对象 
+         * @deprecated
          */
-        getHost: function () { }
+        getHost: function () { },
+        /**
+         * 获取沙箱拥有者
+         * @returns {Object} 拥有者对象 
+         */
+        getOwner: function () { },
+        children: function (result) {
+            if (result == null) {
+                result = [];
+            }
+            var children = this._children;
+            var app = this.app;
+            if (children == null || children.length === 0) {
+                return result;
+            }
+
+            var ids = _.map(children, function (item) {
+                return item.ref;
+            });
+
+            result = result.concat(ids);
+
+            _.each(ids, function (id) {
+                var sandbox = app.sandboxes.get(id);
+                result = sandbox.children(result);
+            });
+
+            return result;
+        },
+        parents: function () {
+            var parentId = this._parent;
+            var app = this.app;
+            var result = [];
+            while (parentId != null) {
+                result.push(parentId);
+                var sandbox = app.sandboxes.get(parentId);
+                parentId = sandbox._parent;
+            }
+
+            return result;
+        }
     };
 
     Sandbox.prototype = proto;
@@ -3946,9 +4046,12 @@ define('core/widget',[],function () {
                 .data(core.constant.WIDGET_TAG, options._tag)
                 .data(core.constant.SANDBOX_REF_NAME, sandbox._id);  // 在该元素上保存对插件对象的引用
 
-            sandbox.getHost = function () {
+            sandbox.getOwner = function () {
                 return app.widget._widgetsPool[sandbox._id];
             };
+
+            // deprecated
+            sandbox.getHost = sandbox.getOwner;
         }
 
         return widgetObj;
@@ -4267,8 +4370,10 @@ define('app/widget',[
 
         /**
          * 扫描某个宿主元素下的所有插件，对不在插件列表中插件进行删除
+         * @param {string|DOM|jQueryObject} 宿主对象
+         * @returns {void}
          */
-        widget.clear = function (host, exclusive) {
+        widget.clear = function (host) {
             if (!host) return;
 
             var hostExpectList = _(app.widget._currWidgetList)
@@ -4293,6 +4398,7 @@ define('app/widget',[
 
         }
 
+        // 缓存列表（参数列表，页面名称）
         widget._cacheList = function (list, page) {
             // 当切换页面时候，缓存老部件列表
             if (page) {
@@ -4368,8 +4474,8 @@ define('app/widget',[
                     }
 
                     // 获取 widget 对象
-                    if (sandbox.getHost) {
-                        widgetObj = sandbox.getHost();
+                    if (sandbox.getOwner) {
+                        widgetObj = sandbox.getOwner();
                         // TODO: 这里为什么不移除？？
                         if (widgetObj && widgetObj.state.templateIsLoading) { return; }
                     }
@@ -4432,8 +4538,8 @@ define('app/widget',[
          */
         widget.recycle = function () {
             _(app.sandboxes._sandboxPool).each(function (sandbox) {
-                if (!sandbox.getHost) return;
-                var widgetObj = sandbox.getHost();
+                if (!sandbox.getOwner) return;
+                var widgetObj = sandbox.getOwner();
                 if (widgetObj && widgetObj.$el && widgetObj.$el.closest(document.body).length === 0) {
                     // TODO 此种方法可能存在性能问题
                     app.widget.stop(sandbox);
@@ -5638,9 +5744,23 @@ define('app/view/view-listen',[],function () {
         var methods = {
             /**
              * 监听事件
-             * @param {object|string} sender - 事件的发送者，如果是字符串，则为视图的名称
+             * @param {object|string|array} sender - 事件的发送者，如果是字符串，则为视图的名称
              * @param {string} event - 事件名称
              * @param {eventCallback} callback - 回调
+             * @example
+             *  listen: funciton () {
+             *       this.listenTo('view', 'saved', function () {})
+             *       this.listenTo(this, 'selected', function () {})
+             *
+             *       // 可一次性监听多个
+             *       this.listenTo([
+             *         [this, 'selected'],
+             *         ['view', 'saved']
+             *       ], function () {
+             *
+             *       })
+             *   }
+             * 
              */
             listenTo: function (sender, event, handler) {
                 var baseListenToDeley = this.listenToDelay;
@@ -6280,8 +6400,14 @@ define('app/view/view-base',[
             destroy: function () {
                 this._destroy();
             },
+            /**
+             * 重新设置参数，设置后会重新初始化视图
+             * @param {object} options - 视图参数
+             * @returns {void} 
+             */
             setOptions: function (options) {
                 this.destroy();
+                // remove 时会调用该方法，由于没有调用 remove，则手动 stopListening
                 this.stopListening();
                 options = $.extend({}, this.options, options);
                 this.initialize(options);
@@ -8606,38 +8732,10 @@ define('app/app',[
      * @typedef Promise
      */
 
-
-    var DEFAULT_MODULE_NAME = '__default__';
-
     /**
      * 创建 app
      * @function veronica#createApp
-     * @param {object} [options={}]
-     * @param {string} options.name='app' 应用程序名称
-     * @param {array} options.features=['plugin','dialog','spa'] -
-     *   设置创建的该应用程序需要启用哪些特性，目前包括：
-     *
-     *    * dialog: 支持对话框
-     *    * plugin: 支持插件扩展widget
-     *    * spa: 支持单页面应用程序的构建（页面、布局、路由，导航等）
-     *
-     * @param {boolean} options.autoBuildPage=false
-     *   是否启用自动页面配置。当通过路由或 `app.page.change`访问某个页面时，
-     *   如果未找到对应的页面配置，启用自动页面配置时，会根据页面名称自动生成页面配置。
-     *
-     *   > **关于自动页面配置**
-     *   >
-     *   > 访问 basic/home/index 或 basic-home-index 时，系统会去查找名为 basic-home-index 的widget，并且添加 _common 的页面继承;
-     *   > 如果访问index，则会查找basic/Home/index，如果访问 home/index，则会查找basic/home/index
-     * @param {array} options.modules=[] - 模块配置
-     *    模块配置传入一个数组，指定该应用程序包括的所有模块，包括如下参数：
-     *
-     *    * name: 模块名称
-     *    * source: 模块源
-     *    * multilevel: widget 为多级目录
-     *    * hasEntry: 有入口文件
-     *   当每个模块配置参数为字符串时，该字符串指定该模块的名称，其他参数采用默认参数
-     * @param {array} options.extensions=[] - 扩展列表
+     * @param {AppOptions} [options={}]
      * @returns {veronica.Application}
      */
     core.createApp = function (options) {

@@ -17,6 +17,11 @@ define([
                 source: 'querystring'
             });
         },
+        subscribe: function () {
+            this.sub('to children', function () {
+                console.log('I got it');
+            });
+        },
         attrChanged: {
             'id': function (value) {
                 this.$('.text').html(value);
@@ -25,6 +30,11 @@ define([
         changeIdHandler: function (e) {
             var currId = this.attr('id');
             this.attr('id', ++currId);
+        },
+        pubHandler: function () {
+            this.pub('to parents', {
+                _target: 'parents'
+            });
         }
     };
 });

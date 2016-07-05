@@ -11,15 +11,15 @@ require(['./require-conf'], function (config) {
             global: true,
             modules: [{
                 name: 'dashboard',
-                source: './modules',
+                parentPath: './modules',
                 widgetPath: ''
             }, {
                 name: 'user-control',
-                source: './modules',
+                parentPath: './modules',
                 widgetPath: ''
             }, {
                 name: 'tiny_basic',
-                source: 'http://localhost:59529',
+                parentPath: 'http://localhost:59529',
                 widgetPath: '',
                 hasEntry: false
             }],

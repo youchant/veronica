@@ -10,22 +10,32 @@ define([
             name: 'Veronica',
             autoAction: true
         },
-        views: function () {
-            return {
-                'charts': {
-                    initializer: Charts,
-                    options: {
-                        el: this.$('.sub')
-                    }
-                }
-            };
+        subscribe: function () {
+            this.sub('to parents', function() {
+                console.log('I got it');
+            });
         },
+        //views: function () {
+        //    return {
+        //        'charts': {
+        //            initializer: Charts,
+        //            options: {
+        //                el: this.$('.sub')
+        //            }
+        //        }
+        //    };
+        //},
         openWndHandler: function () {
             this.widgetWindow('charts', null, { options: { modal: false } });
         },
         rebuildHandler: function () {
             this.setOptions({
                 hi: 'rebuild'
+            });
+        },
+        pubHandler: function () {
+            this.pub('to children', {
+                _target: 'children'
             });
         }
     };

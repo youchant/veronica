@@ -138,24 +138,46 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
             $host = $('<div></div>');
         })
 
-        describe('widget', function () {
-            describe('.package', function () {
+        describe('widget', function() {
+            describe('.clear', function () {
+
                 it('should run ok', function () {
+                    app.widget.clear();
+                });
+
+                it('should not clear when widget is in-place', function() {
+                    var sandbox = createWiget();
+                    app.widget.clear(sandbox.getOwner().options.host);
+
+                    app.sandboxes.get(sandbox._id).should.to.exist;
+                });
+
+                it('should clear when widget is out-place', function () {
+                    var sandbox = createWiget();
+                    app.widget._currWidgetList = [];
+                    app.widget.clear(sandbox.getOwner().options.host);
+
+                    should.not.exist(app.sandboxes.get(sandbox._id));
+                });
+
+            });
+            describe('.package', function () {
+                it('should run ok', function() {
                     app.widget.package();
                 });
             });
-            describe('.register', function () {
-                it('should run ok', function () {
+            describe('.register', function() {
+                it('should run ok', function() {
 
                     app.widget.register({});
                     console.log(app.widget);
                 });
             });
-            describe('.start', function () {
-                it('should create a widget', function () {
+            describe('.start', function() {
+                it('should create a widget', function() {
 
                     var sandbox = createWiget();
-                    var widget = sandbox.getHost();
+                    var widget = sandbox.getOwner();
                     var $el = widget.$el;
 
                     $el.length.should.to.equal(1);
@@ -165,8 +187,8 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
                     $el.hasClass(app.core.constant.WIDGET_CLASS).should.to.be.true;
                 });
             });
-            describe('.stop', function () {
-                it('should run ok when incoming Sandbox', function () {
+            describe('.stop', function() {
+                it('should run ok when incoming Sandbox', function() {
                     var sandbox = createWiget();
 
                     app.widget.stop(sandbox);
@@ -174,14 +196,14 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
                     should.not.exist(app.sandboxes.get(sandbox.id));
                     $host.children().length.should.to.equal(0);
                 });
-                it('should run ok when incoming jQuery element', function () {
+                it('should run ok when incoming jQuery element', function() {
                     var sandbox = createWiget();
 
                     app.widget.stop($host);
 
                     $host.children().length.should.to.equal(0);
                 });
-                it('should run ok when incoming widget name', function () {
+                it('should run ok when incoming widget name', function() {
                     var sandbox = createWiget();
 
                     app.widget.stop(sandbox.name);
@@ -189,7 +211,7 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
                     $host.children().length.should.to.equal(0);
                 });
             });
-        })
+        });
 
     });
 });
