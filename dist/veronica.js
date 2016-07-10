@@ -12,13 +12,11 @@
 
 
 /**
- * @license almond 0.3.1 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
- * Available via the MIT or new BSD license.
- * see: http://github.com/jrburke/almond for details
+ * @license almond 0.3.2 Copyright jQuery Foundation and other contributors.
+ * Released under MIT license, http://github.com/requirejs/almond/LICENSE
  */
 //Going sloppy to avoid 'use strict' string cost, but strict practices should
 //be followed.
-/*jslint sloppy: true */
 /*global setTimeout: false */
 
 var requirejs, require, define;
@@ -46,60 +44,58 @@ var requirejs, require, define;
      */
     function normalize(name, baseName) {
         var nameParts, nameSegment, mapValue, foundMap, lastIndex,
-            foundI, foundStarMap, starI, i, j, part,
+            foundI, foundStarMap, starI, i, j, part, normalizedBaseParts,
             baseParts = baseName && baseName.split("/"),
             map = config.map,
             starMap = (map && map['*']) || {};
 
         //Adjust any relative paths.
-        if (name && name.charAt(0) === ".") {
-            //If have a base name, try to normalize against it,
-            //otherwise, assume it is a top-level require that will
-            //be relative to baseUrl in the end.
-            if (baseName) {
-                name = name.split('/');
-                lastIndex = name.length - 1;
+        if (name) {
+            name = name.split('/');
+            lastIndex = name.length - 1;
 
-                // Node .js allowance:
-                if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
-                    name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
-                }
+            // If wanting node ID compatibility, strip .js from end
+            // of IDs. Have to do this here, and not in nameToUrl
+            // because node allows either .js or non .js to map
+            // to same file.
+            if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
+                name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
+            }
 
-                //Lop off the last part of baseParts, so that . matches the
-                //"directory" and not name of the baseName's module. For instance,
-                //baseName of "one/two/three", maps to "one/two/three.js", but we
-                //want the directory, "one/two" for this normalization.
-                name = baseParts.slice(0, baseParts.length - 1).concat(name);
+            // Starts with a '.' so need the baseName
+            if (name[0].charAt(0) === '.' && baseParts) {
+                //Convert baseName to array, and lop off the last part,
+                //so that . matches that 'directory' and not name of the baseName's
+                //module. For instance, baseName of 'one/two/three', maps to
+                //'one/two/three.js', but we want the directory, 'one/two' for
+                //this normalization.
+                normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
+                name = normalizedBaseParts.concat(name);
+            }
 
-                //start trimDots
-                for (i = 0; i < name.length; i += 1) {
-                    part = name[i];
-                    if (part === ".") {
-                        name.splice(i, 1);
-                        i -= 1;
-                    } else if (part === "..") {
-                        if (i === 1 && (name[2] === '..' || name[0] === '..')) {
-                            //End of the line. Keep at least one non-dot
-                            //path segment at the front so it can be mapped
-                            //correctly to disk. Otherwise, there is likely
-                            //no path mapping for a path starting with '..'.
-                            //This can still fail, but catches the most reasonable
-                            //uses of ..
-                            break;
-                        } else if (i > 0) {
-                            name.splice(i - 1, 2);
-                            i -= 2;
-                        }
+            //start trimDots
+            for (i = 0; i < name.length; i++) {
+                part = name[i];
+                if (part === '.') {
+                    name.splice(i, 1);
+                    i -= 1;
+                } else if (part === '..') {
+                    // If at the start, or previous value is still ..,
+                    // keep them so that when converted to a path it may
+                    // still work when converted to a path, even though
+                    // as an ID it is less than ideal. In larger point
+                    // releases, may be better to just kick out an error.
+                    if (i === 0 || (i === 1 && name[2] === '..') || name[i - 1] === '..') {
+                        continue;
+                    } else if (i > 0) {
+                        name.splice(i - 1, 2);
+                        i -= 2;
                     }
                 }
-                //end trimDots
-
-                name = name.join("/");
-            } else if (name.indexOf('./') === 0) {
-                // No baseName, so this is ID is resolved relative
-                // to baseUrl, pull off the leading dot.
-                name = name.substring(2);
             }
+            //end trimDots
+
+            name = name.join('/');
         }
 
         //Apply map config if available.
@@ -2676,7 +2672,7 @@ define('core/application',[
             options || (options = {});
 
             // 加载扩展
-            _(this.config.extensions).each(function (ext) {
+            _.each(this.config.extensions, function (ext) {
 
                 var dfd = core.loader.require(ext, _.isString(ext)).done(function (ext, fn) {
                     if (fn == null) { fn = ext; }
@@ -2687,7 +2683,7 @@ define('core/application',[
             });
 
             // 加载模块
-            _(this.config.modules).each(function (moduleConfig) {
+            _.each(this.config.modules, function (moduleConfig) {
 
                 var module = me.module.create(moduleConfig);
                 var dfd = module.loadEntry();
@@ -2844,7 +2840,7 @@ define('app/page',[], function () {
             _changeTitle: function () { },
             _processInherit: function (pageConfig) {
                 var me = this;
-                var parentsWidgets = _(pageConfig.inherit).map(function (parentName) {
+                var parentsWidgets = _.map(pageConfig.inherit, function (parentName) {
                     return me.get(parentName).widgets;
                 });
                 parentsWidgets.unshift(pageConfig.widgets);
@@ -2997,7 +2993,7 @@ define('app/page',[], function () {
                     configs = [configs];
                 }
                 _.each(configs, function (config) {
-                    _(config).each(function (item, pageName) {
+                    _.each(config, function (item, pageName) {
                         item = preprocessPageConfig(item);
 
                         config[pageName] = $.extend({
@@ -3782,11 +3778,11 @@ define('core/sandbox',[
             }
 
             if (tag) {
-                events = _(events).filter(function (evt) {
+                events = _.filter(events, function(evt) {
                     return evt.tag === tag;
-                })
+                });
             }
-            _(events).each(function (evt) {
+            _.each(events, function (evt) {
                 mediator.off(evt.name, evt.callback);
             });
         },
@@ -3822,7 +3818,7 @@ define('core/sandbox',[
             var app = core.app;
 
             if (callerId) {
-                children = _(children).filter(function (cd) {
+                children = _.filter(children, function (cd) {
                     return cd.caller === callerId;
                 });
             }
@@ -3958,7 +3954,7 @@ define('app/sandboxes',[
          * @returns {Sandbox[]}
          */
         sandboxes.getByName = function (name) {
-            return _(this._sandboxPool).filter(function (o) {
+            return _.filter(this._sandboxPool, function (o) {
                 return o.name === name;
             });
         };
@@ -4128,7 +4124,7 @@ define('app/widget',[
             if (_.isString(widgetNames)) {
                 widgetNames = [widgetNames];
             }
-            _(widgetNames).each(function (name) {
+            _.each(widgetNames, function (name) {
                 var namePart = app.core.util.splitNameParts(name);
                 var pkg = widget.resolvePath(namePart);
                 config.packages.push(pkg);
@@ -4376,8 +4372,7 @@ define('app/widget',[
         widget.clear = function (host) {
             if (!host) return;
 
-            var hostExpectList = _(app.widget._currWidgetList)
-                .filter(function (config) {
+            var hostExpectList = _.filter(app.widget._currWidgetList, function (config) {
                     return config.options.host === host;
                 });
             var hostActualList = $(host).children('.' + WIDGET_CLASS);
@@ -4385,7 +4380,7 @@ define('app/widget',[
             _.each(hostActualList, function (item) {
                 var $item = $(item);
                 // 将实际存在的widget与期望存在的列表进行匹配
-                var expectExists = _(hostExpectList).some(function (w) {
+                var expectExists = _.some(hostExpectList, function (w) {
                     var hasClass = $item.hasClass(w.name);
                     var sameTag = w.options._tag === $item.data('verTag');
                     return hasClass && sameTag;
@@ -4460,7 +4455,7 @@ define('app/widget',[
             if (_.isString(tag)) {  // 1. 传入名称
                 var name = tag;
                 // var name = core.util.decamelize(tag);
-                _(app.sandboxes.getByName(name)).each(function (sandbox) {
+                _.each(app.sandboxes.getByName(name), function (sandbox) {
                     app.widget.stop(sandbox);
                 });
             } else {
@@ -4483,7 +4478,7 @@ define('app/widget',[
                     // 从父元素中移除该沙箱
                     var parentSandbox = app.sandboxes.get(sandbox._parent);
                     if (parentSandbox) {
-                        parentSandbox._children.splice(_(parentSandbox._children).findIndex(function (cd) {
+                        parentSandbox._children.splice(_.findIndex(parentSandbox._children, function (cd) {
                             return cd.ref === sandbox._id;
                         }), 1);
                     }
@@ -4537,7 +4532,7 @@ define('app/widget',[
          * @private
          */
         widget.recycle = function () {
-            _(app.sandboxes._sandboxPool).each(function (sandbox) {
+            _.each(app.sandboxes._sandboxPool, function (sandbox) {
                 if (!sandbox.getOwner) return;
                 var widgetObj = sandbox.getOwner();
                 if (widgetObj && widgetObj.$el && widgetObj.$el.closest(document.body).length === 0) {
@@ -4985,7 +4980,7 @@ define('app/view/view-window',[],function () {
 
             var $root = getChildRoot(wnd);
 
-            var paramConfigs = _(configs).map(function (refConfig) {
+            var paramConfigs = _.map(configs, function (refConfig) {
                 var config = $.extend(true, {}, refConfig);  // 深拷贝
                 config.options || (config.options = {});
                 config.options.host = config.options.host ? $root.find(config.options.host) : $root;
@@ -5218,7 +5213,7 @@ define('app/view/view-window',[],function () {
 
                 if (name == null) {
                     // 销毁所有弹出窗口
-                    _(this._windows).each(function (wnd, name) {
+                    _.each(this._windows, function (wnd, name) {
                         me._destroyWindow(name);
                     });
 
@@ -5578,7 +5573,7 @@ define('app/view/view-children',[],function () {
                 var targetView = this.view(this._activeViewName);
 
                 // 更新视图显示状态
-                _(this.switchable).each(function (name) {
+                _.each(this.switchable, function (name) {
                     me.view(name) && me.view(name).hide();
                 });
                 targetView.show();
@@ -5675,7 +5670,7 @@ define('app/view/view-children',[],function () {
                 var me = this;
                 if (_.isUndefined(viewName)) {
                     // 销毁所有子视图
-                    _(this._views).each(function (view, name) {
+                    _.each(this._views, function (view, name) {
                         me._destroyView(name);
                     });
                 } else {
@@ -5804,7 +5799,7 @@ define('app/view/view-listen',[],function () {
                 var me = this;
                 this.listenTo(this, 'modelBound', function (model) {
                     // 更新子视图模型
-                    _(me._views).each(function (view) {
+                    _.each(me._views, function (view) {
                         view.externalModel(model);
                     }); 
                 });
