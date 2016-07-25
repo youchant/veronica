@@ -12,11 +12,13 @@
 
 
 /**
- * @license almond 0.3.2 Copyright jQuery Foundation and other contributors.
- * Released under MIT license, http://github.com/requirejs/almond/LICENSE
+ * @license almond 0.3.1 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT or new BSD license.
+ * see: http://github.com/jrburke/almond for details
  */
 //Going sloppy to avoid 'use strict' string cost, but strict practices should
 //be followed.
+/*jslint sloppy: true */
 /*global setTimeout: false */
 
 var requirejs, require, define;
@@ -44,58 +46,60 @@ var requirejs, require, define;
      */
     function normalize(name, baseName) {
         var nameParts, nameSegment, mapValue, foundMap, lastIndex,
-            foundI, foundStarMap, starI, i, j, part, normalizedBaseParts,
+            foundI, foundStarMap, starI, i, j, part,
             baseParts = baseName && baseName.split("/"),
             map = config.map,
             starMap = (map && map['*']) || {};
 
         //Adjust any relative paths.
-        if (name) {
-            name = name.split('/');
-            lastIndex = name.length - 1;
+        if (name && name.charAt(0) === ".") {
+            //If have a base name, try to normalize against it,
+            //otherwise, assume it is a top-level require that will
+            //be relative to baseUrl in the end.
+            if (baseName) {
+                name = name.split('/');
+                lastIndex = name.length - 1;
 
-            // If wanting node ID compatibility, strip .js from end
-            // of IDs. Have to do this here, and not in nameToUrl
-            // because node allows either .js or non .js to map
-            // to same file.
-            if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
-                name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
-            }
+                // Node .js allowance:
+                if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
+                    name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
+                }
 
-            // Starts with a '.' so need the baseName
-            if (name[0].charAt(0) === '.' && baseParts) {
-                //Convert baseName to array, and lop off the last part,
-                //so that . matches that 'directory' and not name of the baseName's
-                //module. For instance, baseName of 'one/two/three', maps to
-                //'one/two/three.js', but we want the directory, 'one/two' for
-                //this normalization.
-                normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
-                name = normalizedBaseParts.concat(name);
-            }
+                //Lop off the last part of baseParts, so that . matches the
+                //"directory" and not name of the baseName's module. For instance,
+                //baseName of "one/two/three", maps to "one/two/three.js", but we
+                //want the directory, "one/two" for this normalization.
+                name = baseParts.slice(0, baseParts.length - 1).concat(name);
 
-            //start trimDots
-            for (i = 0; i < name.length; i++) {
-                part = name[i];
-                if (part === '.') {
-                    name.splice(i, 1);
-                    i -= 1;
-                } else if (part === '..') {
-                    // If at the start, or previous value is still ..,
-                    // keep them so that when converted to a path it may
-                    // still work when converted to a path, even though
-                    // as an ID it is less than ideal. In larger point
-                    // releases, may be better to just kick out an error.
-                    if (i === 0 || (i === 1 && name[2] === '..') || name[i - 1] === '..') {
-                        continue;
-                    } else if (i > 0) {
-                        name.splice(i - 1, 2);
-                        i -= 2;
+                //start trimDots
+                for (i = 0; i < name.length; i += 1) {
+                    part = name[i];
+                    if (part === ".") {
+                        name.splice(i, 1);
+                        i -= 1;
+                    } else if (part === "..") {
+                        if (i === 1 && (name[2] === '..' || name[0] === '..')) {
+                            //End of the line. Keep at least one non-dot
+                            //path segment at the front so it can be mapped
+                            //correctly to disk. Otherwise, there is likely
+                            //no path mapping for a path starting with '..'.
+                            //This can still fail, but catches the most reasonable
+                            //uses of ..
+                            break;
+                        } else if (i > 0) {
+                            name.splice(i - 1, 2);
+                            i -= 2;
+                        }
                     }
                 }
-            }
-            //end trimDots
+                //end trimDots
 
-            name = name.join('/');
+                name = name.join("/");
+            } else if (name.indexOf('./') === 0) {
+                // No baseName, so this is ID is resolved relative
+                // to baseUrl, pull off the leading dot.
+                name = name.substring(2);
+            }
         }
 
         //Apply map config if available.
@@ -2224,6 +2228,212 @@ define('util/aspect',[
 
 });
 
+define('util/path',[],function () {
+    // thx: https://github.com/substack/path-browserify
+
+    var path = {};
+
+    function normalizeArray(parts, allowAboveRoot) {
+        // if the path tries to go above the root, `up` ends up > 0
+        var up = 0;
+        for (var i = parts.length - 1; i >= 0; i--) {
+            var last = parts[i];
+            if (last === '.') {
+                parts.splice(i, 1);
+            } else if (last === '..') {
+                parts.splice(i, 1);
+                up++;
+            } else if (up) {
+                parts.splice(i, 1);
+                up--;
+            }
+        }
+
+        // if the path is allowed to go above the root, restore leading ..s
+        if (allowAboveRoot) {
+            for (; up--; up) {
+                parts.unshift('..');
+            }
+        }
+
+        return parts;
+    }
+
+    // Split a filename into [root, dir, basename, ext], unix version
+    // 'root' is just a slash, or nothing.
+    var splitPathRe =
+        /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+    var splitPath = function (filename) {
+        return splitPathRe.exec(filename).slice(1);
+    };
+
+    // path.resolve([from ...], to)
+    // posix version
+    path.resolve = function () {
+        var resolvedPath = '',
+            resolvedAbsolute = false;
+
+        for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+            var path = (i >= 0) ? arguments[i] : process.cwd();
+
+            // Skip empty and invalid entries
+            if (typeof path !== 'string') {
+                throw new TypeError('Arguments to path.resolve must be strings');
+            } else if (!path) {
+                continue;
+            }
+
+            resolvedPath = path + '/' + resolvedPath;
+            resolvedAbsolute = path.charAt(0) === '/';
+        }
+
+        // At this point the path should be resolved to a full absolute path, but
+        // handle relative paths to be safe (might happen when process.cwd() fails)
+
+        // Normalize the path
+        resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function (p) {
+            return !!p;
+        }), !resolvedAbsolute).join('/');
+
+        return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+    };
+
+    // path.normalize(path)
+    // posix version
+    path.normalize = function (path) {
+        var isAbsolute = exports.isAbsolute(path),
+            trailingSlash = substr(path, -1) === '/';
+
+        // Normalize the path
+        path = normalizeArray(filter(path.split('/'), function (p) {
+            return !!p;
+        }), !isAbsolute).join('/');
+
+        if (!path && !isAbsolute) {
+            path = '.';
+        }
+        if (path && trailingSlash) {
+            path += '/';
+        }
+
+        return (isAbsolute ? '/' : '') + path;
+    };
+
+    // posix version
+    path.isAbsolute = function (path) {
+        return path.charAt(0) === '/';
+    };
+
+    // posix version
+    path.join = function () {
+        var paths = Array.prototype.slice.call(arguments, 0);
+        return exports.normalize(filter(paths, function (p, index) {
+            if (typeof p !== 'string') {
+                throw new TypeError('Arguments to path.join must be strings');
+            }
+            return p;
+        }).join('/'));
+    };
+
+
+    // path.relative(from, to)
+    // posix version
+    path.relative = function (from, to) {
+        from = exports.resolve(from).substr(1);
+        to = exports.resolve(to).substr(1);
+
+        function trim(arr) {
+            var start = 0;
+            for (; start < arr.length; start++) {
+                if (arr[start] !== '') break;
+            }
+
+            var end = arr.length - 1;
+            for (; end >= 0; end--) {
+                if (arr[end] !== '') break;
+            }
+
+            if (start > end) return [];
+            return arr.slice(start, end - start + 1);
+        }
+
+        var fromParts = trim(from.split('/'));
+        var toParts = trim(to.split('/'));
+
+        var length = Math.min(fromParts.length, toParts.length);
+        var samePartsLength = length;
+        for (var i = 0; i < length; i++) {
+            if (fromParts[i] !== toParts[i]) {
+                samePartsLength = i;
+                break;
+            }
+        }
+
+        var outputParts = [];
+        for (var i = samePartsLength; i < fromParts.length; i++) {
+            outputParts.push('..');
+        }
+
+        outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+        return outputParts.join('/');
+    };
+
+    path.sep = '/';
+    path.delimiter = ':';
+
+    path.dirname = function (path) {
+        var result = splitPath(path),
+            root = result[0],
+            dir = result[1];
+
+        if (!root && !dir) {
+            // No dirname whatsoever
+            return '.';
+        }
+
+        if (dir) {
+            // It has a dirname, strip trailing slash
+            dir = dir.substr(0, dir.length - 1);
+        }
+
+        return root + dir;
+    };
+
+
+    path.basename = function (path, ext) {
+        var f = splitPath(path)[2];
+        // TODO: make this comparison case-insensitive on windows?
+        if (ext && f.substr(-1 * ext.length) === ext) {
+            f = f.substr(0, f.length - ext.length);
+        }
+        return f;
+    };
+
+
+    path.extname = function (path) {
+        return splitPath(path)[3];
+    };
+
+    function filter(xs, f) {
+        if (xs.filter) return xs.filter(f);
+        var res = [];
+        for (var i = 0; i < xs.length; i++) {
+            if (f(xs[i], i, xs)) res.push(xs[i]);
+        }
+        return res;
+    }
+
+    // String.prototype.substr - negative index don't work in IE8
+    var substr = 'ab'.substr(-1) === 'b'
+        ? function (str, start, len) { return str.substr(start, len) }
+        : function (str, start, len) {
+            if (start < 0) start = str.length + start;
+            return str.substr(start, len);
+        };
+
+    return path;
+});
 define('core/querystring',[
     'underscore'
 ], function (_) {
@@ -2371,9 +2581,10 @@ define('core/core',[
     '../util/logger',
     '../util/util',
     '../util/aspect',
+    '../util/path',
     './querystring'
 ], function ($, _, EventEmitter, Events,
-    View, history, Router, loader, Logger, util, aspect, querystring) {
+    View, history, Router, loader, Logger, util, aspect, path, querystring) {
 
     'use strict';
 
@@ -2468,6 +2679,8 @@ define('core/core',[
     veronica.util = util;
 
     veronica.aspect = aspect;
+
+    veronica.path = path;
 
     /**
      * 获取全局配置
@@ -3293,7 +3506,7 @@ define('app/module',[
                     if (sources == null) {
                         // 将模块路径添加为源
                         sources = {};
-                        sources[this.name] = this.config.widgetPath;
+                        sources[this.name] = '';
                     }
 
                     _.each(sources, function (src, name) {
@@ -4941,6 +5154,7 @@ define('app/view/view-window',[],function () {
             positionTo: null,
             center: true,
             footer: false,
+            template: defaultWndTpl,
             destroyedOnClose: true,
             // 窗口配置
             options: {
@@ -5129,25 +5343,23 @@ define('app/view/view-window',[],function () {
                     return windows[options.name];
                 }
 
-
-                if (options.positionTo) {   // 如果设置了 positionTo, 强制不居中
-                    options.center = false;
-                }
-
                 if (isShow == null) {
                     isShow = true;
                 }
-
                 options = $.extend(true, {}, dlgDefaultOptions, options);
 
                 if (options.name === '') {
                     options.name = me.uniqWindowName();
                 }
 
+                if (options.positionTo) {   // 如果设置了 positionTo, 强制不居中
+                    options.center = false;
+                }
+
                 var isHtmlContet = _.isString(options.el);
 
-                var $el = isHtmlContet ? $(defaultWndTpl).html(options.el)
-                    : (options.el == null ? $(defaultWndTpl) : $(options.el));
+                var $el = isHtmlContet ? $(options.template).html(options.el)
+                    : (options.el == null ? $(options.template) : $(options.el));
 
                 // 创建 window 实例
                 var wnd = me._windowInstance($el, options, this);
@@ -5643,6 +5855,7 @@ define('app/view/view-children',[],function () {
 
                 viewOptions = _.extend({
                     _name: name,
+                    _widgetName: viewConfig.initializer._widgetName,
                     sandbox: this.options.sandbox,
                     host: viewOptions.el ? false : this.$el
                 }, viewOptions);
@@ -6298,6 +6511,10 @@ define('app/view/view-base',[
                 this._applyMixins();
 
                 this.$el.addClass('ver-view');
+
+                if (this.options._widgetName) {
+                    this.$el.addClass(this.options._widgetName);
+                }
 
                 this._invoke('_loadPlugin');
 
