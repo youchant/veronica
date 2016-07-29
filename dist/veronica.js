@@ -12,13 +12,11 @@
 
 
 /**
- * @license almond 0.3.1 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
- * Available via the MIT or new BSD license.
- * see: http://github.com/jrburke/almond for details
+ * @license almond 0.3.2 Copyright jQuery Foundation and other contributors.
+ * Released under MIT license, http://github.com/requirejs/almond/LICENSE
  */
 //Going sloppy to avoid 'use strict' string cost, but strict practices should
 //be followed.
-/*jslint sloppy: true */
 /*global setTimeout: false */
 
 var requirejs, require, define;
@@ -46,60 +44,58 @@ var requirejs, require, define;
      */
     function normalize(name, baseName) {
         var nameParts, nameSegment, mapValue, foundMap, lastIndex,
-            foundI, foundStarMap, starI, i, j, part,
+            foundI, foundStarMap, starI, i, j, part, normalizedBaseParts,
             baseParts = baseName && baseName.split("/"),
             map = config.map,
             starMap = (map && map['*']) || {};
 
         //Adjust any relative paths.
-        if (name && name.charAt(0) === ".") {
-            //If have a base name, try to normalize against it,
-            //otherwise, assume it is a top-level require that will
-            //be relative to baseUrl in the end.
-            if (baseName) {
-                name = name.split('/');
-                lastIndex = name.length - 1;
+        if (name) {
+            name = name.split('/');
+            lastIndex = name.length - 1;
 
-                // Node .js allowance:
-                if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
-                    name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
-                }
+            // If wanting node ID compatibility, strip .js from end
+            // of IDs. Have to do this here, and not in nameToUrl
+            // because node allows either .js or non .js to map
+            // to same file.
+            if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
+                name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
+            }
 
-                //Lop off the last part of baseParts, so that . matches the
-                //"directory" and not name of the baseName's module. For instance,
-                //baseName of "one/two/three", maps to "one/two/three.js", but we
-                //want the directory, "one/two" for this normalization.
-                name = baseParts.slice(0, baseParts.length - 1).concat(name);
+            // Starts with a '.' so need the baseName
+            if (name[0].charAt(0) === '.' && baseParts) {
+                //Convert baseName to array, and lop off the last part,
+                //so that . matches that 'directory' and not name of the baseName's
+                //module. For instance, baseName of 'one/two/three', maps to
+                //'one/two/three.js', but we want the directory, 'one/two' for
+                //this normalization.
+                normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
+                name = normalizedBaseParts.concat(name);
+            }
 
-                //start trimDots
-                for (i = 0; i < name.length; i += 1) {
-                    part = name[i];
-                    if (part === ".") {
-                        name.splice(i, 1);
-                        i -= 1;
-                    } else if (part === "..") {
-                        if (i === 1 && (name[2] === '..' || name[0] === '..')) {
-                            //End of the line. Keep at least one non-dot
-                            //path segment at the front so it can be mapped
-                            //correctly to disk. Otherwise, there is likely
-                            //no path mapping for a path starting with '..'.
-                            //This can still fail, but catches the most reasonable
-                            //uses of ..
-                            break;
-                        } else if (i > 0) {
-                            name.splice(i - 1, 2);
-                            i -= 2;
-                        }
+            //start trimDots
+            for (i = 0; i < name.length; i++) {
+                part = name[i];
+                if (part === '.') {
+                    name.splice(i, 1);
+                    i -= 1;
+                } else if (part === '..') {
+                    // If at the start, or previous value is still ..,
+                    // keep them so that when converted to a path it may
+                    // still work when converted to a path, even though
+                    // as an ID it is less than ideal. In larger point
+                    // releases, may be better to just kick out an error.
+                    if (i === 0 || (i === 1 && name[2] === '..') || name[i - 1] === '..') {
+                        continue;
+                    } else if (i > 0) {
+                        name.splice(i - 1, 2);
+                        i -= 2;
                     }
                 }
-                //end trimDots
-
-                name = name.join("/");
-            } else if (name.indexOf('./') === 0) {
-                // No baseName, so this is ID is resolved relative
-                // to baseUrl, pull off the leading dot.
-                name = name.substring(2);
             }
+            //end trimDots
+
+            name = name.join('/');
         }
 
         //Apply map config if available.
@@ -3035,6 +3031,21 @@ define('app/page',[], function () {
             return pageConfig;
         }
 
+        function getAllWidgetConfigs(pageConfig, me, result) {
+            if (result == null) {
+                result = [];
+            }
+            result.push(pageConfig.widgets);
+
+            _.each(pageConfig.inherits, function(parentName) {
+                var config = me.get(parentName);
+                result.push(config.widgets);
+                result = getAllWidgetConfigs(config, me, result);
+            });
+
+            return result;
+        }
+
         /**
          * 无法通过构造函数直接构造
          * @classdesc 页面相关
@@ -3052,12 +3063,8 @@ define('app/page',[], function () {
             },
             _changeTitle: function () { },
             _processInherit: function (pageConfig) {
-                var me = this;
-                var parentsWidgets = _.map(pageConfig.inherit, function (parentName) {
-                    return me.get(parentName).widgets;
-                });
-                parentsWidgets.unshift(pageConfig.widgets);
-                return _.uniq(_.union.apply(_, parentsWidgets), false, function (item) {
+                var allWidgets = getAllWidgetConfigs(pageConfig, this);
+                return _.uniq(_.union.apply(_, allWidgets), false, function (item) {
                     if (item.options && item.options.el) return item.options.el;  // 确保一个元素上只有一个插件
                     return item.name + item.options.host;  // 确保一个父元素下，只有一个同样的插件
                 });
@@ -3219,7 +3226,8 @@ define('app/page',[], function () {
                                     _source: appConfig.page.defaultSource
                                 }
                             }],
-                            inherit: [appConfig.page.defaultInherit]
+                            inherits: pageName === appConfig.page.defaultInherit
+                                ? [] : [appConfig.page.defaultInherit]
                         }, item);
                     });
 
@@ -3506,7 +3514,7 @@ define('app/module',[
                     if (sources == null) {
                         // 将模块路径添加为源
                         sources = {};
-                        sources[this.name] = '';
+                        sources[this.name] = this.config.widgetPath;
                     }
 
                     _.each(sources, function (src, name) {
@@ -5625,8 +5633,21 @@ define('app/view/view-attr',[],function () {
                             me.attr(options.name, value);
                         }
                     });
+                }
 
+                if (options.source === 'global') {
+                    if (options.getter == null) {
+                        options.getter = function () {
+                            return app.data.get(options.sourceKey);
+                        }
+                    }
 
+                    this.sub('change.' + options.sourceKey, function (value) {
+                        var originalValue = me.attr(options.name);
+                        if (value !== originalValue) {
+                            me.attr(options.name, value);
+                        }
+                    });
                 }
 
                 // 当事件发生时，设置该属性
@@ -6098,6 +6119,8 @@ define('app/view/view-render',[],function () {
              */
             template: null,
 
+            templateEngine: 'underscore',
+
             /**
              * 模板路径
              * @type {string|Function}
@@ -6168,7 +6191,16 @@ define('app/view/view-render',[],function () {
             _html: function (html) {
                 this.$el.get(0).innerHTML = html;
             },
-
+            _compileTemplate: function (templateText) {
+                return _.template(templateText, { variable: 'data' });
+            },
+            _executeTemplate: function (compiled) {
+                return compiled(_.extend({ lang: app.lang[this.options.langClass] }, this.options));
+            },
+            _renderTemplate: function (template) {
+                var compiled = _.isFunction(template) ? template : this._compileTemplate(template);
+                return this._executeTemplate(compiled);
+            },
             _render: function (template, isHtml) {
                 var hasTpl = !!template;
                 var options = this.options;
@@ -6179,10 +6211,7 @@ define('app/view/view-render',[],function () {
                     if (isHtml) {
                         html = template;  // 为了提高效率，不使用 jquery 的 html() 方法
                     } else {
-                        var tpl = _.isFunction(template) ?
-                            template : _.template(template, { variable: 'data' });  // 如果使用 Lodash，这里调用方式有差异
-
-                        html = tpl(_.extend({ lang: app.lang[this.options.langClass] }, this.options));
+                        html = this._renderTemplate(template);
                     }
 
                     html && (this._html(html));
@@ -6513,10 +6542,6 @@ define('app/view/view-base',[
                     this.$el.addClass(this.options._widgetName.join(' '));
                 }
 
-                if (this.options._widgetName) {
-                    this.$el.addClass(this.options._widgetName);
-                }
-
                 this._invoke('_loadPlugin');
 
                 this._invoke('aspect');
@@ -6799,16 +6824,21 @@ define('app/data',[], function () {
              * @param {string} name - 名称
              * @param {*} value - 值
              */
-            set: function (name, value) {
+            set: function (name, value, emit) {
+                if (emit == null) {
+                    emit = true;
+                }
                 this._data[name] = value;
-                /**
-                 * **消息：** 数据改变时发布，消息名 'change.' + 数据名
-                 *
-                 * @event Application#data.change
-                 * @type {object}
-                 * @property {*} value - 数据值
-                 */
-                app.sandbox.emit('change.' + name, value);
+                if (emit) {
+                    /**
+                     * **消息：** 数据改变时发布，消息名 'change.' + 数据名
+                     *
+                     * @event Application#data.change
+                     * @type {object}
+                     * @property {*} value - 数据值
+                     */
+                    app.sandbox.emit('change.' + name, value);
+                }
             }
         };
         
