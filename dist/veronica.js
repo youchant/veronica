@@ -4210,10 +4210,7 @@ define('core/widget',[],function () {
     var Widget = function (executor, options, app) {
         var core = app.core;
         var $ = core.$;
-        var pageName = options._page;
         var name = options._name;
-        var funcResult;  // 部件函数执行结果
-        var widgetObj;
 
         var sandbox = app.sandboxes.create(name);
 
@@ -4226,42 +4223,43 @@ define('core/widget',[],function () {
         };
 
         options = $.extend(defaults, options);
-
-        // 将对象转换成执行函数
-        executor = app.view.define(executor, true);
-
-        if (_.isFunction(executor)) { funcResult = executor(options); }
-        if (_.isUndefined(funcResult)) {
-            console.warn('Widget should return an object. [errorWidget:' + name);
-        } else {
-            widgetObj = _.isFunction(funcResult) ? funcResult(options) : funcResult;
-            /**
-             * @var {string} name - 名称
-             * @memberOf Widget#
-             */
-            widgetObj._name = options._name;
-
-            widgetObj.sandbox = sandbox;
-            /**
-             * @var {WidgetOptions} options - 配置项
-             * @memberOf Widget#
-             */
-            widgetObj.options || (widgetObj.options = options);
-
-            widgetObj.$el && widgetObj.$el
-                .addClass(sandbox.name)
-                .addClass(core.constant.WIDGET_CLASS)
-                .data(core.constant.WIDGET_CLASS, sandbox.name)
-                .data(core.constant.WIDGET_TAG, options._tag)
-                .data(core.constant.SANDBOX_REF_NAME, sandbox._id);  // 在该元素上保存对插件对象的引用
-
-            sandbox.getOwner = function () {
-                return app.widget._widgetsPool[sandbox._id];
-            };
-
-            // deprecated
-            sandbox.getHost = sandbox.getOwner;
+        if (executor._widgetName) {
+            options._widgetName = executor._widgetName;
         }
+
+        var widgetObj = app.view.execute(app.view.define(executor, true), options);
+
+        if (widgetObj == null) {
+            console.error('Widget should return an object. [errorWidget:' + name);
+            return null;
+        }
+
+        /**
+         * @var {string} name - 名称
+         * @memberOf Widget#
+         */
+        widgetObj._name = options._name;
+        // deprecated
+        widgetObj.sandbox = sandbox;
+        /**
+         * @var {WidgetOptions} options - 配置项
+         * @memberOf Widget#
+         */
+        widgetObj.options || (widgetObj.options = options);
+
+        widgetObj.$el && widgetObj.$el
+            .addClass(sandbox.name)  // 这里与视图的设置重复
+            .addClass(core.constant.WIDGET_CLASS)
+            .data(core.constant.WIDGET_CLASS, sandbox.name)
+            .data(core.constant.WIDGET_TAG, options._tag)
+            .data(core.constant.SANDBOX_REF_NAME, sandbox._id);  // 在该元素上保存对插件对象的引用
+
+        sandbox.getOwner = function () {
+            return app.widget._widgetsPool[sandbox._id];
+        };
+
+        // deprecated
+        sandbox.getHost = sandbox.getOwner;
 
         return widgetObj;
 
@@ -6511,6 +6509,9 @@ define('app/view/view-base',[
                 this._applyMixins();
 
                 this.$el.addClass('ver-view');
+                if (this.options._widgetName) {
+                    this.$el.addClass(this.options._widgetName.join(' '));
+                }
 
                 if (this.options._widgetName) {
                     this.$el.addClass(this.options._widgetName);
@@ -6707,6 +6708,14 @@ define('app/view',[
             return app.view._ctors[name];
         }
 
+        view.execute = function (executor, options) {
+            var result = executor;
+            while (result != null && _.isFunction(result)) {
+               result = result(options);
+            }
+
+            return result;
+        }
 
         /**
          * 创建一个自定义 View 定义
