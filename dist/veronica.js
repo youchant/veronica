@@ -1994,20 +1994,26 @@ define('util/util',[
         obj.prototype ? include(obj, mixin) : extend(obj, mixin);
     }
 
-    _.mixin({
-        findIndex: function (array, test) {
-            var indexOfValue = _.indexOf;
-            if (!_.isFunction(test)) return indexOfValue(array, test);
-            for (var x = 0; x < array.length; x++) {
-                if (test(array[x])) return x;
+    if (!_.findIndex) {
+        _.mixin({
+            findIndex: function (array, test) {
+                var indexOfValue = _.indexOf;
+                if (!_.isFunction(test)) return indexOfValue(array, test);
+                for (var x = 0; x < array.length; x++) {
+                    if (test(array[x])) return x;
+                }
+                return -1;
             }
-            return -1;
-        },
-        safeInvoke: function (context, method, params) {
-            var args = Array.slice.call(arguments, 2);
-            context && context[method].apply(context, args);
-        }
-    });
+        });
+    }
+    if (!_.safeInvoke) {
+        _.mixin({
+            safeInvoke: function (context, method, params) {
+                var args = Array.slice.call(arguments, 2);
+                context && context[method].apply(context, args);
+            }
+        });
+    }
 
     // Thx: http://stackoverflow.com/questions/6491463/accessing-nested-javascript-objects-with-string-key
     function getter(o, s) {
@@ -2094,24 +2100,8 @@ define('util/util',[
         },
         normalizePath: function (path) {
             return path.replace('//', '/').replace('http:/', 'http://');
-        },
-        /**
-         * 分隔传入的 name 为 nameParts
-         * @private
-         */
-        splitNameParts: function (nameTags) {
-            var isArray = $.isArray(nameTags);
-            if (!isArray) { nameTags = [nameTags]; }
-            var result = _.map(nameTags, function (nameTag) {
-                var nameParts = nameTag.split('@');
-                return {
-                    name: nameParts[0],
-                    source: nameParts[1]
-                };
-            });
-
-            return isArray ? result : result[0];
         }
+
     };
 
 });
@@ -4344,7 +4334,7 @@ define('app/widget',[
                 widgetNames = [widgetNames];
             }
             _.each(widgetNames, function (name) {
-                var namePart = app.core.util.splitNameParts(name);
+                var namePart = app.widget.splitNameParts(name);
                 var pkg = widget.resolvePath(namePart);
                 config.packages.push(pkg);
             });
@@ -4426,6 +4416,31 @@ define('app/widget',[
 
         };
 
+        widget.autoSource = function(nameTag) {
+            if (app.config.autoParseSource) {
+                return nameTag.split('-')[0];
+            }
+            return null;
+        }
+
+        /**
+         * 分隔传入的 name 为 nameParts
+         * @private
+         */
+        widget.splitNameParts = function (nameTags) {
+            var isArray = $.isArray(nameTags);
+            if (!isArray) { nameTags = [nameTags]; }
+            var result = _.map(nameTags, function (nameTag) {
+                var nameParts = nameTag.split('@');
+                return {
+                    name: nameParts[0],
+                    source: nameParts[1] || app.widget.autoSource(nameTag)
+                };
+            });
+
+            return isArray ? result : result[0];
+        }
+
         /**
          * 加载单个 widget
          * @private
@@ -4435,14 +4450,17 @@ define('app/widget',[
 
             // 解析名称
             // nameTag = core.util.decamelize(nameTag);
-            var widgetNameParts = app.core.util.splitNameParts(nameTag);
-            widgetNameParts.source = options._source || widgetNameParts.source;
+            var widgetNameParts = app.widget.splitNameParts(nameTag);
+            if (options._source == null) {
+                options._source = widgetNameParts.source;
+            }
+            widgetNameParts.source = options._source;
             var name = widgetNameParts.name;
             var nameParts = [widgetNameParts];
 
             // 解析 plugin
             if (app.plugin) {
-                var pluginNameParts = app.core.util.splitNameParts(app.plugin.getConfig(widgetNameParts.name));
+                var pluginNameParts = app.widget.splitNameParts(app.plugin.getConfig(widgetNameParts.name));
                 nameParts = nameParts.concat(pluginNameParts);
             }
 
@@ -5875,6 +5893,7 @@ define('app/view/view-children',[],function () {
                 viewOptions = _.extend({
                     _name: name,
                     _widgetName: viewConfig.initializer._widgetName,
+                    _source: viewConfig.initializer._source,
                     sandbox: this.options.sandbox,
                     host: viewOptions.el ? false : this.$el
                 }, viewOptions);
