@@ -5907,9 +5907,9 @@ define('app/view/view-children',[],function () {
 
                 // 取出延迟监听的事件，并进行监听
                 var me = this;
-                _.chain(this._delayEvents).filter(function (obj) {
+                _.each(_.filter(this._delayEvents, function (obj) {
                     return obj.name === name;
-                }).each(function (obj) {
+                }), function (obj) {
                     me.listenTo(viewObj, obj.event, obj.callback);
                 });
 
