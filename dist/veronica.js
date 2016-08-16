@@ -1249,7 +1249,7 @@ define('core/extend',[
 });
 
 // View
-// borrow frome Backbone 1.1.2
+// thx: borrow from Backbone 1.1.2:
 define('core/view',[
     'jquery',
     'underscore',
@@ -1265,16 +1265,6 @@ define('core/view',[
     // Backbone.View
     // -------------
 
-    // Backbone Views are almost more convention than they are actual code. A View
-    // is simply a JavaScript object that represents a logical chunk of UI in the
-    // DOM. This might be a single item, an entire list, a sidebar or panel, or
-    // even the surrounding frame which wraps your whole app. Defining a chunk of
-    // UI as a **View** allows you to define your DOM events declaratively, without
-    // having to worry about render order ... and makes it easy for the view to
-    // react to specific changes in the state of your models.
-
-    // Creating a Backbone.View creates its initial element outside of the DOM,
-    // if an existing element is not provided...
     var View = Backbone.View = function (options) {
         this.cid = _.uniqueId('view');
         options || (options = {});
@@ -1287,7 +1277,6 @@ define('core/view',[
     // Cached regex to split keys for `delegate`.
     var delegateEventSplitter = /^(\S+)\s*(.*)$/;
 
-    // List of view options to be merged as properties.
     var viewOptions = ['model', 'collection', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
 
     // Set up all inheritable **Backbone.View** properties and methods.
@@ -1296,25 +1285,16 @@ define('core/view',[
         // The default `tagName` of a View's element is `"div"`.
         tagName: 'div',
 
-        // jQuery delegate for element lookup, scoped to DOM elements within the
-        // current view. This should be preferred to global lookups where possible.
         $: function (selector) {
             return this.$el.find(selector);
         },
 
-        // Initialize is an empty function by default. Override it with your own
-        // initialization logic.
         initialize: function () { },
 
-        // **render** is the core function that your view should override, in order
-        // to populate its element (`this.el`), with the appropriate HTML. The
-        // convention is for **render** to always return `this`.
         render: function () {
             return this;
         },
 
-        // Remove this view by taking the element out of the DOM, and removing any
-        // applicable Backbone.Events listeners.
         remove: function () {
             this.$el.remove();
             this.stopListening();
@@ -1331,19 +1311,6 @@ define('core/view',[
             return this;
         },
 
-        // Set callbacks, where `this.events` is a hash of
-        //
-        // *{"event selector": "callback"}*
-        //
-        //     {
-        //       'mousedown .title':  'edit',
-        //       'click .button':     'save',
-        //       'click .open':       function(e) { ... }
-        //     }
-        //
-        // pairs. Callbacks will be bound to the view, with `this` set properly.
-        // Uses event delegation for efficiency.
-        // Omitting the selector binds the event to `this.el`.
         // This only works for delegate-able events: not `focus`, `blur`, and
         // not `change`, `submit`, and `reset` in Internet Explorer.
         delegateEvents: function (events) {
@@ -1367,18 +1334,11 @@ define('core/view',[
             return this;
         },
 
-        // Clears all callbacks previously bound to the view with `delegateEvents`.
-        // You usually don't need to use this, but may wish to if you have multiple
-        // Backbone views attached to the same DOM element.
         undelegateEvents: function () {
             this.$el.off('.delegateEvents' + this.cid);
             return this;
         },
 
-        // Ensure that the View has a DOM element to render into.
-        // If `this.el` is a string, pass it through `$()`, take the first
-        // matching element, and re-assign it to `el`. Otherwise, create
-        // an element from the `id`, `className` and `tagName` properties.
         _ensureElement: function () {
             if (!this.el) {
                 var attrs = _.extend({}, _.result(this, 'attributes'));
@@ -6029,6 +5989,7 @@ define('app/view/view-listen',[],function () {
             /**
              * 延迟监听子视图
              * @private
+             * @deprecated
              * @param {string} name - 子视图名称
              * @param {string} event - 事件名称
              * @param {eventCallback} callback - 回调
@@ -6112,8 +6073,13 @@ define('app/view/view-listen',[],function () {
             }
         };
 
-        $.extend(app.view.base, configs);
-        $.extend(app.view.base, methods);
+
+        app.view.base._extend({
+            properties: configs,
+            methods: methods
+        });
+        //$.extend(app.view.base, configs);
+        //$.extend(app.view.base, methods);
     };
 });
 
@@ -6320,6 +6286,26 @@ define('app/view/view-render',[],function () {
                     }, 0);
                 }
 
+            },
+
+            /**
+             * 显示该视图
+             * @function
+             */
+            show: function () {
+                var me = this;
+                this.$el.show(false, function () {
+                    if (me.options.autoResize) {
+                        me.resize();
+                    }
+                });
+            },
+            /**
+             * 隐藏该视图
+             * @function
+             */
+            hide: function () {
+                this.$el.hide(false);
             }
         };
 
@@ -6417,7 +6403,7 @@ define('app/view/view-base',[
          * @property {boolean} [autoAction=false] - 自动绑定Action事件
          *   当在模板中使用如下写法时
          *   ```html
-         *   <button data-action="add">添加</button> 
+         *   <button data-action="add">添加</button>
          *   ```
          *   如果该属性为 `true` 将自动查找该视图的 `addHandler` 方法作为该按钮点击事件的处理函数
          *
@@ -6441,60 +6427,13 @@ define('app/view/view-base',[
          * @property {string} [activeView=null] - 初始活动的子视图名称
          */
 
-        /** @lends veronica.View# */
         var base = {
-
             /**
              * 该视图的默认参数
              * @type {object}
              * @default
              */
             defaults: {},
-
-            /**
-             * 配置该视图的子视图 **`重写`**
-             * @type {function}
-             * @default
-             * @example
-             *   aspect: function(){
-             *     this.after('initAttr', function(){
-             *         this.param = { test: 'A' }
-             *     });
-             *     this.before // ...
-             *   }
-             */
-            aspect: noop,
-
-            /**
-             * **`重写`** 视图的自定义初始化代码
-             * @type {function}
-             * @default
-             */
-            init: noop,
-
-
-
-            /**
-             * **`重写`** 混入其他视图方法
-             * @type {function}
-             * @returns {array}
-             * @example
-             *   mixins: function () {
-             *       return [editHelper];
-             *   }
-             */
-            mixins: noop,
-
-            /**
-             * **`重写`** 自定义销毁，通常用于释放视图使用的全局资源
-             * @type {function}
-             * @example
-             *   _customDestory: function () {
-             *     $(window).off('resize', this.resizeHanlder);
-             *   }
-             */
-            _customDestory: noop,
-
             _defaults: {
                 autoAction: false,
 
@@ -6506,26 +6445,11 @@ define('app/view/view-base',[
                 lazyTemplate: false,
                 langClass: null
             },
-
-            /**
-             * 视图初始化
-             * @function
-             * @inner
-             * @listens View#initialize
-             */
-            initialize: function (options) {
-
-                options || (options = {});
-
-                /**
-                 * 视图的配置参数
-                 * @name options
-                 * @memberOf View#
-                 * @type {ViewOptions}
-                 * @todo 这里参数默认值合并使用了深拷贝，大多数时候其实没必要，目前实际测试速度影响暂时不大
-                 */
-                this.options = $.extend(true, {}, this._defaults, this.defaults, options);
-
+            _call: function (func, args) {
+                func.apply(this, Array.prototype.slice.call(args));
+            },
+            _initProps: function () {
+                this._name = this.options._name;
                 /**
                  * 默认绑定视图对象到函数上下文的函数
                  * @name binds
@@ -6542,62 +6466,23 @@ define('app/view/view-base',[
                 this.baseModel = _.isFunction(this.staticModel) ? this._invoke('staticModel') : this.staticModel;
                 this.viewModel = {};  // 该视图的视图模型
                 this._activeViewName = null;
-                this._name = options._name;
-
-                // 将方法绑定到当前视图
-                if (this.binds) {
-                    this.binds.unshift(this);
-                    _.bindAll.apply(_, this.binds);
-                }
-
-                // 混入AOP方法
-                app.core.util.extend(this, app.core.aspect);
-
-                // 应用mixins
-                this._applyMixins();
-
-                this.$el.addClass('ver-view');
-                if (this.options._widgetName) {
-                    this.$el.addClass(this.options._widgetName.join(' '));
-                }
-
-                this._invoke('_loadPlugin');
-
-                this._invoke('aspect');
-
-                this._invoke('_defaultListen');
-
-                this._invoke('_autoResize');
-
-                this._invoke('_resetParentWnd');
-
-                this._invoke('_initModel');
-
-                // 初始化自定义属性
-                this._invoke('initAttr');
-
-                this._invoke('subscribe');  // 初始化广播监听
-
-                this._invoke('_autoAction');
-
-                this._invoke('init');
-
-                this.trigger('init');
-
-                // 渲染
-                this.options.autoRender && this.render();
             },
-            _applyMixins: function () {
-                var me = this;
-                var mixins = this._invoke('mixins');
-                var mixin = $.extend.apply($, [{}].concat(mixins));
-                _.each(mixin, function (value, key) {
-                    if (me[key] == null) {
-                        me[key] = value;
+            _extend: function (obj) {
+                obj.options && $.extend(this._defaults, obj.options);
+                obj.configs && $.extend(this, obj.configs);
+                obj.methods && $.extend(this, obj.methods);
+
+                // 加入运行时属性
+                var originalInitProps = this._initProps;
+                if (obj.props) {
+                    this._initProps = function () {
+                        this._call(originalInitProps, arguments);
+                        _.each(obj.props, function (prop, name) {
+                            this[name] = prop;
+                        });
                     }
-                });
+                }
             },
-
             _invoke: function (methodName, isWithDefaultParams) {
                 var args = _.toArray(arguments);
                 var sliceLen = args.length >= 2 ? 2 : 1;
@@ -6613,63 +6498,208 @@ define('app/view/view-base',[
                 }
 
                 return _.isFunction(method) ? method.apply(this, args.slice(sliceLen)) : method;
-            },
-            /**
-             * 显示该视图
-             * @function
-             */
-            show: function () {
-                var me = this;
-                this.$el.show(false, function () {
-                    if (me.options.autoResize) {
-                        me.resize();
-                    }
-                });
-            },
-            /**
-             * 隐藏该视图
-             * @function
-             */
-            hide: function () {
-                this.$el.hide(false);
-            },
-
-            _destroy: function () {
-                // 清理在全局注册的事件处理器
-                this.options.autoResize && $(window).off('resize', this.resize);
-
-                this._invoke('_destroyWindow', false);
-
-                // 销毁该视图的所有子视图
-                this._invoke('_destroyView', false);
-
-                // 销毁第三方组件
-                this._invoke('_customDestory');
-
-                // 清除引用
-                this.viewModel = null;
-
-                this.options.sandbox.log('destroyed');
-            },
-            /**
-             * 销毁该视图
-             */
-            destroy: function () {
-                this._destroy();
-            },
-            /**
-             * 重新设置参数，设置后会重新初始化视图
-             * @param {object} options - 视图参数
-             * @returns {void} 
-             */
-            setOptions: function (options) {
-                this.destroy();
-                // remove 时会调用该方法，由于没有调用 remove，则手动 stopListening
-                this.stopListening();
-                options = $.extend({}, this.options, options);
-                this.initialize(options);
             }
         };
+
+
+        // mixins
+
+        var mixinAbility = {
+            /** @lends veronica.View# */
+            configs: {
+                _mixins: function () {
+                    return [];
+                },
+                /**
+                 * **`重写`** 混入其他视图方法
+                 * @type {function}
+                 * @returns {array}
+                 * @example
+                 *   mixins: function () {
+                 *       return [editHelper];
+                 *   }
+                 */
+                mixins: noop
+            },
+            /** @lends veronica.View# */
+            methods: {
+                _applyMixins: function () {
+                    var me = this;
+                    var defaultMixins = this._invoke('_mixins');
+                    var mixins = this._invoke('mixins'); // return array
+
+                    mixins = defaultMixins.concat(mixins);
+                    _.each(mixins, function (mixin) {
+                        if (_.isFunction(mixin)) {
+                            mixin(me, app);
+                        } else {
+                            _.each(mixin, function (member, key) {
+                                // 注意：这里不会覆盖已存在的成员
+                                if (me[key] == null) {
+                                    me[key] = member;
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        }
+
+        base._extend(mixinAbility);
+
+        // aspect
+
+        var aspectAbility = {
+            /** @lends veronica.View# */
+            configs: {
+                /**
+                 * 配置该视图的子视图 **`重写`**
+                 * @type {function}
+                 * @default
+                 * @example
+                 *   aspect: function(){
+                 *     this.after('initAttr', function(){
+                 *         this.param = { test: 'A' }
+                 *     });
+                 *     this.before // ...
+                 *   }
+                 */
+                aspect: noop
+            },
+            /** @lends veronica.View# */
+            methods: app.core.aspect
+        };
+        base._extend(aspectAbility);
+
+
+        // lifecycle
+
+        var lifecycleAblility = {
+            /** @lends veronica.View# */
+            configs: {
+                /**
+                 * **`重写`** 视图的自定义初始化代码
+                 * @type {function}
+                 * @default
+                 */
+                init: noop,
+                /**
+                 * **`重写`** 自定义销毁，通常用于释放视图使用的全局资源
+                 * @type {function}
+                 * @example
+                 *   _customDestory: function () {
+                 *     $(window).off('resize', this.resizeHanlder);
+                 *   }
+                 */
+                _customDestory: noop
+            },
+            /** @lends veronica.View# */
+            methods: {
+                _setup: function (options) {
+                    this._invoke('_loadPlugin');
+
+                    this._invoke('aspect');
+
+                    this._invoke('_defaultListen');
+
+                    this._invoke('_autoResize');
+
+                    this._invoke('_resetParentWnd');
+
+                    this._invoke('_initModel');
+
+                    // 初始化自定义属性
+                    this._invoke('initAttr');
+
+                    this._invoke('subscribe');  // 初始化广播监听
+
+                    this._invoke('_autoAction');
+
+                    this._invoke('init');
+
+                    this.trigger('init');
+                },
+
+                _destroy: function () {
+                    // 清理在全局注册的事件处理器
+                    this.options.autoResize && $(window).off('resize', this.resize);
+
+                    this._invoke('_destroyWindow', false);
+
+                    // 销毁该视图的所有子视图
+                    this._invoke('_destroyView', false);
+
+                    // 销毁第三方组件
+                    this._invoke('_customDestory');
+
+                    // 清除引用
+                    this.viewModel = null;
+
+                    this.options.sandbox.log('destroyed');
+                },
+                /**
+                 * 视图初始化
+                 * @function
+                 * @inner
+                 * @listens View#initialize
+                 */
+                initialize: function (options) {
+
+                    options || (options = {});
+
+                    // 应用mixins
+                    this._applyMixins();
+
+                    /**
+                     * 视图的配置参数
+                     * @name options
+                     * @memberOf View#
+                     * @type {ViewOptions}
+                     * @todo 这里参数默认值合并使用了深拷贝，大多数时候其实没必要，目前实际测试速度影响暂时不大
+                     */
+                    this.options = $.extend(true, {}, this._defaults, this.defaults, options);
+
+                    this._initProps(options);
+
+                    // 将方法绑定到当前视图
+                    if (this.binds) {
+                        this.binds.unshift(this);
+                        _.bindAll.apply(_, this.binds);
+                    }
+
+                    // hook element
+                    this.$el.addClass('ver-view');
+                    if (this.options._widgetName) {
+                        this.$el.addClass(this.options._widgetName.join(' '));
+                    }
+
+                    this._setup(options);
+
+                    // 渲染
+                    this.options.autoRender && this.render();
+                },
+                /**
+                 * 销毁该视图
+                 */
+                destroy: function () {
+                    this._destroy();
+                },
+                /**
+                 * 重新设置参数，设置后会重新初始化视图
+                 * @param {object} options - 视图参数
+                 * @returns {void}
+                 */
+                reset: function (options) {
+                    this.destroy();
+                    // remove 时会调用该方法，由于没有调用 remove，则手动 stopListening
+                    this.stopListening();
+                    options = $.extend({}, this.options, options);
+                    this.initialize(options);
+                }
+            }
+        }
+        base._extend(lifecycleAblility);
+
 
         /**
          * @classdesc 视图
@@ -6776,16 +6806,29 @@ define('app/view',[
             if (isFactory == null) { isFactory = false };
             if (inherits == null) { inherits = [] };
 
-            inherits.push(obj);
-
             var ctor;
 
             if (_.isObject(obj) && !_.isFunction(obj)) {  // 普通对象
-                ctor = app.core.View.extend($.extend.apply($, [true, {}, app.view.base].concat(inherits)));
+                var newObj = $.extend({}, app.view.base);
+                var myInherits = obj.inherits || newObj.inherits;
+                if (myInherits) {
+                    inherits = inherits.concat(myInherits(app));
+                }
+                _.each(inherits, function(inherit) {
+                    if (_.isFunction(inherit)) {
+                        inherit(newObj, app);
+                    } else {
+                        $.extend(true, newObj, inherit);
+                    }
+                });
+                // 最后混入当前对象，避免覆盖
+                $.extend(true, newObj, obj);
+
+                ctor = app.core.View.extend(newObj);
             } else {
                 if (obj.extend) {  // 本身是 Backbone.View 构造函数
                     ctor = obj;
-                } else {  // 工厂函数                   
+                } else {  // 工厂函数
                     return obj;
                 }
             }

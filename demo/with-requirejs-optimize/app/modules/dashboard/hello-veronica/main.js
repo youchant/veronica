@@ -29,7 +29,7 @@ define([
             this.widgetWindow('charts', null, { options: { modal: false } });
         },
         rebuildHandler: function () {
-            this.setOptions({
+            this.reset({
                 hi: 'rebuild'
             });
         },
