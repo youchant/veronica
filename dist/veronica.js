@@ -1014,6 +1014,21 @@ define("../bower_components/almond/almond", function(){});
   }
 }();
 
+define('core/base',[
+    'jquery',
+    'underscore',
+    'eventemitter'
+], function ($, _, EventEmitter) {
+
+    'use strict';
+
+    return {
+        $: $,
+        _: _,
+        EventEmitter: EventEmitter
+    };
+});
+
 // Events
 // borrow frome Backbone 1.1.2
 define('core/events',[
@@ -1803,7 +1818,7 @@ define('core/loader',[
 });
 
 
-define('util/logger',[], function () {
+define('core/logger',[], function () {
     'use strict';
 
     // thx h5-boilerplate
@@ -1927,7 +1942,7 @@ define('util/logger',[], function () {
 });
 
 // core
-define('util/util',[
+define('core/util',[
     'underscore',
     'jquery'
 ], function (_, $) {
@@ -2060,13 +2075,27 @@ define('util/util',[
         },
         normalizePath: function (path) {
             return path.replace('//', '/').replace('http:/', 'http://');
-        }
+        },
+        // 将数据转换成另一种形式
+        mapAll: function (obj, iteratee) {
+            var isArray = _.isArray(obj);
+            if (!isArray) { obj = [obj]; }
 
+            var result = _.map(obj, iteratee);
+            return isArray ? result : result[0];
+        },
+        ensureArray: function (list) {
+            if (list == null) return [];
+            if (_.isObject(list) && !_.isArray(list)) {
+                list = [list];
+            }
+            return list;
+        }
     };
 
 });
 
-define('util/aspect',[
+define('core/aspect',[
     'underscore',
     'jquery',
     'exports'
@@ -2174,212 +2203,6 @@ define('util/aspect',[
 
 });
 
-define('util/path',[],function () {
-    // thx: https://github.com/substack/path-browserify
-
-    var path = {};
-
-    function normalizeArray(parts, allowAboveRoot) {
-        // if the path tries to go above the root, `up` ends up > 0
-        var up = 0;
-        for (var i = parts.length - 1; i >= 0; i--) {
-            var last = parts[i];
-            if (last === '.') {
-                parts.splice(i, 1);
-            } else if (last === '..') {
-                parts.splice(i, 1);
-                up++;
-            } else if (up) {
-                parts.splice(i, 1);
-                up--;
-            }
-        }
-
-        // if the path is allowed to go above the root, restore leading ..s
-        if (allowAboveRoot) {
-            for (; up--; up) {
-                parts.unshift('..');
-            }
-        }
-
-        return parts;
-    }
-
-    // Split a filename into [root, dir, basename, ext], unix version
-    // 'root' is just a slash, or nothing.
-    var splitPathRe =
-        /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
-    var splitPath = function (filename) {
-        return splitPathRe.exec(filename).slice(1);
-    };
-
-    // path.resolve([from ...], to)
-    // posix version
-    path.resolve = function () {
-        var resolvedPath = '',
-            resolvedAbsolute = false;
-
-        for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-            var path = (i >= 0) ? arguments[i] : process.cwd();
-
-            // Skip empty and invalid entries
-            if (typeof path !== 'string') {
-                throw new TypeError('Arguments to path.resolve must be strings');
-            } else if (!path) {
-                continue;
-            }
-
-            resolvedPath = path + '/' + resolvedPath;
-            resolvedAbsolute = path.charAt(0) === '/';
-        }
-
-        // At this point the path should be resolved to a full absolute path, but
-        // handle relative paths to be safe (might happen when process.cwd() fails)
-
-        // Normalize the path
-        resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function (p) {
-            return !!p;
-        }), !resolvedAbsolute).join('/');
-
-        return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-    };
-
-    // path.normalize(path)
-    // posix version
-    path.normalize = function (path) {
-        var isAbsolute = exports.isAbsolute(path),
-            trailingSlash = substr(path, -1) === '/';
-
-        // Normalize the path
-        path = normalizeArray(filter(path.split('/'), function (p) {
-            return !!p;
-        }), !isAbsolute).join('/');
-
-        if (!path && !isAbsolute) {
-            path = '.';
-        }
-        if (path && trailingSlash) {
-            path += '/';
-        }
-
-        return (isAbsolute ? '/' : '') + path;
-    };
-
-    // posix version
-    path.isAbsolute = function (path) {
-        return path.charAt(0) === '/';
-    };
-
-    // posix version
-    path.join = function () {
-        var paths = Array.prototype.slice.call(arguments, 0);
-        return exports.normalize(filter(paths, function (p, index) {
-            if (typeof p !== 'string') {
-                throw new TypeError('Arguments to path.join must be strings');
-            }
-            return p;
-        }).join('/'));
-    };
-
-
-    // path.relative(from, to)
-    // posix version
-    path.relative = function (from, to) {
-        from = exports.resolve(from).substr(1);
-        to = exports.resolve(to).substr(1);
-
-        function trim(arr) {
-            var start = 0;
-            for (; start < arr.length; start++) {
-                if (arr[start] !== '') break;
-            }
-
-            var end = arr.length - 1;
-            for (; end >= 0; end--) {
-                if (arr[end] !== '') break;
-            }
-
-            if (start > end) return [];
-            return arr.slice(start, end - start + 1);
-        }
-
-        var fromParts = trim(from.split('/'));
-        var toParts = trim(to.split('/'));
-
-        var length = Math.min(fromParts.length, toParts.length);
-        var samePartsLength = length;
-        for (var i = 0; i < length; i++) {
-            if (fromParts[i] !== toParts[i]) {
-                samePartsLength = i;
-                break;
-            }
-        }
-
-        var outputParts = [];
-        for (var i = samePartsLength; i < fromParts.length; i++) {
-            outputParts.push('..');
-        }
-
-        outputParts = outputParts.concat(toParts.slice(samePartsLength));
-
-        return outputParts.join('/');
-    };
-
-    path.sep = '/';
-    path.delimiter = ':';
-
-    path.dirname = function (path) {
-        var result = splitPath(path),
-            root = result[0],
-            dir = result[1];
-
-        if (!root && !dir) {
-            // No dirname whatsoever
-            return '.';
-        }
-
-        if (dir) {
-            // It has a dirname, strip trailing slash
-            dir = dir.substr(0, dir.length - 1);
-        }
-
-        return root + dir;
-    };
-
-
-    path.basename = function (path, ext) {
-        var f = splitPath(path)[2];
-        // TODO: make this comparison case-insensitive on windows?
-        if (ext && f.substr(-1 * ext.length) === ext) {
-            f = f.substr(0, f.length - ext.length);
-        }
-        return f;
-    };
-
-
-    path.extname = function (path) {
-        return splitPath(path)[3];
-    };
-
-    function filter(xs, f) {
-        if (xs.filter) return xs.filter(f);
-        var res = [];
-        for (var i = 0; i < xs.length; i++) {
-            if (f(xs[i], i, xs)) res.push(xs[i]);
-        }
-        return res;
-    }
-
-    // String.prototype.substr - negative index don't work in IE8
-    var substr = 'ab'.substr(-1) === 'b'
-        ? function (str, start, len) { return str.substr(start, len) }
-        : function (str, start, len) {
-            if (start < 0) start = str.length + start;
-            return str.substr(start, len);
-        };
-
-    return path;
-});
 define('core/querystring',[
     'underscore'
 ], function (_) {
@@ -2515,22 +2338,19 @@ define('core/querystring',[
     };
 });
 
-define('core/core',[
-    'jquery',
-    'underscore',
-    'eventemitter',
+define('core/index',[
+    './base',
     './events',
     './view',
     './history',
     './router',
     './loader',
-    '../util/logger',
-    '../util/util',
-    '../util/aspect',
-    '../util/path',
+    './logger',
+    './util',
+    './aspect',
     './querystring'
-], function ($, _, EventEmitter, Events,
-    View, history, Router, loader, Logger, util, aspect, path, querystring) {
+], function (base, Events,
+    View, history, Router, loader, Logger, util, aspect, querystring) {
 
     'use strict';
 
@@ -2538,6 +2358,10 @@ define('core/core',[
      * `veronica` 或者通过 `app.core`
      * @namespace veronica
      */
+
+    var EventEmitter = base.EventEmitter;
+    var $ = base.$;
+    var _ = base._;
 
     /** @lends veronica# */
     var veronica = {
@@ -2578,24 +2402,6 @@ define('core/core',[
     };
 
     /**
-     * 显示文本（国际化）
-     * @namespace
-     * @memberOf veronica
-     */
-    var i18n = {
-        /**
-         * 对话框标题
-         * @default
-         */
-        defaultDialogTitle: '对话框',
-        /** 对话框关闭文本 */
-        windowCloseText: '关闭',
-        /** 加载中文本 */
-        loadingText: '加载中...'
-    };
-    veronica.i18n = i18n;
-
-    /**
      * 所有枚举
      * @namespace
      * @memberOf veronica
@@ -2625,8 +2431,6 @@ define('core/core',[
     veronica.util = util;
 
     veronica.aspect = aspect;
-
-    veronica.path = path;
 
     /**
      * 获取全局配置
@@ -2693,8 +2497,8 @@ define('core/core',[
     return veronica;
 });
 
-define('core/application',[
-    './core'
+define('app/application',[
+    '../core/index'
 ], function (core) {
 
     'use strict';
@@ -2712,7 +2516,7 @@ define('core/application',[
          * 应用程序配置参数
          * @typedef AppOptions
          * @property {string} [name='app'] - 应用程序名称
-         * @property {object} [homePage='home'] - 没有路由参数的起始页        
+         * @property {object} [homePage='home'] - 没有路由参数的起始页
          * @property {array} [extensions=[]] - 扩展列表
          * @property {array.<ModuleConfig>} [modules=[]] - 模块配置，当每个模块配置参数为字符串时，该字符串指定该模块的名称，其他参数采用默认参数
          * @property {boolean} [autoParseWidgetName=false] - 自动解析 widget 名称
@@ -2753,28 +2557,12 @@ define('core/application',[
             homePage: 'home',
             page: {
                 defaultLayout: 'default',  // 默认布局
-                defaultHost: '.v-render-body',  // 默认宿主元素
                 defaultLayoutRoot: 'v-render-body',  // 默认布局根
                 defaultSource: 'basic',  // 默认源
                 defaultInherit: '_common'  // 默认页面继承
             },
-            module: {
-                // module 配置的默认值
-                defaults: {
-                    multilevel: false,
-                    hasEntry: true,
-                    entryPath: 'main',  // 暂时没使用
-                    widgetPath: 'widgets',
-                    parentPath: 'modules'
-                },
-                // 默认 module
-                defaultModule: {
-                    name: core.constant.DEFAULT_MODULE_NAME,
-                    parentPath: '.',
-                    path: '.',
-                    hasEntry: false,
-                    build: '{{ dir }}{{ baseUrl }}{{ type }}'  // 暂时没使用
-                }
+            widget: {
+                defaultHost: '.v-render-body',  // 默认宿主元素
             },
             defaultPage: 'default',  // 没用，废弃
             router: {
@@ -2783,10 +2571,6 @@ define('core/application',[
         };
 
         options = $.extend(true, {}, defaultOptions, options || {});
-
-        if (!options.modules || options.modules.length === 0) {
-            options.modules = [options.module.defaultModule];
-        }
 
         /**@lends veronica.Application#*/
         var prop = {
@@ -2843,16 +2627,10 @@ define('core/application',[
 
             // 加载模块
             _.each(this.config.modules, function (moduleConfig) {
-
-                var module = me.module.create(moduleConfig);
-                var dfd = module.loadEntry();
-
-                me.module.add(module);
-                promises.push(dfd);
+                me.module.add(moduleConfig.name, moduleConfig);
             });
 
             return $.when.apply($, promises).done(function () {
-                me.module.apply();
                 me.widget.package();
 
                 if (options.parse) {
@@ -2957,44 +2735,6 @@ define('app/page',[], function () {
         var core = app.core;
         var $ = app.core.$;
         var _ = app.core._;
-        var appConfig = app.config;
-
-        /**
-         * 页面配置项预处理
-         */
-        function preprocessPageConfig(pageConfig) {
-            if (pageConfig.widgets && pageConfig.widgets.length !== 0) {
-                _.each(pageConfig.widgets, function (widget, j) {
-                    // 将带字符串widget配置转换成配置对象
-                    if (_.isString(widget)) {
-                        var sep = widget.split('@');
-                        pageConfig.widgets[j] = {
-                            name: sep[0],
-                            options: {
-                                host: sep[1] || appConfig.page.defaultHost,
-                                _source: sep[2] || appConfig.page.defaultSource
-                            }
-                        };
-                    }
-                });
-            }
-            return pageConfig;
-        }
-
-        function getAllWidgetConfigs(pageConfig, me, result) {
-            if (result == null) {
-                result = [];
-            }
-            result.push(pageConfig.widgets);
-
-            _.each(pageConfig.inherits, function(parentName) {
-                var config = me.get(parentName);
-                result.push(config.widgets);
-                result = getAllWidgetConfigs(config, me, result);
-            });
-
-            return result;
-        }
 
         /**
          * 无法通过构造函数直接构造
@@ -3002,25 +2742,32 @@ define('app/page',[], function () {
          * @class veronica.Page
          */
 
-        /** @lends veronica.Page# */
-        var lit = {
-            _pages: {
-                // 页面的基类
-                '_common': {
-                    widgets: []
-                },
-                currPageName: ''
-            },
+        /**
+         * @name page
+         * @memberOf veronica.Application#
+         * @type {veronica.Page}
+         */
+        app.page = app.provider.create(/** @lends veronica.Page# */{
+            _currPageName: '',
             _changeTitle: function () { },
-            _processInherit: function (pageConfig) {
-                var allWidgets = getAllWidgetConfigs(pageConfig, this);
-                return _.uniq(_.union.apply(_, allWidgets), false, function (item) {
-                    if (item.options && item.options.el) return item.options.el;  // 确保一个元素上只有一个插件
-                    return item.name + item.options.host;  // 确保一个父元素下，只有一个同样的插件
+            // 递归获取所有的父级 widgets 配置
+            _getAllWidgetConfigs: function getAllWidgetConfigs(config, page, result) {
+                if (result == null) {
+                    result = [];
+                }
+                result.push(config.widgets);
+
+                _.each(config.inherits, function (parentName) {
+                    var config = page.get(parentName);
+                    result.push(config.widgets);
+                    result = getAllWidgetConfigs(config, page, result);
                 });
+
+                return result;
             },
             isCurrent: function (pageName) {
-                return this._pages.currPageName === 'default' || this._pages.currPageName === pageName;
+                var currName = this.getCurrName();
+                return currName === 'default' || currName === pageName;
             },
             /**
              * 获取当前页面名称
@@ -3028,8 +2775,11 @@ define('app/page',[], function () {
              * @name currName
              * @memberOf Page#
              */
-            currName: function () {
-                return this.get('currPageName');
+            getCurrName: function () {
+                return this._currPageName;
+            },
+            setCurrName: function (name) {
+                this._currPageName = name;
             },
             /**
              * 加载页面
@@ -3038,16 +2788,8 @@ define('app/page',[], function () {
              */
             _load: function (name, config, params) {
                 var me = this;
-                var widgetsConfig = this._processInherit(config);
-                if (params) {  // 如果传入了页面查询字符串参数，则为每一个 widget config 附加配置参数
-                    var paramsObj = app.core.util.qsToJSON(params);
-                    if (paramsObj) {
-                        _.each(widgetsConfig, function (conf) {
-                            conf.options = $.extend(conf.options, paramsObj);
-                        });
-                    }
-                }
-                var currPageName = this.currName();
+                var widgetsConfig = this._getAllWidgetConfigs(config);
+                var currPageName = this.getCurrName();
                 var currPageConfig;
                 var dfd = $.Deferred();
                 var proms = core.util.donePromise();
@@ -3077,7 +2819,7 @@ define('app/page',[], function () {
                 }
 
                 proms.done(function () {
-                    me._pages.currPageName = name;
+                    me.setCurrName(name);
 
                     app.sandbox.startWidgets(widgetsConfig, name).done(function () {
                         // 切换页面后进行垃圾回收
@@ -3102,51 +2844,9 @@ define('app/page',[], function () {
                 if (name) {
                     return this.change(name);
                 } else {
-                    name = this.get('currPageName');
+                    name = this.getCurrName();
                 }
                 return name;
-            },
-            // 获取默认配置
-            defaultConfig: function (pageName) {
-                var data = app.page.parseName(pageName);
-                return {
-                    widgets: [
-                        data.fullname + '@' + app.config.page.defaultHost + '@' + data.module
-                    ]
-                };
-            },
-            parseName: function (pageName) {
-
-                var result;
-                var token = pageName.indexOf('/') > -1 ? '/' : '-';
-                var arr = pageName.split(token);
-                // TODO: 这里
-                switch (arr.length) {
-                    case 1:
-                        result = {
-                            module: 'basic',
-                            controller: 'Home',
-                            action: arr[0]
-                        };
-                        break;
-                    case 2:
-                        result = {
-                            module: 'basic',
-                            controller: arr[0],
-                            action: arr[1]
-                        };
-                        break;
-                    case 3:
-                        result = {
-                            module: arr[0],
-                            controller: arr[1],
-                            action: arr[2]
-                        };
-                        break;
-                }
-
-                result.fullname = result.module + '-' + result.controller + '-' + result.action;
-                return result;
             },
             // 获取页面配置
             get: function (name) {
@@ -3158,31 +2858,6 @@ define('app/page',[], function () {
              * @param {object|array} configs - 页面配置组（当为单个配置时，可以不用数组）
              */
             add: function (configs) {
-                var me = this;
-                if (!_.isArray(configs)) {
-                    configs = [configs];
-                }
-                _.each(configs, function (config) {
-                    _.each(config, function (item, pageName) {
-                        item = preprocessPageConfig(item);
-
-                        config[pageName] = $.extend({
-                            name: '',
-                            layout: appConfig.page.defaultLayout,
-                            widgets: [{
-                                name: pageName,
-                                options: {
-                                    host: appConfig.page.defaultHost,
-                                    _source: appConfig.page.defaultSource
-                                }
-                            }],
-                            inherits: pageName === appConfig.page.defaultInherit
-                                ? [] : [appConfig.page.defaultInherit]
-                        }, item);
-                    });
-
-                    $.extend(me._pages, config);
-                });
 
                 return this;
             },
@@ -3202,6 +2877,46 @@ define('app/page',[], function () {
                  */
                 app.emit('appStarted');
             },
+            // 解析页面配置
+            resolve: function (name) {
+                var config = this.get(name);
+                var proms = core.util.failPromise();
+                var me = this;
+                if (!config) {
+                    if (app.config.autoResolvePage) {
+                        var c = page.build(name);
+                        if (c) {
+                            var obj = {};
+                            obj[name] = c;
+                            me.add(obj);
+                            config = me.get(name);
+                        }
+
+                        // 未找到页面配置，则从该路径后台读取页面配置
+                        if (!config) {
+                            var pageUrl = name.replace('-', '/');
+                            proms = $.getJSON(pageUrl);
+                        }
+                    }
+                }
+                if (config) {
+                    proms = core.util.donePromise(config);
+                }
+
+                proms.fail(function () {
+                    /**
+                     * **消息：** 页面未找到
+                     * @event Application#page.pageNotFound
+                     * @param {string} name - 页面名称
+                     */
+                    app.emit('pageNotFound', name);
+                });
+
+                return proms;
+            },
+            build: function (name) {
+
+            },
             /**
              * 改变页面
              * @param {string} name - 页面名称
@@ -3212,45 +2927,22 @@ define('app/page',[], function () {
              */
             change: function (name, params) {
                 var page = this;
-                var config = page.get(name);
-
-                // 自动生成页面配置
-                if (!config && app.config.autoBuildPage) {
-                    var obj = {};
-                    obj[name] = page.defaultConfig(name);
-                    page.add(obj);
-                    config = page.get(name);
-                }
-
-                // 修复BUG
-                var proms = core.util.donePromise(config);
-
-                // 未找到页面配置，则从该路径后台读取页面配置
-                if (!config) {
-
-                    var pageUrl = name.replace('-', '/');
-                    proms = $.getJSON(pageUrl);
-                }
-
-                proms.done(function (config) {
+                me.resolve(name).done(function (config) {
                     page._load(name, config, params);
-                }).fail(function () {
-                    /**
-                     * **消息：** 页面未找到
-                     * @event Application#page.pageNotFound
-                     * @param {string} name - 页面名称
-                     */
-                    app.emit('pageNotFound', name);
                 });
             }
-        }
+        });
 
-        /**
-         * @name page
-         * @memberOf veronica.Application#
-         * @type {veronica.Page}
-         */
-        app.page = lit;
+        app.page.add('_common', {
+            name: '_common',
+            inherits: false
+        });
+
+        app.page.add('default', {
+            name: 'default',
+            layout: 'default',
+            inherits: ['_common']
+        });
 
     };
 });
@@ -3266,9 +2958,28 @@ define('app/layout',[
         var cst = app.core.constant;
 
         /**
+         * 添加布局
+         * @param {object} layout - 布局配置
+         * @example
+         * ```
+         *   app.layout.add({
+         *    'admin': {
+         *        html: '<div class="v-render-body"></div>'
+         *    }
+         *   });
+         * ```
+         */
+
+        /**
          * @typedef layoutConfig
          * @property {string} html - 布局的HTML
          * @property {string} url - 获取布局的地址
+         */
+
+        /**
+         * 获取布局配置
+         * @param {string} name - 布局名称
+         * @returns {layoutConfig}
          */
 
         /**
@@ -3277,36 +2988,20 @@ define('app/layout',[
          * @classdesc 布局
          */
 
-        /** @lends veronica.Layout# */
-        var layout = {
-            /**
-             * 布局存储
-             * @private
-             */
-            _layouts: { },
-            /**
-             * 添加布局
-             * @param {object} layout - 布局配置
-             * @example
-             * ```
-             *   app.layout.add({
-             *    'admin': {
-             *        html: '<div class="v-render-body"></div>'
-             *    }
-             *   });
-             * ```
-             */
-            add: function (layout) {
-                var me = this;
-                $.each(layout, function (i, lay) {
-                    if (_.isString(lay)) {
-                        lay = {
-                            html: lay
-                        };
-                    }
-                    me._layouts[i] = lay;
-                });
-                return this;
+        /**
+         * 布局
+         * @name layout
+         * @memberOf veronica.Application#
+         * @type {veronica.Layout}
+         */
+        app.layout = app.provider.create(/** @lends veronica.Layout# */{
+            _preprocess: function (data) {
+                if (_.isString(data)) {
+                    data = {
+                        html: data
+                    };
+                }
+                return data;
             },
             /**
              * 改变布局
@@ -3356,14 +3051,6 @@ define('app/layout',[
                 return dfd;
             },
             /**
-             * 获取布局配置
-             * @param {string} name - 布局名称
-             * @returns {layoutConfig}
-             */
-            get: function (name) {
-                return this._layouts[name];
-            },
-            /**
              * 布局初始化
              */
             init: function () {
@@ -3372,19 +3059,11 @@ define('app/layout',[
                     $('body').prepend(scaffold.html);
                 }
             }
-        };
+        });
 
-        layout._layouts[cst.SCAFFOLD_LAYOUT_NAME] = {
+        app.layout.add(cst.SCAFFOLD_LAYOUT_NAME, {
             html: '<div class="' + app.config.page.defaultLayoutRoot + '"></div>'
-        };
-
-        /**
-         * 布局
-         * @name layout
-         * @memberOf veronica.Application#
-         * @type {veronica.Layout}
-         */
-        app.layout = layout;
+        });
     };
 
 });
@@ -3398,349 +3077,48 @@ define('app/module',[
         var core = app.core;
         var _ = app.core._;
 
-
-        var Mod = (function () {
-
-            /**
-             * 不直接调用构造函数，通过 `app.module.create` 创建
-             * @classdesc 应用程序模块
-             * @class veronica.Module
-             * @param {ModuleConfig} options - 配置项
-             * @param {function} [execution] - 入口执行方法
-             * @example
-             *   var module = app.module.create({
-             *     name: 'dashboard',
-             *     source: 'basic'
-             *   });
-             *   module.loadEntry().done(function(){
-             *      module.apply();
-             *   })
-             */
-            function Mod(options, execution) {
-                // 将字符类型的模块配置转换成对象
-                if (_.isString(options)) {
-                    options = {
-                        name: options,
-                        parentPath: app.config.module.defaults.parentPath
-                    };
-                }
-
-                _.defaults(options, app.config.module.defaults);
-
-                var parentPath = app.core.getConfig().sources[options.parentPath] || options.parentPath;
-
-                /**
-                 * @lends Module#
-                 */
-                var params = {
-                    /** 模块名称 */
-                    name: options.name,
-                    /** 模块配置 */
-                    config: options,
-                    /** 路径 */
-                    path: options.path || parentPath + '/' + options.name,
-                    /** 入口执行方法 */
-                    execution: execution
-                };
-
-                _.extend(this, params);
-            }
-
-            /**
-             * @lends veronica.Module#
-             */
-            var proto = {
-                constructor: Mod,
-                /**
-                 * 往应用程序添加源，如果不传参，则将该模块本身widget路径添加到应用程序源里面
-                 * @param {object} [sources] - 源配置
-                 * @example
-                 *   module.addSource({
-                 *     'dashboard-alt': './subpath'  // 路径是相对于module的路径
-                 *   })
-                 */
-                addSource: function (sources) {
-                    var me = this;
-                    if (sources == null) {
-                        // 将模块路径添加为源
-                        sources = {};
-                        sources[this.name] = this.config.widgetPath;
-                    }
-
-                    _.each(sources, function (src, name) {
-                        app.core.getConfig().sources[name] = me.path + '/' + src;
-                    });
-                },
-                // 添加插件
-                addPlugin: function (plugin) {
-                    app.plugin.add(plugin, this.name);
-                },
-                // 添加组件
-                addControl: function (control) {
-                    var cts = app.core.getConfig().controls;
-
-                    cts || (cts = []);
-                    if (!_.isArray(control)) {
-                        control = [control];
-                    }
-                    app.core.getConfig().controls = _.uniq(cts.concat(control));
-                },
-                /**
-                 * 往应用程序添加页面
-                 */
-                addPage: function (page) {
-                    app.page.add(page);
-                },
-                /**
-                 * 往应用程序添加扩展
-                 */
-                addExtension: function (extensions) {
-                    app.use(extensions);
-                },
-                /**
-                 * 往应用程序添加布局
-                 */
-                addLayout: function (layouts) {
-                    app.layout.add(layouts);
-                },
-                /**
-                 * 加载入口执行方法
-                 */
-                loadEntry: function () {
-                    var me = this;
-                    var entryFileUrl = this.path + '/' + this.config.entryPath;
-                    return core.loader.require(entryFileUrl, this.config.hasEntry)
-                        .done(function (m, fn) {
-                            me.execution = fn;
-                        });
-                },
-                /**
-                 * 应用该模块，添加widget源，并执行入口方法
-                 */
-                apply: function () {
-
-                    this.addSource();
-
-                    // 执行模块入口方法
-                    this.execution && this.execution(this, app);
-                }
-            };
-
-            Mod.prototype = proto;
-
-            return Mod;
-        })();
-
-        /**
-         * 模块配置，有纯字符串的简写形式
-         * @typedef ModuleConfig
-         * @property {string} name - 模块名称
-         * @property {string} [parentPath='modules'] - 模块地址，可接受相对路径和URL，相对路径是相对当前加载器的基路径
-         * @property {boolean} [hasEntry=true] - 模块是否有入口方法
-         * @property {string} [path=null] - 模块路径，如果不设置，根据模块地址和模块名称计算得出
-         * @property {boolean} [multilevel=false] - 内部 widget 放置是否是多层级的
-         * @property {string} [build=null] - （暂未启用）打包后模块的路径，如果不指定则按照默认规则放置
-         */
-
-        /**
-         * 无法直接构造
-         * @classdesc 模块
-         * @class veronica.ModuleHandler
-         */
-
-        /** @lends veronica.ModuleHandler# */
-        var module = {
-            _modules: {},
-            /** 
-             * 应用所有模块
-             */
-            apply: function () {
-                _.each(this.get(), function (mod) {
-                    mod.apply();
-                });
-            },
-            /**
-             * 创建模块
-             * @param {moduleConfig} options - 配置项
-             * @param {function} execution - 入口执行方法
-             * @returns {veronica.Module}
-             */
-            create: function (options, execution) {
-                return new Mod(options, execution);
-            },
-            /**
-             * 添加一个模块
-             * @param {module|array} module - 添加
-             */
-            add: function (module) {
-                this._modules[module.name] = module;
-            },
-            /**
-             * 获取模块，不传名称则获取所有模块
-             * @param {string} [name] - 模块名称
-             * @returns {veronica.Module}
-             */
-            get: function (name) {
-                return name == null ? this._modules : this._modules[name];
-            },
-            // 获取模块路径
-            path: function (moduleName) {
-                return this._modules[moduleName].path;
-            }
-        };
-
         /**
          * @name module
          * @type {veronica.ModuleHandler}
          * @memberOf veronica.Application#
          */
-        app.module = module;
-    };
+        app.module = app.provider.create();
 
-});
-
-define('app/navigation',[
-], function () {
-
-    'use strict';
-
-    return function (app) {
-        var _ = app.core._;
-
-        function createNav(data) {
-            _.each(data, function (item, index) {
-                if (item.items) {
-                    createNav(item.items);
-                    item.items = _.compact(item.items);
-                }
-                if (item.url) {
-                    var pageConfig = app.page.get(item.url);
-                    if (pageConfig) {
-                        if (!item.name) {
-                            item.name = pageConfig.name;
+        app.module.add('default', {
+            name: 'default',
+            path: 'widgets',
+            multilevel: false,
+            locationPattern: /(\w*)-?(\w*)-?(\w*)-?(\w*)-?(\w*)/,
+            resolvePath: function () {
+                var path = this.path;
+                return path.replace('${name}', name);
+            },
+            resolveLocation: function (name) {
+                var me = this;
+                var resolvedName = name;
+                if (me.multilevel === true) {
+                    var parts = me.locationPattern.exec(name);
+                    resolvedName = _.reduce(parts, function (memo, name, i) {
+                        // 因为第0项是全名称，所以直接跳过
+                        if (name === '') { return memo; }
+                        if (i === 1) {
+                            // 如果第一个与source名称相同，则不要重复返回路径
+                            if (name === me.name) { return ''; }
+                            return name;
                         }
-                        if (!item.code && pageConfig.code) {
-                            item.code = pageConfig.code;
-                        }
-                    } else {
-                        data[index] = false;
-                    }
-                }
-            });
-        }
-
-        app.navigation = {
-            _nav: null,
-
-            create: function (data) {
-                createNav(data);
-                this._nav = _.isArray(data) ? _.compact(data) : data;
-            },
-            get: function () {
-                return this._nav;
-            }
-        }
-    };
-
-});
-
-define('app/plugin',[
-], function () {
-
-    'use strict';
-
-    return function (app) {
-        var _ = app.core._;
-
-        // 插件
-        app.plugin = {
-            _plugins: {},
-            _pluginCache: {},
-            getConfig: function (widgetName) {
-                var pluginRelations = app.config.plugins[widgetName];
-                if (pluginRelations == null) return [];
-                return pluginRelations;
-            },
-            // 解析部件下所有插件请求路径
-            resolvePath: function (widgetName) {
-       
-                var widgetPlugins = this._plugins[widgetName];
-                var globalConfig = app.core.getConfig();
-                if (_.isUndefined(widgetPlugins)) {
-                    return [];
-                }
-                return _.map(widgetPlugins, function (plugin) {
-                    var path;
-                    var name = plugin.name;
-                    var prefix = 'pl-' + plugin.module + '-';
-
-                    // 非调试模式下，路径是固定的
-                    if (globalConfig.debug === true) {
-                        path = app.module.path(plugin.module) + '/plugins/';
-                        //var idx = plugin.name.indexOf(prefix);
-                        //if (idx > -1) {
-                        //    name = plugin.name.substr(idx + prefix.length);
-                        //}
-                    } else {
-                        path = './plugins/';
-                    }
-                    return {
-                        name: plugin.name,
-                        location: path + name
-                    };
-                });
-            },
-            // 添加插件配置
-            add: function (pluginConfigs, moduleName) {
-                var allPlugins = this._plugins;
-                _.each(pluginConfigs, function (config) {
-                    if (_.isString(config)) { config = { name: 'pl-' + moduleName + '-' + config, target: config }; }
-                    var pluginName = config.name;
-                    var widgetName = config.target;
-
-                    if (_.isUndefined(allPlugins[widgetName])) {
-                        allPlugins[widgetName] = [];
-                    }
-
-                    allPlugins[widgetName].push({ name: pluginName, module: moduleName });
-                });
-            },
-            cache: function (widgetName, plugins) {
-                // 清空缓存
-                var cache = this._pluginCache[widgetName] = {};
-
-                _.each(plugins, function (plugin) {
-                    var result = plugin(app);
-                    _.each(result, function (execution, key) {
-                        if (_.isUndefined(cache[key])) {
-                            cache[key] = [];
-                        }
-                        cache[key].push(execution);
+                        return memo + '/' + name;
                     });
-                });
-            },
-            execute: function (widgetName, viewObj) {
-                var name = viewObj._name;
-                if (widgetName === name) {
-                    name = 'main';
                 }
-                if (!this._pluginCache[widgetName]) {
-                    return;
-                }
-                // 获取某个 widget 下的某个 _name 的 view
-                var plugins = this._pluginCache[widgetName][name];
-                _.each(plugins, function (plugin) {
-                    plugin.call(viewObj);
-                });
-            }
-        }
 
+                return me.resolvePath() + '/' + resolvedName;
+            }
+        });
     };
 
 });
 
-define('core/sandbox',[
-    './core'
+define('app/sandbox',[
+    '../core/index'
 ], function (core) {
 
     'use strict';
@@ -3949,7 +3327,7 @@ define('core/sandbox',[
             }
 
             if (tag) {
-                events = _.filter(events, function(evt) {
+                events = _.filter(events, function (evt) {
                     return evt.tag === tag;
                 });
             }
@@ -4001,13 +3379,13 @@ define('core/sandbox',[
         },
         /**
          * 获取沙箱拥有者
-         * @returns {Object} 拥有者对象 
+         * @returns {Object} 拥有者对象
          * @deprecated
          */
         getHost: function () { },
         /**
          * 获取沙箱拥有者
-         * @returns {Object} 拥有者对象 
+         * @returns {Object} 拥有者对象
          */
         getOwner: function () { },
         children: function (result) {
@@ -4050,10 +3428,11 @@ define('core/sandbox',[
     Sandbox.prototype = proto;
 
     return Sandbox;
+
 });
 
 define('app/sandboxes',[
-    '../core/sandbox'
+    './sandbox'
 ], function (Sandbox) {
 
     'use strict';
@@ -4063,6 +3442,7 @@ define('app/sandboxes',[
 
         var core = app.core;
         var _ = core._;
+        var SANDBOX_REF_NAME = core.constant.SANDBOX_REF_NAME;
 
         /**
          * 无法直接构造
@@ -4129,6 +3509,11 @@ define('app/sandboxes',[
                 return o.name === name;
             });
         };
+
+        sandboxes.getByEl = function (el) {
+            var sandboxRef = $(el).data(SANDBOX_REF_NAME);
+            return this.get(sandboxRef);
+        }
 
         /**
          * @name sandboxes
@@ -4237,9 +3622,11 @@ define('app/widget',[
         var core = app.core;
         var _ = app.core._;
         var $ = app.core.$;
+        var mapAll = core.util.mapAll;
+        var normalizePath = core.util.normalizePath;
+        var ensureArray = core.util.ensureArray;
+        var appConfig = app.config;
 
-        var WIDGETS_PATH = app.config.module.defaultWidgetPath; // 默认的插件路径
-        var SANDBOX_REF_NAME = core.constant.SANDBOX_REF_NAME;
         var WIDGET_CLASS = core.constant.WIDGET_CLASS;
         var require = core.loader.useGlobalRequire();  // 使用 requirejs，而不是
 
@@ -4313,70 +3700,27 @@ define('app/widget',[
          * @private
          */
         widget.resolvePath = function (nameParts) {
-            var isArray = $.isArray(nameParts);
-            if (!isArray) {
-                nameParts = [nameParts];
-            }
+            return mapAll(nameParts, function (part) {
+                var name = part.name;
+                var src = part.source;
+                var isRelease = core.getConfig().debug === false;
+                var location = app.config.releaseWidgetPath + '/' + name;
 
-            var result = _.map(nameParts, function (np) {
-                var name = np.name;
-                var source = np.source;
-                var widgetPath = WIDGETS_PATH;
-                var globalConfig = core.getConfig();
-                var widgetName = name;
-                var widgetSource = source || core.constant.DEFAULT_MODULE_NAME;
-                var isRelease = globalConfig.debug === false;
-
-                var widgetNameParts = app.config.widgetNamePattern.exec(widgetName);
-                if (widgetSource === core.constant.DEFAULT_MODULE_NAME
-                    && app.config.autoParseWidgetName === true) {
-                    widgetSource = widgetNameParts[1];  // 这种情况会覆盖 default 的 source 配置
-                }
-
-                var mod = app.module.get(widgetSource); // 根据 source，找出 source 所指向的模块
-
-                if (isRelease) {
-                    widgetPath = app.config.releaseWidgetPath;
-                } else {
-
-                    if (mod && mod.config.multilevel) {
-
-                        // 如果该 source 源下对应的 module 配置为多层级放置 widget
-                        widgetName = _.reduce(widgetNameParts, function (memo, name, i) {
-                            // 因为第0项是全名称，所以直接跳过
-                            if (name === '') {
-                                return memo;
-                            }
-                            // var cname = core.util.camelize(name);
-                            if (i === 1) {
-                                // 如果第一个与source名称相同，则不要重复返回路径
-                                if (name === widgetSource) {
-                                    return '';
-                                }
-                                return name;
-                            }
-
-                            return memo + '/' + name;
-
-                        });
-                    }
-
-                    // 从部件源中读取路径（module 会默认附加自己的source路径）
-                    widgetPath = (globalConfig.sources && globalConfig.sources[widgetSource]) || widgetPath;
+                if (!isRelease) {
+                    var mod = app.module.get(src);
+                    location = mod.resolveLocation(name);
                 }
 
                 return {
                     name: name,
-                    location: core.util.normalizePath(widgetPath + '/' + widgetName),
+                    location: normalizePath(location),
                     main: 'main'
                 };
             });
-
-            return isArray ? result : result[0];
-
         };
 
-        widget.autoSource = function(nameTag) {
+        // 推测 source
+        widget.deduceSource = function (nameTag) {
             if (app.config.autoParseSource) {
                 return nameTag.split('-')[0];
             }
@@ -4387,42 +3731,28 @@ define('app/widget',[
          * 分隔传入的 name 为 nameParts
          * @private
          */
-        widget.splitNameParts = function (nameTags) {
-            var isArray = $.isArray(nameTags);
-            if (!isArray) { nameTags = [nameTags]; }
-            var result = _.map(nameTags, function (nameTag) {
-                var nameParts = nameTag.split('@');
+        widget.splitNameParts = function (names) {
+            var result = mapAll(names, function (name) {
+                var nameParts = name.split('@');
                 return {
                     name: nameParts[0],
-                    source: nameParts[1] || app.widget.autoSource(nameTag)
+                    source: nameParts[1] || app.widget.deduceSource(name) || 'default',
+                    host: nameParts[2]
                 };
             });
-
-            return isArray ? result : result[0];
+            return result;
         }
 
         /**
          * 加载单个 widget
          * @private
          */
-        widget.load = function (nameTag, options, page) {
+        widget.load = function (name, options, page) {
             var dfd = $.Deferred();
-
-            // 解析名称
-            // nameTag = core.util.decamelize(nameTag);
-            var widgetNameParts = app.widget.splitNameParts(nameTag);
-            if (options._source == null) {
-                options._source = widgetNameParts.source;
-            }
-            widgetNameParts.source = options._source;
-            var name = widgetNameParts.name;
-            var nameParts = [widgetNameParts];
-
-            // 解析 plugin
-            if (app.plugin) {
-                var pluginNameParts = app.widget.splitNameParts(app.plugin.getConfig(widgetNameParts.name));
-                nameParts = nameParts.concat(pluginNameParts);
-            }
+            var nameParts = [{
+                name: name,
+                source: options._source
+            }];
 
             var packages = app.widget.resolvePath(nameParts);
 
@@ -4439,14 +3769,11 @@ define('app/widget',[
             var names = _.map(nameParts, function (p) { return p.name });
             core.loader.require(names, true, { packages: packages })
                   .done(function (name, executors) {
-                      var others;
                       var executor = executors;
                       if (_.isArray(executor)) {
-                          executor = executors[0];
-                          others = executors.slice(1);
+                          executor = executors[0];  // 如果加载了多个，取第一个(plugin 遗留写法)
                       }
-
-                      dfd.resolve(executor, options, others);
+                      dfd.resolve(executor, options);
                   }).fail(function (err) {
                       if (err.requireType === 'timeout') {
                           console && console.warn && console.warn('Could not load module ' + err.requireModules);
@@ -4480,6 +3807,36 @@ define('app/widget',[
          *   }
          */
 
+        widget.normalizeConfig = function (config) {
+            var me = this;
+            // 将 config name 进行分解
+            if (_.isString(config)) {
+                config = {
+                    name: config,
+                    options: {}
+                };
+            }
+            var parts = me.splitNameParts(config.name);
+            config.name = parts.name;
+            config.options._source = config.options._source || parts.source;
+            config.options.host = config.options.host || parts.host || appConfig.widget.defaultHost;
+
+            return config;
+        }
+
+        widget.preprocessConfigs = function (list) {
+            var me = this;
+            list = _.map(list, function (config) {
+                return me.normalizeConfig(config);
+            });
+
+            // zip widget configs
+            return _.uniq(list, false, function (item) {
+                if (item.options && item.options.el) return item.options.el;  // 确保一个元素上只有一个插件
+                return item.name + item.options.host;  // 确保一个父元素下，只有一个同样的插件
+            });
+        }
+
         /**
          * 启动一个或一组 widget
          * @param {WidgetStartConfig[]|WidgetStartConfig} list - widget 配置（列表）
@@ -4491,12 +3848,13 @@ define('app/widget',[
          */
         widget.start = function (list, callback, page) {
             var promises = [];
+            var me = this;
             // 传入单个对象时
-            if (_.isObject(list) && !_.isArray(list)) {
-                list = [list];
-            }
+            list = ensureArray(list);
 
             app.widget.isLoading = true;
+
+            list = me.preprocessConfigs(list);
 
             widget._cacheList(list, page);
 
@@ -4510,7 +3868,7 @@ define('app/widget',[
                 }
 
                 if (widget._allowLoad(config)) {
-                    // load widget
+                    // 加载单个 widget
                     var loadDf = app.widget.load(name, options, page);
                     promises.push(loadDf);
                 }
@@ -4525,15 +3883,9 @@ define('app/widget',[
                 _.each(results, function (arg) {
                     var executor = arg[0];  // widget
                     var options = arg[1];  // options
-                    var others = arg[2];  // plugins
-
-                    var pageName = options._page;
-
-                    // 缓存 plugin
-                    if (others) app.plugin.cache(options._name, others);
 
                     // Bugfixed：修复频繁切换页面导致错误加载的bug，当部件所在的页面不是当前页面，则不执行
-                    if (!(pageName && app.page && !app.page.isCurrent(pageName))) {
+                    if (widget.isValid( options._page)) {
                         var wg = widget.create(executor, options);
                         widget.clear(options.host, options._exclusive);
                         if (wg) {
@@ -4560,31 +3912,40 @@ define('app/widget',[
                 app.emitQueue.empty();  // 调用消息队列订阅
             });
         };
-
+        // 验证页面是否匹配
+        widget.isValid = function (page) {
+            return !page || !app.page || app.page.isCurrent(page);
+        },
         /**
          * 扫描某个宿主元素下的所有插件，对不在插件列表中插件进行删除
          * @param {string|DOM|jQueryObject} 宿主对象
          * @returns {void}
          */
-        widget.clear = function (host) {
+        widget.clear = function (host, force) {
+            var me = this;
             if (!host) return;
+            if (force == null) { force = false; }
 
             var hostExpectList = _.filter(app.widget._currWidgetList, function (config) {
-                    return config.options.host === host;
-                });
-            var hostActualList = $(host).children('.' + WIDGET_CLASS);
+                return config.options.host === host;
+            });
+            var hostActualList = me.findDom($(host));
 
             _.each(hostActualList, function (item) {
                 var $item = $(item);
-                // 将实际存在的widget与期望存在的列表进行匹配
-                var expectExists = _.some(hostExpectList, function (w) {
-                    var hasClass = $item.hasClass(w.name);
-                    var sameTag = w.options._tag === $item.data('verTag');
-                    return hasClass && sameTag;
-                });
-                if (!expectExists) {
-                    var oldSandboxRef = $item.data(SANDBOX_REF_NAME);
-                    oldSandboxRef && app.widget.stop(app.sandboxes.get(oldSandboxRef));
+                var stopIt = force;
+                if (!force) {
+                    // 将实际存在的widget与期望存在的列表进行匹配
+                    var expectExists = _.some(hostExpectList, function (w) {
+                        var hasClass = $item.hasClass(w.name);
+                        var sameTag = w.options._tag === $item.data('verTag');
+                        return hasClass && sameTag;
+                    });
+                    stopIt = !expectExists;
+                }
+                if (stopIt) {
+                    app.widget.stop(app.sandboxes.getByEl($item));
+                    // TODO: 如果使用强制删除，这里会造成期望列表不匹配
                 }
             });
 
@@ -4643,11 +4004,18 @@ define('app/widget',[
             delete app.widget._widgetsPool[id];
         }
 
+        widget.findDom = function ($context) {
+            return $context.find('.' + WIDGET_CLASS);
+        }
+
         /**
          * 停止 widget
          * @param {Sandbox|string|jQueryObject|DOM} tag - 传入sandbox、名称、jquery对象等
          */
         widget.stop = function (tag) {
+            var me = this;
+
+            if (tag == null) return;
 
             if (_.isString(tag)) {  // 1. 传入名称
                 var name = tag;
@@ -4657,14 +4025,9 @@ define('app/widget',[
                 });
             } else {
                 // 2. 传入 sandbox 实例
-                var sandbox;
                 if (tag.type && tag.type === 'sandbox') {
-                    sandbox = tag;
+                    var sandbox = tag;
                     var widgetObj;
-                    if (!sandbox) {
-                        return;
-                    }
-
                     // 获取 widget 对象
                     if (sandbox.getOwner) {
                         widgetObj = sandbox.getOwner();
@@ -4707,18 +4070,13 @@ define('app/widget',[
                 } else {
 
                     // 3. 传入 jQuery 对象
-                    var el = tag;
-                    var sandboxRef = $(el).data(SANDBOX_REF_NAME);
-                    var childWidgets = $(el).find('.' + WIDGET_CLASS);
-                    if (childWidgets.length > 0) {
-                        _.each(childWidgets, function (ele) {
-                            app.widget.stop($(ele));
-                        });
-                    }
-                    if (sandboxRef) {
-                        sandbox = app.sandboxes.get(sandboxRef);
-                        app.widget.stop(sandbox);
-                    }
+                    me.findDom(tag).each(function (i, child) {
+                        me.stop($(child));
+                    });
+
+                    // 根据 sandbox 删除
+                    var sd = app.sandboxes.getByEl(tag);
+                    me.stop(sd);
                 }
             }
 
@@ -4845,7 +4203,7 @@ define('app/parser',[
 });
 define('app/view/view-mvvm',[],function () {
 
-    return function (app) {
+    return function (base, app) {
         var $ = app.core.$;
         var _ = app.core._;
         var noop = $.noop;
@@ -5075,27 +4433,21 @@ define('app/view/view-mvvm',[],function () {
             }
         };
 
-        $.extend(app.view.base._defaults, options);
-        $.extend(app.view.base, configs);
-        $.extend(app.view.base, methods);
+        base._extend({
+            options: options,
+            configs: configs,
+            methods: methods
+        });
     };
 });
 
 define('app/view/view-window',[],function () {
 
-    return function (app) {
+    return function (base, app) {
         var core = app.core;
         var $ = app.core.$;
         var _ = app.core._;
-
-        // 默认的对话框模板
-        var defaultWndTpl = '<div class="fn-wnd fn-wnd-placeholder"><span class="ui-dialog-loading fn-s-loading">'
-            + core.i18n.loadingText + '</span></div>';
-
-        // 默认的对话框footer
-        var footerTpl = '<div class="k-footer"><button class="btn btn-default fn-close">'
-            + core.i18n.windowCloseText
-            + '</button></div>';
+        var i18n = core.i18n;
 
         /**
          * 对话框内容类型
@@ -5130,43 +4482,7 @@ define('app/view/view-window',[],function () {
          * @property {ViewOptions|WidgetOptions} options - 组件的配置参数
          */
 
-        // 默认对话框配置
-        var dlgDefaultOptions = {
-            name: '',  // 窗口的唯一标识码
-            type: '',
-            el: null,
-            positionTo: null,
-            center: true,
-            footer: false,
-            template: defaultWndTpl,
-            destroyedOnClose: true,
-            // 窗口配置
-            options: {
-                animation: {
-                    open: false,
-                    close: false
-                },
-                width: 300,
-                height: 200,
-                resizable: false,
-                draggable: false,
-                show: false,
-                visible: false,
-                pinned: false,
-                modal: false
-            },
-            children: null
-        };
-
-        // 生成唯一的窗口名称
-        function generateWindowName() {
-            return _.uniqueId('wnd_');
-        };
-
-        function removeLoading($el) {
-            $el.find('.fn-s-loading').remove();
-        }
-
+        // 获取子级元素根
         function getChildRoot(wnd) {
             var $wndEl = wnd.element.find('.fn-wnd');
             return $wndEl.length === 0 ? wnd.element : $wndEl;
@@ -5187,7 +4503,7 @@ define('app/view/view-window',[],function () {
             });
 
             this.startWidgets(paramConfigs).done(function () {
-                removeLoading(wnd.element);
+                wnd.removeLoading();
             });
         };
 
@@ -5229,6 +4545,27 @@ define('app/view/view-window',[],function () {
 
         var options = {
             windowOptions: false
+        };
+
+        var configs = {
+            windowEngine: '',
+            // 默认对话框配置
+            defaultWndOptions: function () {
+                return {
+                    name: '', // 窗口的唯一标识码
+                    el: null,
+                    center: true,
+                    template: '<div class="fn-wnd fn-wnd-placeholder">' +
+                        '<span class="ui-dialog-loading fn-s-loading">' +
+                        this._i18n('loadingText') + '</span></div>',
+                    destroyedOnClose: true,
+                    children: null,
+                    // 窗口配置
+                    options: {
+                        title: this._i18n('defaultDialogTitle')
+                    }
+                };
+            }
         };
 
         /**
@@ -5330,7 +4667,8 @@ define('app/view/view-window',[],function () {
                 if (isShow == null) {
                     isShow = true;
                 }
-                options = $.extend(true, {}, dlgDefaultOptions, options);
+                var defaultOptions = this._windowProvider().options(this._invoke('defaultWndOptions'));
+                options = $.extend(true, {}, defaultOptions, options);
 
                 if (options.name === '') {
                     options.name = me.uniqWindowName();
@@ -5372,7 +4710,7 @@ define('app/view/view-window',[],function () {
                     createView.call(this, views, wnd);
                     createWidget.call(this, widgets, wnd);
                 } else {
-                    removeLoading(wnd.element);
+                    wnd.removeLoading();
                 }
 
                 if (wnd) {
@@ -5383,20 +4721,11 @@ define('app/view/view-window',[],function () {
                     wnd.center();
                     $(window).on('resize', wnd.vLazyLayout);
                 }
-                if (options.footer) {
-                    $el.find('.fn-close').on('click', function () {
-                        wnd.close();
-                    });
-                    $el.parents(".ui-dialog-body").addClass('with-footer');
-                    //$el.find('.fn-wnd').addClass('with-footer');
-                }
 
                 if (isShow) {
-                    // $('body').addClass('modal-open');
                     setTimeout(function () {
                         wnd.open();
                     }, 200);
-                    // $(WND_CONTAINER).scrollTop(0).show();
                 }
 
                 return wnd;
@@ -5438,106 +4767,37 @@ define('app/view/view-window',[],function () {
 
                 delete this._windows[name];
             },
-
+            _windowProvider: function () {
+                return app.windowProvider.get(this.windowEngine);
+            },
             // 创建对话框界面控件
             _windowInstance: function ($el, config) {
-
-                // 对话框控件实例
-                var dlg = app.ui.dialog($.extend({
-                    title: core.i18n.defaultDialogTitle,
-                    content: $el, // $el.get(0),
-                    fixed: true,
-                    drag: config.options.draggable
-                }, config.options)).close();  // 解决开始对话框默认显示的问题
-
-                /**
-                 * 对话框
-                 * @class veronica.Dialog
-                 */
-
-                /** @lends veronica.Dialog# */
-                var wnd = {
-                    /**
-                     * 对话框元素
-                     */
-                    element: $el,
-                    /**
-                     * 对话框内部UI控件
-                     */
-                    core: dlg,
-                    /**
-                     * 打开对话框
-                     */
-                    config: config,
-                    positionTo: config.positionTo,
-                    /**
-                     * 关闭对话框
-                     */
-                    close: function () {
-                        if (this.core.open) {
-                            this.core.close();
-                        }
-                    },
-                    destroy: function () {
-                        this.core.remove();
-                    },
-                    center: function () {
-                        this.core.reset();
-                    },
-                    /**
-                     * 打开对话框
-                     */
-                    open: function () {
-                        if (config.options.modal === true) {
-                            this.core.showModal(this.positionTo);
-                        } else {
-                            this.core.show(this.positionTo);
-                        }
-                    },
-                    rendered: function (view) {
-                        var $f = view.$el.find('.footer');
-                        if ($f.length > 0 || config.footer === true) {
-                            $f.addClass('modal-footer').closest('.ui-dialog-body').addClass('with-footer');
-                        }
-                        removeLoading(this.element);
-                        this.center();
-                    },
-                    setOptions: function (opt) {
-                        opt.width && this.core.width(opt.width);
-                        opt.height && this.core.height(opt.height);
-                        opt.title && this.core.title(opt.title);
-                    }
-                };
-
-                wnd.core.addEventListener('close', _.bind(function () {
-                    if (config.destroyedOnClose) {
-                        this._destroyWindow(config.name);
-                    }
-                }, this));
-
-                wnd.core.addEventListener('remove', function () {
-                    $.each($('.fn-wnd-placeholder:hidden'), function (i, el) {
-                        if ($(el).closest('.ui-dialog').length === 0) {
-                            $(el).remove();
-                        }
-                    });
-                });
-
-                return wnd;
+                return this._windowProvider().create($el, config, this);
             }
         };
 
-        $.extend(app.view.base._defaults, options);
-        $.extend(app.view.base, methods);
+        base._extendMethod('_setup', function () {
+            this._invoke('_resetParentWnd');
+        });
+
+        base._extend({
+            options: options,
+            configs: configs,
+            methods: methods
+        });
     };
 });
 
 define('app/view/view-attr',[],function () {
 
-    return function (app) {
+    return function (base, app) {
         var $ = app.core.$;
         var _ = app.core._;
         var noop = $.noop;
+
+        var options = {
+            defaultAttrSetup: 'init'
+        };
 
         /** @lends veronica.View# */
         var configs = {
@@ -5571,8 +4831,11 @@ define('app/view/view-attr',[],function () {
 
         /** @lends veronica.View# */
         var methods = {
+            _attrProvider: function (name) {
+                return app.attrProvider.get(name);
+            },
             /**
-             * 定义属性
+             * 获取设置或定义属性
              * 注意：属性的变更是单向的，就是说 origin 变化会引起 attr 变化，但 attr 变化不会引起 origin 变化
              * @function
              * @param {object} options - 配置项
@@ -5582,87 +4845,50 @@ define('app/view/view-attr',[],function () {
              * @param {string} [options.setup=rendered] - 初始化时机（所有该视图相关的事件名称）
              * @param {string} [options.sourceKey] - 原始数据的字段名称
              */
-            defineAttr: function (options) {
-                // if (options.source == null) options.source = 'options';
-                if (options.setup == null) options.setup = 'rendered';
-                if (options.sourceKey == null) options.sourceKey = options.name;
-
-                var me = this;
-
-                if (options.source === 'options') {
-                    if (options.getter == null) {
-                        options.getter = function (data) {
-                            return this.options[data.sourceKey];
-                        }
-                    }
-                }
-
-                if (options.source === 'querystring') {
-                    if (options.getter == null) {
-                        options.getter = function (opt) {
-                            return app.qs.get(opt.sourceKey);
-                        }
-                    }
-                    // 监听查询字符串改变
-                    this.sub('qs-changed', function (obj) {
-                        var value = obj[options.sourceKey];
-                        var originalValue = me.attr(options.name);
-                        if (value != originalValue) {
-                            me.attr(options.name, value);
-                        }
-                    });
-                }
-
-                if (options.source === 'global') {
-                    if (options.getter == null) {
-                        options.getter = function () {
-                            return app.data.get(options.sourceKey);
-                        }
-                    }
-
-                    this.sub('change.' + options.sourceKey, function (value) {
-                        var originalValue = me.attr(options.name);
-                        if (value !== originalValue) {
-                            me.attr(options.name, value);
-                        }
-                    });
-                }
-
-                // 当事件发生时，设置该属性
-                this.listenToOnce(this, options.setup, function () {
-                    var val = this._invoke(options.getter, true, options);
-
-                    this.attr(options.name, val);
-                });
-
-            },
-
-            /**
-             * 获取设置属性
-             * @function
-             */
             attr: function (name, value) {
                 if (!_.isUndefined(value)) {
                     this._attributes[name] = value;
                     this.trigger('attr-changed', name, value);
+                } else {
+                    if (_.isObject(name)) {
+                        var options = name;
+                        // if (options.source == null) options.source = 'options';
+                        if (options.setup == null) options.setup = this.options.defaultAttrSetup;
+                        if (options.sourceKey == null) options.sourceKey = options.name;
+
+                        var me = this;
+
+                        if (options.source) {
+                            options = me._attrProvider(options.source).create(options, me);
+                            // 当事件发生时，设置该属性
+                            this.listenToOnce(this, options.setup, function () {
+                                var val = this._invoke(options.getter, true, options);
+                                this.attr(options.name, val);
+                            });
+                        } else {
+                            this.attr(options.name, options.value);
+                        }
+                    }
                 }
                 return this._attributes[name];
             }
         };
 
-        $.extend(app.view.base, configs);
-        $.extend(app.view.base, methods);
+        base._extend({
+            options: options,
+            configs: configs,
+            methods: methods
+        });
     };
 });
 
 define('app/view/view-action',[],function () {
 
-    return function (app) {
+    return function (base, app) {
         var $ = app.core.$;
         var _ = app.core._;
-        var noop = $.noop;
 
-        app.view.base._autoAction = function () {
+        base._extendMethod('_setup', function() {
             if (this.options.autoAction) {
                 // 代理默认的事件处理程序
                 this.events || (this.events = {});
@@ -5672,64 +4898,68 @@ define('app/view/view-action',[],function () {
                     'click [data-dlg-widget]': '_dlgWidgetHandler'
                 });
             }
-        }
+        });
 
-        app.view.base._actionHandler = function (e, context) {
-            e.preventDefault();
-            //e.stopImmediatePropagation();
+        base._extend({
+            options: {
+                autoAction: false
+            },
+            methods: {
+                _actionHandler: function (e, context) {
+                    e.preventDefault();
+                    //e.stopImmediatePropagation();
 
-            context || (context = this);
-            var $el = $(e.currentTarget);
-            if ($el.closest('script').length > 0) return;
+                    context || (context = this);
+                    var $el = $(e.currentTarget);
+                    if ($el.closest('script').length > 0) return;
 
-            var actionName = $el.data().action;
-            if (actionName.indexOf('Handler') < 0) {
-                actionName = actionName + 'Handler';
+                    var actionName = $el.data().action;
+                    if (actionName.indexOf('Handler') < 0) {
+                        actionName = actionName + 'Handler';
+                    }
+
+                    context[actionName] && context[actionName](e, app, _, $);
+                },
+                _getViewTriggerOptions: function (attr) {
+                    var nameParts = attr.split('?');
+                    var name = nameParts[0];
+                    var options = {};
+                    if (nameParts[1]) {
+                        options = app.core.util.qsToJSON(nameParts[1]);
+                    }
+                    options._viewName = name;
+                    return options;
+                },
+                _dlgViewHandler: function (e) {
+                    var $el = $(e.currentTarget);
+                    var options = this._getViewTriggerOptions($el.attr('data-dlg-view'));
+
+                    var initializer = function (options) {
+                        var ctor = app.view.ctor(options._viewName);
+                        return new ctor(options);
+                    };
+                    this.viewWindow(options._viewName, initializer, options);
+                },
+                _dlgWidgetHandler: function (e) {
+                    var $el = $(e.currentTarget);
+                    var options = this._getViewTriggerOptions($el.attr('data-dlg-widget'));
+
+                    this.widgetWindow(options._viewName, options);
+                }
             }
-
-            context[actionName] && context[actionName](e, app, _, $);
-        }
-
-        // 获取触发视图配置项
-        app.view.base._getViewTriggerOptions = function (attr) {
-            var nameParts = attr.split('?');
-            var name = nameParts[0];
-            var options = {};
-            if (nameParts[1]) {
-                options = app.core.util.qsToJSON(nameParts[1]);
-            }
-            options._viewName = name;
-            return options;
-        }
-
-        app.view.base._dlgViewHandler = function (e) {
-            var $el = $(e.currentTarget);
-            var options = this._getViewTriggerOptions($el.attr('data-dlg-view'));
-
-            var initializer = function (options) {
-                var ctor = app.view.ctor(options._viewName);
-                return new ctor(options);
-            };
-            this.viewWindow(options._viewName, initializer, options);
-        }
-
-        app.view.base._dlgWidgetHandler = function (e) {
-            var $el = $(e.currentTarget);
-            var options = this._getViewTriggerOptions($el.attr('data-dlg-widget'));
-
-            this.widgetWindow(options._viewName, options);
-        };
+        });
     };
 });
 
 define('app/view/view-children',[],function () {
 
-    return function (app) {
+    return function (base, app) {
         var $ = app.core.$;
         var _ = app.core._;
 
         var options = {
-            activeView: null
+            activeView: null,
+            autoCreateSubview: true
         };
 
         /** @lends veronica.View# */
@@ -5741,7 +4971,7 @@ define('app/view/view-children',[],function () {
             switchable: [],
             /**
              * 设置子视图
-             * @type {Object|Function} 
+             * @type {Object|Function}
              */
             views: null
         };
@@ -5901,16 +5131,17 @@ define('app/view/view-children',[],function () {
             }
         };
 
-        $.extend(app.view.base._defaults, options);
-        $.extend(app.view.base, configs);
-        $.extend(app.view.base, methods);
-
+        base._extend({
+            options: options,
+            configs: configs,
+            methods: methods
+        });
     };
 });
 
 define('app/view/view-listen',[],function () {
 
-    return function (app) {
+    return function (base, app) {
 
         var noop = function () { };
         var baseListenTo = app.core.Events.listenTo;
@@ -5966,7 +5197,7 @@ define('app/view/view-listen',[],function () {
              *
              *       })
              *   }
-             * 
+             *
              */
             listenTo: function (sender, event, handler) {
                 var baseListenToDeley = this.listenToDelay;
@@ -6007,13 +5238,13 @@ define('app/view/view-listen',[],function () {
             },
 
             // 默认的监听
-            _defaultListen: function () {
+            _listen: function () {
                 var me = this;
                 this.listenTo(this, 'modelBound', function (model) {
                     // 更新子视图模型
                     _.each(me._views, function (view) {
                         view.externalModel(model);
-                    }); 
+                    });
                 });
                 this.listenTo(this, 'rendering', function () {
                     this.state.isRendered = false;
@@ -6022,11 +5253,11 @@ define('app/view/view-listen',[],function () {
                         this._createSubviews();
                     }
                 });
+
                 this.listenTo(this, 'rendered', function () {
                     this.state.isRendered = true;
                     // 在渲染视图后重新绑定视图模型
                     this._bindViewModel();
-                    this.options.autoST && this.setTriggers();
                 });
 
                 // 监听属性变更
@@ -6042,7 +5273,6 @@ define('app/view/view-listen',[],function () {
                     });
                 });
 
-                this._invoke('listen');  // 自定义监听
             },
 
             /**
@@ -6073,27 +5303,23 @@ define('app/view/view-listen',[],function () {
             }
         };
 
-
-        app.view.base._extend({
-            properties: configs,
+        base._extend({
+            configs: configs,
             methods: methods
         });
-        //$.extend(app.view.base, configs);
-        //$.extend(app.view.base, methods);
     };
 });
 
 define('app/view/view-render',[],function () {
 
-    return function (app) {
+    return function (base, app) {
         var $ = app.core.$;
         var _ = app.core._;
         var noop = $.noop;
 
         var options = {
             _place: 0,
-            autoRender: true,
-            autoCreateSubview: true
+            autoRender: true
         };
 
         /** @lends veronica.View# */
@@ -6104,7 +5330,7 @@ define('app/view/view-render',[],function () {
              */
             template: null,
 
-            templateEngine: 'underscore',
+            templateEngine: 'lodash',
 
             /**
              * 模板路径
@@ -6141,7 +5367,13 @@ define('app/view/view-render',[],function () {
         /** @lends veronica.View# */
         var methods = {
 
-
+            /**
+             * 更新指定元素内容
+             * @param {} selector
+             * @param {} url
+             * @param {} data
+             * @returns {}
+             */
             updateEl: function (selector, url, data) {
                 var $el = this.$(selector);
                 if (arguments.length > 2) {
@@ -6176,17 +5408,23 @@ define('app/view/view-render',[],function () {
             _html: function (html) {
                 this.$el.get(0).innerHTML = html;
             },
+            _templateEngine: function () {
+                var app = this.options.sandbox.app;
+                return app.templateEngine.get(this.templateEngine);
+            },
             _compileTemplate: function (templateText) {
-                return _.template(templateText, { variable: 'data' });
+                return this._templateEngine().compile(templateText, this);
             },
             _executeTemplate: function (compiled) {
-                return compiled(_.extend({ lang: app.lang[this.options.langClass] }, this.options));
+                var options = this._templateEngine().options(this);
+                return compiled(options);
             },
             _renderTemplate: function (template) {
                 var compiled = _.isFunction(template) ? template : this._compileTemplate(template);
                 return this._executeTemplate(compiled);
             },
             _render: function (template, isHtml) {
+                // TODO: 进行模板预编译缓存
                 var hasTpl = !!template;
                 var options = this.options;
                 var sandbox = options.sandbox;
@@ -6208,17 +5446,14 @@ define('app/view/view-render',[],function () {
                 if (this.options.host && this.state.isAppended !== true) {
                     var placeMethod = options._place === 1 ? 'prependTo' : 'appendTo';
                     // 只有当前页面与 view 所属页面相同时，才呈现到界面上
-                    if (!this.options._page || this.options._page === app.page.currName()) {
+                    if (app.widget.isValid(options._page)) {
                         this.$el[placeMethod](this.options.host);
                         this.state.isAppended = true;
                     }
                 };
 
 
-                this._invoke('_activeUI');
-                this._invoke('enhance');
-
-                sandbox.log(this.cid + ' rendered');
+                this._invoke('_rendered');
 
                 /**
                  * 渲染完毕
@@ -6226,9 +5461,10 @@ define('app/view/view-render',[],function () {
                  */
                 this.trigger('rendered');
 
+                sandbox.log(this.cid + ' rendered');
+
                 return this;
             },
-
             /**
              * 刷新界面
              * @private
@@ -6257,34 +5493,18 @@ define('app/view/view-render',[],function () {
                 });
             },
             /**
-             * **`可重写`** 激活UI，界面渲染完毕后执行的方法，可用于进行 jQuery 插件初始化
+             * **`可重写`** 渲染完成后调用的内部方法，可用于进行 jQuery 插件初始化
              * 以及其他控件的初始化等
              * @private
              * @function
              * @example
-             *   var baseActiveUI = app.view.base._activeUI;
-             *   app.view.base._activeUI = function () {
-             *     baseActiveUI();
+             *   var baseRendered = app.view.base._rendered;
+             *   app.view.base._rendered = function () {
+             *     this._call(baseRendered, arguments);
              *     // 放置你的自定义代码
              *   }
              */
-            _activeUI: function (app) {
-
-                // 启用布局控件，示例
-                if ($.layout) {
-                    var me = this;
-                    setTimeout(function () {
-                        _.each(this.$('[data-part=layout]'), function (el) {
-                            $(el).layout({
-                                applyDemoStyles: false,
-                                closable: false,
-                                resizable: false,
-                                slidable: false,
-                                spacing_open: 0
-                            });
-                        });
-                    }, 0);
-                }
+            _rendered: function (app) {
 
             },
 
@@ -6309,74 +5529,11 @@ define('app/view/view-render',[],function () {
             }
         };
 
-        $.extend(app.view.base._defaults, options);
-        $.extend(app.view.base, configs);
-        $.extend(app.view.base, methods);
-
-    };
-});
-
-define('app/view/view-resize',[],function () {
-
-    return function (app) {
-
-        var noop = function () { };
-
-        /**
-         * **`重写`** 重写该方法，使视图自适应布局，当开启 `autoResize` 后，窗口大小变化时，该方法会被调用，
-         * 如果有必要，在该方法中应编写窗口大小变化时，该视图对应的处理逻辑
-         * @type {function}
-         */
-        app.view.base.resize = noop;
-
-        app.view.base._autoResize = function () {
-            if (this.options.autoResize) {
-                this.listenTo(this, 'rendered', function () {
-                    _.defer(this.resize);
-                });
-                $(window).on('resize', this.resize);
-            }
-        };
-    };
-});
-
-define('app/view/view-trigger',[],function () {
-
-    return function (app) {
-        var $ = app.core.$;
-        var _ = app.core._;
-        var noop = $.noop;
-
-        var options = {
-            autoST: false,
-            toolbar: 'toolbar',
-            defaultToolbarTpl: '.tpl-toolbar'
-        };
-
-        var methods = {
-            /**
-             * 设置触发器
-             * @param {string} [toolbarTpl=options.defaultToolbarTpl] - 工具条选择器
-             * @returns void
-             * @fires View#setTriggers
-             */
-            setTriggers: function (toolbarTpl) {
-                toolbarTpl || (toolbarTpl = this.options.defaultToolbarTpl);
-
-                /**
-                 * **消息：** 设置触发器
-                 * @event View#setTriggers
-                 * @param {string} html - 工具条模板
-                 * @param {string} name - 目标名称
-                 * @param {View} view - 当前视图
-                 */
-                this.pub('setTriggers', this.$(toolbarTpl).html(),
-                    this.options.toolbar || this._name, this);
-            }
-        };
-
-        $.extend(app.view.base._defaults, options);
-        $.extend(app.view.base, methods);
+        base._extend({
+            options: options,
+            configs: configs,
+            methods: methods
+        });
     };
 });
 
@@ -6387,10 +5544,8 @@ define('app/view/view-base',[
     './view-action',
     './view-children',
     './view-listen',
-    './view-render',
-    './view-resize',
-    './view-trigger'
-], function (mvvm, subwindow, attr, action, children, listen, render, resize, trigger) {
+    './view-render'
+], function (mvvm, subwindow, attr, action, children, listen, render) {
 
     return function (app) {
         var $ = app.core.$;
@@ -6435,9 +5590,6 @@ define('app/view/view-base',[
              */
             defaults: {},
             _defaults: {
-                autoAction: false,
-
-                autoResize: false,
                 /**
                  * @deprecated
                  * @private
@@ -6455,7 +5607,8 @@ define('app/view/view-base',[
                  * @name binds
                  * @memberOf View#
                  */
-                this.binds = ['resize'];
+                //this.binds = ['resize'];
+                this.binds = [];
 
                 this._windows = {};  // 子窗口集合
                 this._views = {};  // 子视图集合
@@ -6473,14 +5626,19 @@ define('app/view/view-base',[
                 obj.methods && $.extend(this, obj.methods);
 
                 // 加入运行时属性
-                var originalInitProps = this._initProps;
                 if (obj.props) {
-                    this._initProps = function () {
-                        this._call(originalInitProps, arguments);
+                    this._extendMethod('_initProps', function() {
                         _.each(obj.props, function (prop, name) {
                             this[name] = prop;
                         });
-                    }
+                    });
+                }
+            },
+            _extendMethod: function (methodName, newMethod) {
+                var original = this[methodName];
+                this[methodName] = function () {
+                    this._call(original, arguments);
+                    this._call(newMethod, arguments);
                 }
             },
             _invoke: function (methodName, isWithDefaultParams) {
@@ -6498,12 +5656,17 @@ define('app/view/view-base',[
                 }
 
                 return _.isFunction(method) ? method.apply(this, args.slice(sliceLen)) : method;
+            },
+            _i18n: function (key) {
+                var i18n = app.i18n.get();
+                return i18n[key];
             }
         };
 
-
-        // mixins
-
+        /**
+         * mixins
+         * @deprecated
+         */
         var mixinAbility = {
             /** @lends veronica.View# */
             configs: {
@@ -6596,33 +5759,18 @@ define('app/view/view-base',[
             /** @lends veronica.View# */
             methods: {
                 _setup: function (options) {
-                    this._invoke('_loadPlugin');
-
                     this._invoke('aspect');
 
-                    this._invoke('_defaultListen');
-
-                    this._invoke('_autoResize');
-
-                    this._invoke('_resetParentWnd');
-
-                    this._invoke('_initModel');
-
-                    // 初始化自定义属性
-                    this._invoke('initAttr');
+                    this._invoke('_listen');
+                    this._invoke('listen');
 
                     this._invoke('subscribe');  // 初始化广播监听
 
-                    this._invoke('_autoAction');
-
-                    this._invoke('init');
-
-                    this.trigger('init');
+                    this._invoke('initAttr');
+                    this._invoke('_initModel');
                 },
 
                 _destroy: function () {
-                    // 清理在全局注册的事件处理器
-                    this.options.autoResize && $(window).off('resize', this.resize);
 
                     this._invoke('_destroyWindow', false);
 
@@ -6662,7 +5810,7 @@ define('app/view/view-base',[
                     this._initProps(options);
 
                     // 将方法绑定到当前视图
-                    if (this.binds) {
+                    if (this.binds.length > 0) {
                         this.binds.unshift(this);
                         _.bindAll.apply(_, this.binds);
                     }
@@ -6674,6 +5822,8 @@ define('app/view/view-base',[
                     }
 
                     this._setup(options);
+                    this._invoke('init');
+                    this.trigger('init');
 
                     // 渲染
                     this.options.autoRender && this.render();
@@ -6700,6 +5850,13 @@ define('app/view/view-base',[
         }
         base._extend(lifecycleAblility);
 
+        listen(base, app);
+        attr(base, app);
+        mvvm(base, app);
+        render(base, app);
+        children(base, app);
+        subwindow(base, app);
+        action(base, app);
 
         /**
          * @classdesc 视图
@@ -6707,16 +5864,6 @@ define('app/view/view-base',[
          * @augments Backbone.View
          */
         app.view.base = base;
-
-        mvvm(app);
-        subwindow(app);
-        attr(app);
-        action(app);
-        children(app);
-        listen(app);
-        render(app);
-        resize(app);
-        trigger(app);
     };
 });
 
@@ -6909,38 +6056,6 @@ define('app/data',[], function () {
          * @type {veronica.Data}
          */
         app.data = Data;
-    };
-});
-
-// 模板扩展
-define('app/templates',['require'], function (require) {
-    return function (app) {
-        var _ = app.core._;
-
-        app.templates = {
-            _templates: {},
-            set: function (name, tpl, isRequire) {
-
-                if (isRequire) {
-                    isRequire(['text!' + tpl], function (resp) {
-                        app.templates._templates[name] = resp;
-                    });
-                } else {
-                    app.templates._templates[name] = tpl;
-                }
-            },
-            get: function (name) {
-                return app.templates._templates[name];
-            },
-            getName: function (tpl) {
-                _.each(app.templates._templates, function (item, name) {
-                    if (item === tpl) {
-                        return name;
-                    }
-                });
-                return null;
-            }
-        }
     };
 });
 
@@ -7258,1785 +6373,87 @@ define('app/qs',[
     };
 });
 
-define('app/cache',[
-], function () {
+define('app/provider',[], function () {
     return function (app) {
-
-        // 客户端缓存
-        app.cache = {
-            enabled: false,
-            _cache: {},
-            config: {}
-        };
-
-        app.cache.config = function (options) {
-            $.each(options, function (value, key) {
-                app.cache.config[key] = value;
-            });
-            app.cache.config = options;
-        };
-
-        app.cache.load = function (key) {
-            var url = app.cache.config[key];
-            var store = app.cache._cache;
-            return $.get(url).done(function (resp) {
-                store[key] = resp;
-            });
-        }
-
-        app.cache.access = function (key) {
-            return app.cache._cache[key];
-        }
-
-        app.cache.get = function (key) {
-
-            var deferred = $.Deferred();
-
-            if (app.cache.enabled === false || app.cache._cache[key] == null) {
-                app.cache.load(key).done(function (resp) {
-                    deferred.resolve(resp);
-                }).fail(function () {
-                    deferred.reject();
-                });
-            } else {
-                var data = app.cache._cache[key];
-                deferred.resolve(data);
-            }
-
-            return deferred.promise();
-        }
-    };
-});
-
-/*! artDialog v6.0.5 | https://github.com/aui/artDialog */
-!(function () {
-
-var __modules__ = {};
-
-function require (id) {
-    var mod = __modules__[id];
-    var exports = 'exports';
-
-    if (typeof mod === 'object') {
-        return mod;
-    }
-
-    if (!mod[exports]) {
-        mod[exports] = {};
-        mod[exports] = mod.call(mod[exports], require, mod[exports], mod) || mod[exports];
-    }
-
-    return mod[exports];
-}
-
-function define (path, fn) {
-    __modules__[path] = fn;
-}
-
-
-
-define("jquery", function () {
-	return jQuery;
-});
-
-
-/*!
- * PopupJS
- * Date: 2014-11-09
- * https://github.com/aui/popupjs
- * (c) 2009-2014 TangBin, http://www.planeArt.cn
- *
- * This is licensed under the GNU LGPL, version 2.1 or later.
- * For details, see: http://www.gnu.org/licenses/lgpl-2.1.html
- */
-
-define("popup", function (require) {
-
-var $ = require("jquery");
-
-var _count = 0;
-var _isIE6 = !('minWidth' in $('html')[0].style);
-var _isFixed = !_isIE6;
-
-
-function Popup () {
-
-    this.destroyed = false;
-
-
-    this.__popup = $('<div />')
-    /*使用 <dialog /> 元素可能导致 z-index 永远置顶的问题(chrome)*/
-    .css({
-        display: 'none',
-        position: 'absolute',
-        /*
-        left: 0,
-        top: 0,
-        bottom: 'auto',
-        right: 'auto',
-        margin: 0,
-        padding: 0,
-        border: '0 none',
-        background: 'transparent'
-        */
-        outline: 0
-    })
-    .attr('tabindex', '-1')
-    .html(this.innerHTML)
-    .appendTo('body');
-
-
-    this.__backdrop = this.__mask = $('<div />')
-    .css({
-        opacity: .7,
-        background: '#000'
-    });
-
-
-    // 使用 HTMLElement 作为外部接口使用，而不是 jquery 对象
-    // 统一的接口利于未来 Popup 移植到其他 DOM 库中
-    this.node = this.__popup[0];
-    this.backdrop = this.__backdrop[0];
-
-    _count ++;
-}
-
-
-$.extend(Popup.prototype, {
-    
-    /**
-     * 初始化完毕事件，在 show()、showModal() 执行
-     * @name Popup.prototype.onshow
-     * @event
-     */
-
-    /**
-     * 关闭事件，在 close() 执行
-     * @name Popup.prototype.onclose
-     * @event
-     */
-
-    /**
-     * 销毁前事件，在 remove() 前执行
-     * @name Popup.prototype.onbeforeremove
-     * @event
-     */
-
-    /**
-     * 销毁事件，在 remove() 执行
-     * @name Popup.prototype.onremove
-     * @event
-     */
-
-    /**
-     * 重置事件，在 reset() 执行
-     * @name Popup.prototype.onreset
-     * @event
-     */
-
-    /**
-     * 焦点事件，在 foucs() 执行
-     * @name Popup.prototype.onfocus
-     * @event
-     */
-
-    /**
-     * 失焦事件，在 blur() 执行
-     * @name Popup.prototype.onblur
-     * @event
-     */
-
-    /** 浮层 DOM 素节点[*] */
-    node: null,
-
-    /** 遮罩 DOM 节点[*] */
-    backdrop: null,
-
-    /** 是否开启固定定位[*] */
-    fixed: false,
-
-    /** 判断对话框是否删除[*] */
-    destroyed: true,
-
-    /** 判断对话框是否显示 */
-    open: false,
-
-    /** close 返回值 */
-    returnValue: '',
-
-    /** 是否自动聚焦 */
-    autofocus: true,
-
-    /** 对齐方式[*] */
-    align: 'bottom left',
-
-    /** 内部的 HTML 字符串 */
-    innerHTML: '',
-
-    /** CSS 类名 */
-    className: 'ui-popup',
-
-    /**
-     * 显示浮层
-     * @param   {HTMLElement, Event}  指定位置（可选）
-     */
-    show: function (anchor) {
-
-        if (this.destroyed) {
-            return this;
-        }
-
-        var that = this;
-        var popup = this.__popup;
-        var backdrop = this.__backdrop;
-
-        this.__activeElement = this.__getActive();
-
-        this.open = true;
-        this.follow = anchor || this.follow;
-
-
-        // 初始化 show 方法
-        if (!this.__ready) {
-
-            popup
-            .addClass(this.className)
-            .attr('role', this.modal ? 'alertdialog' : 'dialog')
-            .css('position', this.fixed ? 'fixed' : 'absolute');
-
-            if (!_isIE6) {
-                $(window).on('resize', $.proxy(this.reset, this));
-            }
-
-            // 模态浮层的遮罩
-            if (this.modal) {
-                var backdropCss = {
-                    position: 'fixed',
-                    left: 0,
-                    top: 0,
-                    width: '100%',
-                    height: '100%',
-                    overflow: 'hidden',
-                    userSelect: 'none',
-                    zIndex: this.zIndex || Popup.zIndex
-                };
-
-
-                popup.addClass(this.className + '-modal');
-
-
-                if (!_isFixed) {
-                    $.extend(backdropCss, {
-                        position: 'absolute',
-                        width: $(window).width() + 'px',
-                        height: $(document).height() + 'px'
+        var extend = app.core._.extend;
+        var logger = app.core.logger;
+
+        app.providerBase = {
+            _pool: {},
+            _defaultKey: 'default',
+            _preprocess: function (data) {
+                return data;
+            },
+            setDefault: function (key) {
+                this._defaultKey = key;
+            },
+            get: function (name) {
+                name || (name = this._defaultKey);
+                var r = this._pool[name];
+                if (r == null) {
+                    logger.error('provider is not found');
+                }
+                return r;
+            },
+            add: function add(name, provider, options) {
+                var me = this;
+                if (_.isObject(name)) {
+                    options = provider;
+                    _.each(name, function(provider, key) {
+                        add.call(me, key, provider, options);
                     });
-                }
-
-
-                backdrop
-                .css(backdropCss)
-                .attr({tabindex: '0'})
-                .on('focus', $.proxy(this.focus, this));
-
-                // 锁定 tab 的焦点操作
-                this.__mask = backdrop
-                .clone(true)
-                .attr('style', '')
-                .insertAfter(popup);
-
-                backdrop
-                .addClass(this.className + '-backdrop')
-                .insertBefore(popup);
-
-                this.__ready = true;
-            }
-
-
-            if (!popup.html()) {
-                popup.html(this.innerHTML);
-            }
-        }
-
-
-        popup
-        .addClass(this.className + '-show')
-        .show();
-
-        backdrop.show();
-
-
-        this.reset().focus();
-        this.__dispatchEvent('show');
-
-        return this;
-    },
-
-
-    /** 显示模态浮层。参数参见 show() */
-    showModal: function () {
-        this.modal = true;
-        return this.show.apply(this, arguments);
-    },
-    
-    
-    /** 关闭浮层 */
-    close: function (result) {
-        
-        if (!this.destroyed && this.open) {
-            
-            if (result !== undefined) {
-                this.returnValue = result;
-            }
-            
-            this.__popup.hide().removeClass(this.className + '-show');
-            this.__backdrop.hide();
-            this.open = false;
-            this.blur();// 恢复焦点，照顾键盘操作的用户
-            this.__dispatchEvent('close');
-        }
-    
-        return this;
-    },
-
-
-    /** 销毁浮层 */
-    remove: function () {
-
-        if (this.destroyed) {
-            return this;
-        }
-
-        this.__dispatchEvent('beforeremove');
-        
-        if (Popup.current === this) {
-            Popup.current = null;
-        }
-
-
-        // 从 DOM 中移除节点
-        this.__popup.remove();
-        this.__backdrop.remove();
-        this.__mask.remove();
-
-
-        if (!_isIE6) {
-            $(window).off('resize', this.reset);
-        }
-
-
-        this.__dispatchEvent('remove');
-
-        for (var i in this) {
-            delete this[i];
-        }
-
-        return this;
-    },
-
-
-    /** 重置位置 */
-    reset: function () {
-
-        var elem = this.follow;
-
-        if (elem) {
-            this.__follow(elem);
-        } else {
-            this.__center();
-        }
-
-        this.__dispatchEvent('reset');
-
-        return this;
-    },
-
-
-    /** 让浮层获取焦点 */
-    focus: function () {
-
-        var node = this.node;
-        var popup = this.__popup;
-        var current = Popup.current;
-        var index = this.zIndex = Popup.zIndex ++;
-
-        if (current && current !== this) {
-            current.blur(false);
-        }
-
-        // 检查焦点是否在浮层里面
-        if (!$.contains(node, this.__getActive())) {
-            var autofocus = popup.find('[autofocus]')[0];
-
-            if (!this._autofocus && autofocus) {
-                this._autofocus = true;
-            } else {
-                autofocus = node;
-            }
-
-            this.__focus(autofocus);
-        }
-
-        // 设置叠加高度
-        popup.css('zIndex', index);
-        //this.__backdrop.css('zIndex', index);
-
-        Popup.current = this;
-        popup.addClass(this.className + '-focus');
-
-        this.__dispatchEvent('focus');
-
-        return this;
-    },
-
-
-    /** 让浮层失去焦点。将焦点退还给之前的元素，照顾视力障碍用户 */
-    blur: function () {
-
-        var activeElement = this.__activeElement;
-        var isBlur = arguments[0];
-
-
-        if (isBlur !== false) {
-            this.__focus(activeElement);
-        }
-
-        this._autofocus = false;
-        this.__popup.removeClass(this.className + '-focus');
-        this.__dispatchEvent('blur');
-
-        return this;
-    },
-
-
-    /**
-     * 添加事件
-     * @param   {String}    事件类型
-     * @param   {Function}  监听函数
-     */
-    addEventListener: function (type, callback) {
-        this.__getEventListener(type).push(callback);
-        return this;
-    },
-
-
-    /**
-     * 删除事件
-     * @param   {String}    事件类型
-     * @param   {Function}  监听函数
-     */
-    removeEventListener: function (type, callback) {
-        var listeners = this.__getEventListener(type);
-        for (var i = 0; i < listeners.length; i ++) {
-            if (callback === listeners[i]) {
-                listeners.splice(i--, 1);
-            }
-        }
-        return this;
-    },
-
-
-    // 获取事件缓存
-    __getEventListener: function (type) {
-        var listener = this.__listener;
-        if (!listener) {
-            listener = this.__listener = {};
-        }
-        if (!listener[type]) {
-            listener[type] = [];
-        }
-        return listener[type];
-    },
-
-
-    // 派发事件
-    __dispatchEvent: function (type) {
-        var listeners = this.__getEventListener(type);
-
-        if (this['on' + type]) {
-            this['on' + type]();
-        }
-
-        for (var i = 0; i < listeners.length; i ++) {
-            listeners[i].call(this);
-        }
-    },
-
-
-    // 对元素安全聚焦
-    __focus: function (elem) {
-        // 防止 iframe 跨域无权限报错
-        // 防止 IE 不可见元素报错
-        try {
-            // ie11 bug: iframe 页面点击会跳到顶部
-            if (this.autofocus && !/^iframe$/i.test(elem.nodeName)) {
-                elem.focus();
-            }
-        } catch (e) {}
-    },
-
-
-    // 获取当前焦点的元素
-    __getActive: function () {
-        try {// try: ie8~9, iframe #26
-            var activeElement = document.activeElement;
-            var contentDocument = activeElement.contentDocument;
-            var elem = contentDocument && contentDocument.activeElement || activeElement;
-            return elem;
-        } catch (e) {}
-    },
-
-
-    // 居中浮层
-    __center: function () {
-    
-        var popup = this.__popup;
-        var $window = $(window);
-        var $document = $(document);
-        var fixed = this.fixed;
-        var dl = fixed ? 0 : $document.scrollLeft();
-        var dt = fixed ? 0 : $document.scrollTop();
-        var ww = $window.width();
-        var wh = $window.height();
-        var ow = popup.width();
-        var oh = popup.height();
-        var left = (ww - ow) / 2 + dl;
-        var top = (wh - oh) * 382 / 1000 + dt;// 黄金比例
-        var style = popup[0].style;
-
-        
-        style.left = Math.max(parseInt(left), dl) + 'px';
-        style.top = Math.max(parseInt(top), dt) + 'px';
-    },
-    
-    
-    // 指定位置 @param    {HTMLElement, Event}  anchor
-    __follow: function (anchor) {
-        
-        var $elem = anchor.parentNode && $(anchor);
-        var popup = this.__popup;
-        
-
-        if (this.__followSkin) {
-            popup.removeClass(this.__followSkin);
-        }
-
-
-        // 隐藏元素不可用
-        if ($elem) {
-            var o = $elem.offset();
-            if (o.left * o.top < 0) {
-                return this.__center();
-            }
-        }
-        
-        var that = this;
-        var fixed = this.fixed;
-
-        var $window = $(window);
-        var $document = $(document);
-        var winWidth = $window.width();
-        var winHeight = $window.height();
-        var docLeft =  $document.scrollLeft();
-        var docTop = $document.scrollTop();
-
-
-        var popupWidth = popup.width();
-        var popupHeight = popup.height();
-        var width = $elem ? $elem.outerWidth() : 0;
-        var height = $elem ? $elem.outerHeight() : 0;
-        var offset = this.__offset(anchor);
-        var x = offset.left;
-        var y = offset.top;
-        var left =  fixed ? x - docLeft : x;
-        var top = fixed ? y - docTop : y;
-
-
-        var minLeft = fixed ? 0 : docLeft;
-        var minTop = fixed ? 0 : docTop;
-        var maxLeft = minLeft + winWidth - popupWidth;
-        var maxTop = minTop + winHeight - popupHeight;
-
-
-        var css = {};
-        var align = this.align.split(' ');
-        var className = this.className + '-';
-        var reverse = {top: 'bottom', bottom: 'top', left: 'right', right: 'left'};
-        var name = {top: 'top', bottom: 'top', left: 'left', right: 'left'};
-
-
-        var temp = [{
-            top: top - popupHeight,
-            bottom: top + height,
-            left: left - popupWidth,
-            right: left + width
-        }, {
-            top: top,
-            bottom: top - popupHeight + height,
-            left: left,
-            right: left - popupWidth + width
-        }];
-
-
-        var center = {
-            left: left + width / 2 - popupWidth / 2,
-            top: top + height / 2 - popupHeight / 2
-        };
-
-        
-        var range = {
-            left: [minLeft, maxLeft],
-            top: [minTop, maxTop]
-        };
-
-
-        // 超出可视区域重新适应位置
-        $.each(align, function (i, val) {
-
-            // 超出右或下边界：使用左或者上边对齐
-            if (temp[i][val] > range[name[val]][1]) {
-                val = align[i] = reverse[val];
-            }
-
-            // 超出左或右边界：使用右或者下边对齐
-            if (temp[i][val] < range[name[val]][0]) {
-                align[i] = reverse[val];
-            }
-
-        });
-
-
-        // 一个参数的情况
-        if (!align[1]) {
-            name[align[1]] = name[align[0]] === 'left' ? 'top' : 'left';
-            temp[1][align[1]] = center[name[align[1]]];
-        }
-
-
-        //添加follow的css, 为了给css使用
-        className += align.join('-') + ' '+ this.className+ '-follow';
-        
-        that.__followSkin = className;
-
-
-        if ($elem) {
-            popup.addClass(className);
-        }
-
-        
-        css[name[align[0]]] = parseInt(temp[0][align[0]]);
-        css[name[align[1]]] = parseInt(temp[1][align[1]]);
-        popup.css(css);
-
-    },
-
-
-    // 获取元素相对于页面的位置（包括iframe内的元素）
-    // 暂时不支持两层以上的 iframe 套嵌
-    __offset: function (anchor) {
-
-        var isNode = anchor.parentNode;
-        var offset = isNode ? $(anchor).offset() : {
-            left: anchor.pageX,
-            top: anchor.pageY
-        };
-
-
-        anchor = isNode ? anchor : anchor.target;
-        var ownerDocument = anchor.ownerDocument;
-        var defaultView = ownerDocument.defaultView || ownerDocument.parentWindow;
-        
-        if (defaultView == window) {// IE <= 8 只能使用两个等于号
-            return offset;
-        }
-
-        // {Element: Ifarme}
-        var frameElement = defaultView.frameElement;
-        var $ownerDocument = $(ownerDocument);
-        var docLeft =  $ownerDocument.scrollLeft();
-        var docTop = $ownerDocument.scrollTop();
-        var frameOffset = $(frameElement).offset();
-        var frameLeft = frameOffset.left;
-        var frameTop = frameOffset.top;
-        
-        return {
-            left: offset.left + frameLeft - docLeft,
-            top: offset.top + frameTop - docTop
-        };
-    }
-    
-});
-
-
-/** 当前叠加高度 */
-Popup.zIndex = 1024;
-
-
-/** 顶层浮层的实例 */
-Popup.current = null;
-
-
-return Popup;
-
-});
-
-// artDialog - 默认配置
-define("dialog-config", {
-
-    /* -----已注释的配置继承自 popup.js，仍可以再这里重新定义它----- */
-
-    // 对齐方式
-    //align: 'bottom left',
-
-    // 是否固定定位
-    //fixed: false,
-
-    // 对话框叠加高度值(重要：此值不能超过浏览器最大限制)
-    //zIndex: 1024,
-
-    // 设置遮罩背景颜色
-    backdropBackground: '#000',
-
-    // 设置遮罩透明度
-    backdropOpacity: 0.7,
-
-    // 消息内容
-    content: '<span class="ui-dialog-loading">Loading..</span>',
-
-    // 标题
-    title: '',
-
-    // 对话框状态栏区域 HTML 代码
-    statusbar: '',
-
-    // 自定义按钮
-    button: null,
-
-    // 确定按钮回调函数
-    ok: null,
-
-    // 取消按钮回调函数
-    cancel: null,
-
-    // 确定按钮文本
-    okValue: 'ok',
-
-    // 取消按钮文本
-    cancelValue: 'cancel',
-
-    cancelDisplay: true,
-
-    // 内容宽度
-    width: '',
-
-    // 内容高度
-    height: '',
-
-    // 内容与边界填充距离
-    padding: '',
-
-    // 对话框自定义 className
-    skin: '',
-
-    // 是否支持快捷关闭（点击遮罩层自动关闭）
-    quickClose: false,
-
-    // css 文件路径，留空则不会使用 js 自动加载样式
-    // 注意：css 只允许加载一个
-    //cssUri: '../css/ui-dialog.css',
-    cssUri: '',
-
-    // 模板（使用 table 解决 IE7 宽度自适应的 BUG）
-    // js 使用 i="***" 属性识别结构，其余的均可自定义
-    //innerHTML:
-    //    '<div i="dialog" class="ui-dialog modal-dialog">'
-    //    +       '<div class="ui-dialog-arrow-a"></div>'
-    //    +       '<div class="ui-dialog-arrow-b"></div>'
-    //    +       '<table class="ui-dialog-grid">'
-    //    +           '<tr>'
-    //    +               '<td i="header" class="ui-dialog-header">'
-    //    +                   '<button i="close" class="ui-dialog-close">&#215;</button>'
-    //    +                   '<div i="title" class="ui-dialog-title"></div>'
-    //    +               '</td>'
-    //    +           '</tr>'
-    //    +           '<tr>'
-    //    +               '<td i="body" class="ui-dialog-body">'
-    //    +                   '<div i="content" class="ui-dialog-content"></div>'
-    //    +               '</td>'
-    //    +           '</tr>'
-    //    +           '<tr>'
-    //    +               '<td i="footer" class="ui-dialog-footer">'
-    //    +                   '<div i="statusbar" class="ui-dialog-statusbar"></div>'
-    //    +                   '<div i="button" class="ui-dialog-button"></div>'
-    //    +               '</td>'
-    //    +           '</tr>'
-    //    +       '</table>'
-    //    +'</div>'
-    innerHTML: '<div class="modal-dialog ui-dialog">' +
-                '    <div class="modal-content">' +
-                '        <div i="header" class="modal-header">' +
-                '            <button i="close" class="close" aria-hidden="true">×</button>' +
-                '            <h4 i="title" class="modal-title"></h4>' +
-                '        </div>' +
-                '        <div i="body" class="modal-body ui-dialog-body">' +
-                '            <div i="content" class="ui-dialog-content"></div>' +
-                '        </div>' +
-                '        <div i="footer" class="modal-footer">' +
-                '            <div i="statusbar" class="ui-dialog-statusbar"></div>' +
-                '            <div i="button" class="ui-dialog-button"></div>' +
-                '        </div>' +
-                '    </div>' +
-                '</div>'
-});
-
-
-/*!
- * artDialog
- * Date: 2014-11-09
- * https://github.com/aui/artDialog
- * (c) 2009-2014 TangBin, http://www.planeArt.cn
- *
- * This is licensed under the GNU LGPL, version 2.1 or later.
- * For details, see: http://www.gnu.org/licenses/lgpl-2.1.html
- */
-define("dialog", function (require) {
-
-var $ = require("jquery");
-var Popup = require("popup");
-var defaults = require("dialog-config");
-var css = defaults.cssUri;
-
-
-// css loader: RequireJS & SeaJS
-if (css) {
-    var fn = require[require.toUrl ? 'toUrl' : 'resolve'];
-    if (fn) {
-        css = fn(css);
-        css = '<link rel="stylesheet" href="' + css + '" />';
-        if ($('base')[0]) {
-            $('base').before(css);
-        } else {
-            $('head').append(css);
-        } 
-    }
-}
-
-
-var _count = 0;
-var _expando = new Date() - 0; // Date.now()
-var _isIE6 = !('minWidth' in $('html')[0].style);
-var _isMobile = 'createTouch' in document && !('onmousemove' in document)
-    || /(iPhone|iPad|iPod)/i.test(navigator.userAgent);
-var _isFixed = !_isIE6 && !_isMobile;
-
-
-var artDialog = function (options, ok, cancel) {
-
-    var originalOptions = options = options || {};
-    
-
-    if (typeof options === 'string' || options.nodeType === 1) {
-    
-        options = {content: options, fixed: !_isMobile};
-    }
-    
-
-    options = $.extend(true, {}, artDialog.defaults, options);
-    options.original = originalOptions;
-
-    var id = options.id = options.id || _expando + _count;
-    var api = artDialog.get(id);
-    
-    
-    // 如果存在同名的对话框对象，则直接返回
-    if (api) {
-        return api.focus();
-    }
-    
-    
-    // 目前主流移动设备对fixed支持不好，禁用此特性
-    if (!_isFixed) {
-        options.fixed = false;
-    }
-
-
-    // 快捷关闭支持：点击对话框外快速关闭对话框
-    if (options.quickClose) {
-        options.modal = true;
-        options.backdropOpacity = 0;
-    }
-    
-
-    // 按钮组
-    if (!$.isArray(options.button)) {
-        options.button = [];
-    }
-
-
-    // 取消按钮
-    if (cancel !== undefined) {
-        options.cancel = cancel;
-    }
-    
-    if (options.cancel) {
-        options.button.push({
-            id: 'cancel',
-            value: options.cancelValue,
-            callback: options.cancel,
-            display: options.cancelDisplay
-        });
-    }
-    
-    
-    // 确定按钮
-    if (ok !== undefined) {
-        options.ok = ok;
-    }
-    
-    if (options.ok) {
-        options.button.push({
-            id: 'ok',
-            value: options.okValue,
-            callback: options.ok,
-            autofocus: true
-        });
-    }
-    
-
-    return artDialog.list[id] = new artDialog.create(options);
-};
-
-var popup = function () {};
-popup.prototype = Popup.prototype;
-var prototype = artDialog.prototype = new popup();
-
-artDialog.create = function (options) {
-    var that = this;
-
-    $.extend(this, new Popup());
-
-    var originalOptions = options.original;
-    var $popup = $(this.node).html(options.innerHTML);
-    var $backdrop = $(this.backdrop);
-
-    this.options = options;
-    this._popup = $popup;
-
-    
-    $.each(options, function (name, value) {
-        if (typeof that[name] === 'function') {
-            that[name](value);
-        } else {
-            that[name] = value;
-        }
-    });
-
-
-    // 更新 zIndex 全局配置
-    if (options.zIndex) {
-        Popup.zIndex = options.zIndex;
-    }
-
-
-    // 设置 ARIA 信息
-    $popup.attr({
-        'aria-labelledby': this._$('title')
-            .attr('id', 'title:' + this.id).attr('id'),
-        'aria-describedby': this._$('content')
-            .attr('id', 'content:' + this.id).attr('id')
-    });
-
-
-    // 关闭按钮
-    this._$('close')
-    .css('display', this.cancel === false ? 'none' : '')
-    .attr('title', this.cancelValue)
-    .on('click', function (event) {
-        that._trigger('cancel');
-        event.preventDefault();
-    });
-    
-
-    // 添加视觉参数
-    this._$('dialog').addClass(this.skin);
-    this._$('body').css('padding', this.padding);
-
-
-    // 点击任意空白处关闭对话框
-    if (options.quickClose) {
-        $backdrop
-        .on(
-            'onmousedown' in document ? 'mousedown' : 'click',
-            function () {
-            that._trigger('cancel');
-            return false;// 阻止抢夺焦点
-        });
-    }
-
-
-    // 遮罩设置
-    this.addEventListener('show', function () {
-        $backdrop.css({
-            opacity: 0,
-            background: options.backdropBackground
-        }).animate(
-            {opacity: options.backdropOpacity}
-        , 150);
-    });
-
-
-    // ESC 快捷键关闭对话框
-    this._esc = function (event) {
-        var target = event.target;
-        var nodeName = target.nodeName;
-        var rinput = /^input|textarea$/i;
-        var isTop = Popup.current === that;
-        var keyCode = event.keyCode;
-
-        // 避免输入状态中 ESC 误操作关闭
-        if (!isTop || rinput.test(nodeName) && target.type !== 'button') {
-            return;
-        }
-        
-        if (keyCode === 27) {
-            that._trigger('cancel');
-        }
-    };
-
-    $(document).on('keydown', this._esc);
-    this.addEventListener('remove', function () {
-        $(document).off('keydown', this._esc);
-        delete artDialog.list[this.id];
-    });
-
-
-    _count ++;
-    
-    artDialog.oncreate(this);
-
-    return this;
-};
-
-
-artDialog.create.prototype = prototype;
-
-
-
-$.extend(prototype, {
-
-    /**
-     * 显示对话框
-     * @name artDialog.prototype.show
-     * @param   {HTMLElement Object, Event Object}  指定位置（可选）
-     */
-    
-    /**
-     * 显示对话框（模态）
-     * @name artDialog.prototype.showModal
-     * @param   {HTMLElement Object, Event Object}  指定位置（可选）
-     */
-
-    /**
-     * 关闭对话框
-     * @name artDialog.prototype.close
-     * @param   {String, Number}    返回值，可被 onclose 事件收取（可选）
-     */
-
-    /**
-     * 销毁对话框
-     * @name artDialog.prototype.remove
-     */
-
-    /**
-     * 重置对话框位置
-     * @name artDialog.prototype.reset
-     */
-
-    /**
-     * 让对话框聚焦（同时置顶）
-     * @name artDialog.prototype.focus
-     */
-
-    /**
-     * 让对话框失焦（同时置顶）
-     * @name artDialog.prototype.blur
-     */
-
-    /**
-     * 添加事件
-     * @param   {String}    事件类型
-     * @param   {Function}  监听函数
-     * @name artDialog.prototype.addEventListener
-     */
-
-    /**
-     * 删除事件
-     * @param   {String}    事件类型
-     * @param   {Function}  监听函数
-     * @name artDialog.prototype.removeEventListener
-     */
-
-    /**
-     * 对话框显示事件，在 show()、showModal() 执行
-     * @name artDialog.prototype.onshow
-     * @event
-     */
-
-    /**
-     * 关闭事件，在 close() 执行
-     * @name artDialog.prototype.onclose
-     * @event
-     */
-
-    /**
-     * 销毁前事件，在 remove() 前执行
-     * @name artDialog.prototype.onbeforeremove
-     * @event
-     */
-
-    /**
-     * 销毁事件，在 remove() 执行
-     * @name artDialog.prototype.onremove
-     * @event
-     */
-
-    /**
-     * 重置事件，在 reset() 执行
-     * @name artDialog.prototype.onreset
-     * @event
-     */
-
-    /**
-     * 焦点事件，在 foucs() 执行
-     * @name artDialog.prototype.onfocus
-     * @event
-     */
-
-    /**
-     * 失焦事件，在 blur() 执行
-     * @name artDialog.prototype.onblur
-     * @event
-     */
-
-    
-    /**
-     * 设置内容
-     * @param    {String, HTMLElement}   内容
-     */
-    content: function (html) {
-    
-        var $content = this._$('content');
-
-        // HTMLElement
-        if (typeof html === 'object') {
-            html = $(html);
-            $content.empty('').append(html.show());
-            this.addEventListener('beforeremove', function () {
-                $('body').append(html.hide());
-            });
-        // String
-        } else {
-            $content.html(html);
-        }
-                
-        return this.reset();
-    },
-    
-    
-    /**
-     * 设置标题
-     * @param    {String}   标题内容
-     */
-    title: function (text) {
-        this._$('title').text(text);
-        this._$('header')[text ? 'show' : 'hide']();
-        return this;
-    },
-
-
-    /** 设置宽度 */
-    width: function (value) {
-        this._$('content').css('width', value);
-        return this.reset();
-    },
-
-
-    /** 设置高度 */
-    height: function (value) {
-        this._$('content').css('height', value);
-        return this.reset();
-    },
-
-
-    /**
-     * 设置按钮组
-     * @param   {Array, String}
-     * Options: value, callback, autofocus, disabled 
-     */
-    button: function (args) {
-        args = args || [];
-        var that = this;
-        var html = '';
-        var number = 0;
-        this.callbacks = {};
-        
-           
-        if (typeof args === 'string') {
-            html = args;
-            number ++;
-        } else {
-            $.each(args, function (i, val) {
-
-                var id = val.id = val.id || val.value;
-                var style = '';
-                that.callbacks[id] = val.callback;
-
-
-                if (val.display === false) {
-                    style = ' style="display:none"';
                 } else {
-                    number ++;
-                }
-
-                html +=
-                  '<button'
-                + ' type="button"'
-                + ' i-id="' + id + '"'
-                + style
-                + (val.disabled ? ' disabled' : '')
-                + (val.autofocus ? ' autofocus class="ui-dialog-autofocus"' : '')
-                + '>'
-                +   val.value
-                + '</button>';
-
-                that._$('button')
-                .on('click', '[i-id=' + id +']', function (event) {                
-                    var $this = $(this);
-                    if (!$this.attr('disabled')) {// IE BUG
-                        that._trigger(id);
+                    options = extend({
+                        force: false,
+                        inherit: 'default'
+                    }, options);
+                    var exists = this.get(name);
+                    if (!exists || options.force === true) {
+                        provider = me._preprocess(provider);
+                        var parent = this.get(options.inherit);
+                        provider.__id = name;
+                        this._pool[name] = extend({}, parent, provider);
                     }
-                
-                    event.preventDefault();
-                });
-
-            });
-        }
-
-        this._$('button').html(html);
-        this._$('footer')[number ? 'show' : 'hide']();
-
-        return this;
-    },
-
-
-    statusbar: function (html) {
-        this._$('statusbar')
-        .html(html)[html ? 'show' : 'hide']();
-
-        return this;
-    },
-
-
-    _$: function (i) {
-        return this._popup.find('[i=' + i + ']');
-    },
-    
-    
-    // 触发按钮回调函数
-    _trigger: function (id) {
-        var fn = this.callbacks[id];
-            
-        return typeof fn !== 'function' || fn.call(this) !== false ?
-            this.close().remove() : this;
-    }
-    
-});
-
-
-
-artDialog.oncreate = $.noop;
-
-
-
-/** 获取最顶层的对话框API */
-artDialog.getCurrent = function () {
-    return Popup.current;
-};
-
-
-
-/**
- * 根据 ID 获取某对话框 API
- * @param    {String}    对话框 ID
- * @return   {Object}    对话框 API (实例)
- */
-artDialog.get = function (id) {
-    return id === undefined
-    ? artDialog.list
-    : artDialog.list[id];
-};
-
-artDialog.list = {};
-
-
-
-/**
- * 默认配置
- */
-artDialog.defaults = defaults;
-
-
-
-return artDialog;
-
-});
-
-
-
-
-/*!
- * drag.js
- * Date: 2013-12-06
- * https://github.com/aui/artDialog
- * (c) 2009-2014 TangBin, http://www.planeArt.cn
- *
- * This is licensed under the GNU LGPL, version 2.1 or later.
- * For details, see: http://www.gnu.org/licenses/lgpl-2.1.html
- */
-define("drag", function (require) {
-
-var $ = require("jquery");
-
-
-var $window = $(window);
-var $document = $(document);
-var isTouch = 'createTouch' in document;
-var html = document.documentElement;
-var isIE6 = !('minWidth' in html.style);
-var isLosecapture = !isIE6 && 'onlosecapture' in html;
-var isSetCapture = 'setCapture' in html;
-
-
-var types = {
-    start: isTouch ? 'touchstart' : 'mousedown',
-    over: isTouch ? 'touchmove' : 'mousemove',
-    end: isTouch ? 'touchend' : 'mouseup'
-};
-
-
-var getEvent = isTouch ? function (event) {
-    if (!event.touches) {
-        event = event.originalEvent.touches.item(0);
-    }
-    return event;
-} : function (event) {
-    return event;
-};
-
-
-var DragEvent = function () {
-    this.start = $.proxy(this.start, this);
-    this.over = $.proxy(this.over, this);
-    this.end = $.proxy(this.end, this);
-    this.onstart = this.onover = this.onend = $.noop;
-};
-
-DragEvent.types = types;
-
-DragEvent.prototype = {
-
-    start: function (event) {
-        event = this.startFix(event);
-
-        $document
-        .on(types.over, this.over)
-        .on(types.end, this.end);
-        
-        this.onstart(event);
-        return false;
-    },
-
-    over: function (event) {
-        event = this.overFix(event);
-        this.onover(event);
-        return false;
-    },
-
-    end: function (event) {
-        event = this.endFix(event);
-
-        $document
-        .off(types.over, this.over)
-        .off(types.end, this.end);
-
-        this.onend(event);
-        return false;
-    },
-
-    startFix: function (event) {
-        event = getEvent(event);
-
-        this.target = $(event.target);
-        this.selectstart = function () {
-            return false;
-        };
-
-        $document
-        .on('selectstart', this.selectstart)
-        .on('dblclick', this.end);
-
-        if (isLosecapture) {
-            this.target.on('losecapture', this.end);
-        } else {
-            $window.on('blur', this.end);
-        }
-
-        if (isSetCapture) {
-            this.target[0].setCapture();
-        }
-
-        return event;
-    },
-
-    overFix: function (event) {
-        event = getEvent(event);
-        return event;
-    },
-
-    endFix: function (event) {
-        event = getEvent(event);
-
-        $document
-        .off('selectstart', this.selectstart)
-        .off('dblclick', this.end);
-
-        if (isLosecapture) {
-            this.target.off('losecapture', this.end);
-        } else {
-            $window.off('blur', this.end);
-        }
-
-        if (isSetCapture) {
-            this.target[0].releaseCapture();
-        }
-
-        return event;
-    }
-    
-};
-
-
-/**
- * 启动拖拽
- * @param   {HTMLElement}   被拖拽的元素
- * @param   {Event} 触发拖拽的事件对象。可选，若无则监听 elem 的按下事件启动
- */
-DragEvent.create = function (elem, event) {
-    var $elem = $(elem);
-    var dragEvent = new DragEvent();
-    var startType = DragEvent.types.start;
-    var noop = function () {};
-    var className = elem.className
-        .replace(/^\s|\s.*/g, '') + '-drag-start';
-
-    var minX;
-    var minY;
-    var maxX;
-    var maxY;
-
-    var api = {
-        onstart: noop,
-        onover: noop,
-        onend: noop,
-        off: function () {
-            $elem.off(startType, dragEvent.start);
-        }
-    };
-
-
-    dragEvent.onstart = function (event) {
-        var isFixed = $elem.css('position') === 'fixed';
-        var dl = $document.scrollLeft();
-        var dt = $document.scrollTop();
-        var w = $elem.width();
-        var h = $elem.height();
-
-        minX = 0;
-        minY = 0;
-        maxX = isFixed ? $window.width() - w + minX : $document.width() - w;
-        maxY = isFixed ? $window.height() - h + minY : $document.height() - h;
-
-        var offset = $elem.offset();
-        var left = this.startLeft = isFixed ? offset.left - dl : offset.left;
-        var top = this.startTop = isFixed ? offset.top - dt  : offset.top;
-
-        this.clientX = event.clientX;
-        this.clientY = event.clientY;
-
-        $elem.addClass(className);
-        api.onstart.call(elem, event, left, top);
-    };
-    
-
-    dragEvent.onover = function (event) {
-        var left = event.clientX - this.clientX + this.startLeft;
-        var top = event.clientY - this.clientY + this.startTop;
-        var style = $elem[0].style;
-
-        left = Math.max(minX, Math.min(maxX, left));
-        top = Math.max(minY, Math.min(maxY, top));
-
-        style.left = left + 'px';
-        style.top = top + 'px';
-        
-        api.onover.call(elem, event, left, top);
-    };
-    
-
-    dragEvent.onend = function (event) {
-        var position = $elem.position();
-        var left = position.left;
-        var top = position.top;
-        $elem.removeClass(className);
-        api.onend.call(elem, event, left, top);
-    };
-
-
-    dragEvent.off = function () {
-        $elem.off(startType, dragEvent.start);
-    };
-
-
-    if (event) {
-        dragEvent.start(event);
-    } else {
-        $elem.on(startType, dragEvent.start);
-    }
-
-    return api;
-};
-
-return DragEvent;
-
-});
-
-/*!
- * artDialog-plus
- * Date: 2013-11-09
- * https://github.com/aui/artDialog
- * (c) 2009-2014 TangBin, http://www.planeArt.cn
- *
- * This is licensed under the GNU LGPL, version 2.1 or later.
- * For details, see: http://www.gnu.org/licenses/lgpl-2.1.html
- */
-define("dialog-plus", function (require) {
-
-var $ = require("jquery");
-var dialog = require("dialog");
-var drag = require("drag");
-
-dialog.oncreate = function (api) {
-
-    var options = api.options;
-    var originalOptions = options.original;
-
-    // 页面地址
-    var url = options.url;
-    // 页面加载完毕的事件
-    var oniframeload = options.oniframeload;
-
-    var $iframe;
-
-
-    if (url) {
-        this.padding = options.padding = 0;
-
-        $iframe = $('<iframe />');
-
-        $iframe.attr({
-            src: url,
-            name: api.id,
-            width: '100%',
-            height: '100%',
-            allowtransparency: 'yes',
-            frameborder: 'no',
-            scrolling: 'no'
-        })
-        .on('load', function () {
-            var test;
-            
-            try {
-                // 跨域测试
-                test = $iframe[0].contentWindow.frameElement;
-            } catch (e) {}
-
-            if (test) {
-
-                if (!options.width) {
-                    api.width($iframe.contents().width());
                 }
-                
-                if (!options.height) {
-                    api.height($iframe.contents().height());
-                }
-            }
 
-            if (oniframeload) {
-                oniframeload.call(api);
-            }
-
-        });
-
-        api.addEventListener('beforeremove', function () {
-
-            // 重要！需要重置iframe地址，否则下次出现的对话框在IE6、7无法聚焦input
-            // IE删除iframe后，iframe仍然会留在内存中出现上述问题，置换src是最容易解决的方法
-            $iframe.attr('src', 'about:blank').remove();
-
-
-        }, false);
-
-        api.content($iframe[0]);
-
-        api.iframeNode = $iframe[0];
-
-    }
-
-
-    // 对于子页面呼出的对话框特殊处理
-    // 如果对话框配置来自 iframe
-    if (!(originalOptions instanceof Object)) {
-
-        var un = function () {
-            api.close().remove();
-        };
-
-        // 找到那个 iframe
-        for (var i = 0; i < frames.length; i ++) {
-            try {
-                if (originalOptions instanceof frames[i].Object) {
-                    // 让 iframe 刷新的时候也关闭对话框，
-                    // 防止要执行的对象被强制收回导致 IE 报错：“不能执行已释放 Script 的代码”
-                    $(frames[i]).one('unload', un);
-                    break;
-                }
-            } catch (e) {} 
-        }
-    }
-
-
-    // 拖拽支持
-    $(api.node).on(drag.types.start, '[i=title]', function (event) {
-        // 排除气泡类型的对话框
-        if (!api.follow) {
-            api.focus();
-            drag.create(api.node, event);
-        }
-    });
-
-};
-
-
-
-dialog.get = function (id) {
-
-    // 从 iframe 传入 window 对象
-    if (id && id.frameElement) {
-        var iframe = id.frameElement;
-        var list = dialog.list;
-        var api;
-        for (var i in list) {
-            api = list[i];
-            if (api.node.getElementsByTagName('iframe')[0] === iframe) {
-                return api;
             }
         }
-    // 直接传入 id 的情况
-    } else if (id) {
-        return dialog.list[id];
-    }
 
-};
-
-
-
-return dialog;
-
-});
-
-
-window.dialog = require("dialog-plus");
-
-})();
-define("art-dialog", ["jquery"], (function (global) {
-    return function () {
-        var ret, fn;
-        return ret || global.dialog;
-    };
-}(this)));
-
-define('app/ui/dialog',[
-    'art-dialog'
-], function (dialog) {
-    return function (app) {
-        app.ui || (app.ui = {});
-
-        /**
-         * 对话框UI控件的配置参数（默认采用 artDialg）
-         * @typedef DialogUIOptions
-         * @see {@link http://aui.github.io/artDialog/doc/index.html}
-         */
-
-        app.ui.dialog = dialog;
-
-        app.ui.confirm = function (content, successCallback, cancelCallback) {
-            if (window.confirm(content)) {
-                successCallback && successCallback();
-            } else {
-                cancelCallback && cancelCallback();
+        app.provider = {
+            create: function (obj) {
+                return extend({}, app.providerBase, obj);
             }
-            //app.ui.dialog({
-            //    width: 250,
-            //    quickClose: true,
-            //    content: "<div class='confirm_content'>"+content+"</div>" ||"<div class='confirm_content'>确认进行该操作？</div>",
-            //    okValue: '确定',
-            //    ok: function () {
-            //        successCallback && successCallback();
-            //    },
-            //    cancelValue: '取消',
-            //    cancel: function () {
-            //        cancelCallback && cancelCallback();
-            //    }
-            //}).showModal();
-        };
+        }
+
+        // 默认的 provider
+
+        app.windowProvider = app.provider.create();
+        app.i18nProvider = app.provider.create();
+        app.uiKitProvider = app.provider.create();
     };
 });
 
 
 define('app/app',[
-    '../core/core',
-    '../core/application',
+    '../core/index',
+    './application',
     './emitQueue',
     './page',
     './layout',
     './module',
-    './navigation',
-    './plugin',
     './sandboxes',
     './widget',
     './parser',
     './view',
     './data',
-    './templates',
     './router',
     './request',
     './hash',
     './qs',
-    './cache',
-    './ui/dialog'
+    './provider'
 ], /**@lends veronica */function (core, Application, emitQueue, page, layout, module,
-    navigation, plugin, sandboxes, widget, parser, view, data, templates, router,
-    request, hash, qs, cache, dialog) {
+    sandboxes, widget, parser, view, data, router,
+    request, hash, qs, provider) {
 
     'use strict';
 
@@ -9054,13 +6471,13 @@ define('app/app',[
     core.createApp = function (options) {
 
         var $ = core.$;
-        var extend = core.$.extend;
 
         // 停止以前的 app
         if (core.app) { core.app.stop(); }
 
         var app = new Application(options);
 
+        provider(app);
         emitQueue(app, Application);
         sandboxes(app, Application);
         widget(app, Application);
@@ -9068,29 +6485,27 @@ define('app/app',[
         view(app, Application);
         request(app);
         data(app);
-        templates(app);
         hash(app);
         qs(app);
-        cache(app);
 
-        if ($.inArray('dialog', app.config.features) > -1) {
-            // dialog
-            dialog(app);
-        }
+        //if ($.inArray('dialog', app.config.features) > -1) {
+        //    // dialog
+        //    dialog(app);
+        //}
 
         if ($.inArray('spa', app.config.features) > -1) {
             // spa(single page application) 相关
             page(app, Application);
             layout(app, Application);
             module(app, Application);
-            navigation(app, Application);
+            //navigation(app, Application);
             router(app);
         }
 
-        if ($.inArray('plugin', app.config.features) > -1) {
-            // plugin
-            plugin(app, Application);
-        }
+        //if ($.inArray('plugin', app.config.features) > -1) {
+        //    // plugin
+        //    plugin(app, Application);
+        //}
 
 
         /**

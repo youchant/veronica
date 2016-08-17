@@ -2,10 +2,15 @@
 
 ## Unreleased
 
-### Removed
+### Modified
+- 更改 _defaultListen 为 _listen
 
+### Removed
 - 移除内置的 windowProvider，放到其他项目中维护
 - 移除窗口配置项 type
+- 移除 defineAttr，功能与 attr 合并
+- 移除 path
+- 移除页面加载时读取路由参数的机制
 
 ## 1.0.0
 
