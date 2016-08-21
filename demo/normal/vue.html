@@ -35,17 +35,20 @@
 
         app.use(function (app) {
 
-            app.view.base._createViewModel = function (obj) {
-                var vm = new Vue({
-                    data: obj
-                });
-                return vm;
-            };
+            app.viewEngine.add('vue', {
+                bind: function (view) {
+                    var vm = view.model();
+                    vm.$mount(view.$el.get(0));
+                },
+                create: function (data, view) {
+                    var vm = new Vue({
+                        data: data
+                    });
+                    return vm;
+                }
+            });
 
-            app.view.base._bind = function () {
-                var vm = this.model();
-                vm.$mount(this.$el.get(0));
-            }
+            app.viewEngine.setDefault('vue');
         });
 
         // create widget: hello-veronica
