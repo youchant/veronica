@@ -4165,7 +4165,8 @@ define('app/viewEngine',[], function () {
         app.viewEngine = app.provider.create();
 
         app.viewEngine.add('default', {
-            bind: function(view) {
+            bind: function (view, $dom, model) {
+
             },
             unbind: function () {
 
@@ -4320,11 +4321,6 @@ define('app/view/lifecycle',[],function () {
 
                     // 销毁第三方组件
                     this._invoke('_customDestory');
-
-                    // 清除引用
-                    this.viewModel = null;
-
-                    this.options.sandbox.log('destroyed');
                 },
                 /**
                  * 视图初始化
@@ -4374,6 +4370,7 @@ define('app/view/lifecycle',[],function () {
                  */
                 destroy: function () {
                     this._destroy();
+                    this.options.sandbox.log('destroyed');
                 },
                 /**
                  * 重新设置参数，设置后会重新初始化视图
@@ -4403,6 +4400,7 @@ define('app/view/mvvm',[],function () {
         var options = {
             viewEngine: '',
             bindEmptyModel: false,
+            bindBlock: false,
             sharedModel: null,
             sharedModelProp: null
         };
@@ -4431,7 +4429,7 @@ define('app/view/mvvm',[],function () {
              *         // 处理代码
              *     });
              *     vm.bind('change.xxx', function () { });
-             *     
+             *
              *     this._invoke(this.base.delegateModelEvents, true, vm);
              *   }
              */
@@ -4457,18 +4455,7 @@ define('app/view/mvvm',[],function () {
              *       this.loadData();
              *   }
              */
-            modelBound: noop,
-
-            /**
-             * **`重定义`** 根据元素获取该元素上创建的界面控件的实例
-             * @type {function}
-             * @returns {object}
-             * @example
-             *   instance: function (el) {
-             *       return this.$(el).data('instance');
-             *   }
-             */
-            instance: noop
+            modelBound: noop
         };
 
         /** @lends veronica.View# */
@@ -4499,7 +4486,16 @@ define('app/view/mvvm',[],function () {
              *   }
              */
             _bind: function () {
-                this._viewEngine().bind(this);
+                var me = this;
+                if (this.options.bindBlock) {
+                    this.$el.find('.data-bind-block')
+                        .not(this.$el.find('.ver-view .data-bind-block'))
+                        .each(function (i, el) {
+                            me._viewEngine().bind(me, $(el), me.model());
+                        });
+                } else {
+                    me._viewEngine().bind(me, this.$el, me.model());
+                }
             },
             _viewEngine: function () {
                 return app.viewEngine.get(this.options.viewEngine);
@@ -4516,7 +4512,7 @@ define('app/view/mvvm',[],function () {
                 if (!_.isUndefined(data)) {
 
                     if (_.isString(data) && this.viewModel) {
-                        return this.viewModel.get(data);
+                        return this._getModelValue(data);
                     }
 
                     if (data.toJSON) { // 本身就是viewModel对象
@@ -4559,15 +4555,6 @@ define('app/view/mvvm',[],function () {
                     return this.model(this._convertExternalModel(model));
                 }
                 return null;
-            },
-
-            /**
-             * 获取后台请求的 url
-             * @param name - url 名称
-             * @return {string}
-             */
-            url: function (url) {
-                return this.options.url[url];
             },
 
             // 从外部模型初始化视图模型
@@ -4627,7 +4614,11 @@ define('app/view/mvvm',[],function () {
             // 获取模型数据
             _getModelValue: function (name, model) {
                 model || (model = this.model());
-                return model.get(name);
+                return this._viewEngine().get(model, name);
+            },
+            _setModelValue: function (name, value, model) {
+                model || (model = this.model());
+                return this._viewEngine().set(model, name, value);
             }
         };
 
@@ -4635,6 +4626,13 @@ define('app/view/mvvm',[],function () {
             options: options,
             configs: configs,
             methods: methods
+        });
+
+        base._extendMethod('_destroy', function () {
+            // TODO: 这里没有配合 bindBlock 使用
+            this._viewEngine().unbind(this);
+            // 清除引用
+            this.viewModel = null;
         });
     };
 });
@@ -4681,16 +4679,16 @@ define('app/view/window',[],function () {
          */
 
         // 获取子级元素根
-        function getChildRoot(wnd) {
-            var $wndEl = wnd.element.find('.fn-wnd');
-            return $wndEl.length === 0 ? wnd.element : $wndEl;
+        function getChildRoot($el) {
+            var $wndEl = $el.find('.fn-wnd');
+            return $wndEl.length === 0 ? $el : $wndEl;
         }
 
         // 创建 Widget
         function createWidget(configs, wnd) {
             if (configs.length === 0) return;
 
-            var $root = getChildRoot(wnd);
+            var $root = getChildRoot(wnd.element);
 
             var paramConfigs = _.map(configs, function (refConfig) {
                 var config = $.extend(true, {}, refConfig);  // 深拷贝
@@ -4708,7 +4706,7 @@ define('app/view/window',[],function () {
         // 创建 View
         function createView(configs, wnd) {
             var parentView = this;
-            var $root = getChildRoot(wnd);
+            var $root = getChildRoot(wnd.element);
 
             _.each(configs, function (refConfig) {
                 var config = $.extend({}, refConfig);
@@ -4749,20 +4747,7 @@ define('app/view/window',[],function () {
             windowEngine: '',
             // 默认对话框配置
             defaultWndOptions: function () {
-                return {
-                    name: '', // 窗口的唯一标识码
-                    el: null,
-                    center: true,
-                    template: '<div class="fn-wnd fn-wnd-placeholder">' +
-                        '<span class="ui-dialog-loading fn-s-loading">' +
-                        this._i18n('loadingText') + '</span></div>',
-                    destroyedOnClose: true,
-                    children: null,
-                    // 窗口配置
-                    options: {
-                        title: this._i18n('defaultDialogTitle')
-                    }
-                };
+                return {};
             }
         };
 
@@ -4839,7 +4824,7 @@ define('app/view/window',[],function () {
             htmlWindow: function (html, options, dlgOptions) {
                 return this.window($.extend({
                     options: options,
-                    el: html
+                    content: html
                 }, dlgOptions));
             },
 
@@ -4865,8 +4850,23 @@ define('app/view/window',[],function () {
                 if (isShow == null) {
                     isShow = true;
                 }
-                var defaultOptions = this._windowProvider().options(this._invoke('defaultWndOptions'));
-                options = $.extend(true, {}, defaultOptions, options);
+                var providerOptions = this._windowProvider().options({
+                    name: '', // 窗口的唯一标识码
+                    el: null,
+                    content: null,
+                    center: true,
+                    template: '<div class="fn-wnd fn-wnd-placeholder">' +
+                        '<span class="ui-dialog-loading fn-s-loading">' +
+                        this._i18n('loadingText') + '</span></div>',
+                    destroyedOnClose: true,
+                    children: null,
+                    // 窗口配置
+                    options: {
+                        title: this._i18n('defaultDialogTitle')
+                    }
+                });
+                var defaultOptions = this._invoke('defaultWndOptions');
+                options = $.extend(true, {}, providerOptions, defaultOptions, options);
 
                 if (options.name === '') {
                     options.name = me.uniqWindowName();
@@ -4876,10 +4876,11 @@ define('app/view/window',[],function () {
                     options.center = false;
                 }
 
-                var isHtmlContet = _.isString(options.el);
-
-                var $el = isHtmlContet ? $(options.template).html(options.el)
-                    : (options.el == null ? $(options.template) : $(options.el));
+                var $el = options.el == null ? $(options.template) : $(options.el);
+                var isHtmlContent = _.isString(options.content);
+                if (isHtmlContent) {
+                    getChildRoot($el).html(options.content);
+                }
 
                 // 创建 window 实例
                 var wnd = me._windowInstance($el, options, this);
@@ -5873,6 +5874,14 @@ define('app/view/index',[
             _i18n: function (key) {
                 var i18n = app.i18n.get();
                 return i18n[key];
+            },
+            /**
+             * 获取后台请求的 url
+             * @param name - url 名称
+             * @return {string}
+             */
+            url: function (url) {
+                return this.options.url[url];
             }
         };
 
