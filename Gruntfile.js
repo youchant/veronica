@@ -3,9 +3,27 @@
 
 module.exports = function (grunt) {
     var path = require('path');
+    var banner = "/*!\n" +
+	" * Veronica v<%= pkg.version %>\n" +
+	" *\n" +
+	" * <%= pkg.homepage %>\n" +
+	" *\n" +
+	" * Copyright (c) <%= grunt.template.today('yyyy') %> <%= pkg.author.name %>\n" +
+	" * Released under the <%= _.pluck(pkg.licenses, 'type').join(', ') %> license\n" +
+	" */\n";
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        concat: {
+            dist: {
+                options: {
+                    banner: banner
+                },
+                files: {
+                    'dist/veronica.js': ['dist/veronica.js']
+                }
+            }
+        },
         requirejs: {
             main: {
                 options: {
@@ -100,9 +118,11 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks('grunt-mkdocs');
 
-    grunt.registerTask('default', ['requirejs', 'clean', 'uglify']);
+
+    grunt.registerTask('default', ['requirejs', 'concat', 'clean', 'uglify']);
     grunt.registerTask('doc', ['mkdocs', 'jsdoc', 'connect', 'watch']);
 };

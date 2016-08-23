@@ -1,5 +1,11 @@
-//Copyright 2012, etc.
-
+/*!
+ * Veronica v1.0.5
+ *
+ * http://gochant.github.io/veronica
+ *
+ * Copyright (c) 2016 gochant
+ * Released under the MIT license
+ */
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD.
@@ -6637,6 +6643,20 @@ define('app/widget',[
     };
 });
 
+define('app/uiKit',[], function () {
+    return function (app) {
+        app.uiKit = app.provider.create();
+
+        app.uiKit.add('default', {
+            init: function (view, $dom) {
+
+            },
+            destroy: function () { },
+            getInstance: function() {}
+        });
+    };
+});
+
 
 define('app/_combine',[
     './provider',
@@ -6655,7 +6675,8 @@ define('app/_combine',[
     './templateEngine',
     './viewEngine',
     './view',
-    './widget'
+    './widget',
+    './uiKit'
 ], function () {
     var args = Array.prototype.slice.call(arguments);
     return function (app) {
