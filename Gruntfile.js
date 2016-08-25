@@ -58,11 +58,14 @@ module.exports = function (grunt) {
             ]
         },
         uglify: {
+            options: {
+                report: 'gzip',
+                sourceMap: true
+            },
             main: {
                 files: {
                     'dist/veronica.min.js': ['dist/veronica.js']
-                },
-                report: 'gzip'
+                }
             }
         },
         jsdoc: {

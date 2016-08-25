@@ -2083,7 +2083,7 @@ define('core/util',[
             return path.replace('//', '/').replace('http:/', 'http://');
         },
         // 将数据转换成另一种形式
-        mapAll: function (obj, iteratee) {
+        mapArrayOrSingle: function (obj, iteratee) {
             var isArray = _.isArray(obj);
             if (!isArray) { obj = [obj]; }
 
@@ -2637,8 +2637,6 @@ define('core/application',[
             });
 
             return $.when.apply($, promises).done(function () {
-                me.widget.package();
-
                 if (options.parse) {
                     me.parser.parse();
                 }
@@ -2725,9 +2723,6 @@ define('app/provider',[], function () {
             get: function (name) {
                 name || (name = this._defaultKey);
                 var r = this._pool[name];
-                if (r == null) {
-                    logger.error('provider is not found');
-                }
                 return r;
             },
             add: function add(name, provider, options) {
@@ -2895,16 +2890,19 @@ define('app/page',[], function () {
             _currPageName: '',
             _changeTitle: function () { },
             // 递归获取所有的父级 widgets 配置
-            _getAllWidgetConfigs: function getAllWidgetConfigs(config, page, result) {
+            _getAllWidgetConfigs: function getAllWidgetConfigs(config, context, result) {
+                if (context == null) {
+                    context = this;
+                }
                 if (result == null) {
                     result = [];
                 }
                 result.push(config.widgets);
 
                 _.each(config.inherits, function (parentName) {
-                    var config = page.get(parentName);
+                    var config = context.get(parentName);
                     result.push(config.widgets);
-                    result = getAllWidgetConfigs(config, page, result);
+                    result = getAllWidgetConfigs(config, context, result);
                 });
 
                 return result;
@@ -2932,7 +2930,8 @@ define('app/page',[], function () {
              */
             _load: function (name, config, params) {
                 var me = this;
-                var widgetsConfig = this._getAllWidgetConfigs(config);
+                // 将获取到的 widget 配置扁平化
+                var widgetsConfig = _.flatten(this._getAllWidgetConfigs(config));
                 var currPageName = this.getCurrName();
                 var currPageConfig;
                 var dfd = $.Deferred();
@@ -2991,19 +2990,6 @@ define('app/page',[], function () {
                     name = this.getCurrName();
                 }
                 return name;
-            },
-            // 获取页面配置
-            get: function (name) {
-                var config = this._pages[name];
-                return config;
-            },
-            /**
-             * 添加页面配置组
-             * @param {object|array} configs - 页面配置组（当为单个配置时，可以不用数组）
-             */
-            add: function (configs) {
-
-                return this;
             },
             /**
              * 启动页面
@@ -3070,9 +3056,9 @@ define('app/page',[], function () {
              * @fires Application#page.pageLoaded
              */
             change: function (name, params) {
-                var page = this;
+                var me = this;
                 me.resolve(name).done(function (config) {
-                    page._load(name, config, params);
+                    me._load(name, config, params);
                 });
             }
         });
@@ -3235,7 +3221,7 @@ define('app/module',[
             locationPattern: /(\w*)-?(\w*)-?(\w*)-?(\w*)-?(\w*)/,
             resolvePath: function () {
                 var path = this.path;
-                return path.replace('${name}', name);
+                return path.replace('${name}', this.name);
             },
             resolveLocation: function (name) {
                 var me = this;
@@ -4108,7 +4094,7 @@ define('app/attrProvider',[], function () {
                     }
                 }
 
-                this.sub('change.' + options.sourceKey, function (value) {
+                view.sub('change.' + options.sourceKey, function (value) {
                     var originalValue = view.attr(options.name);
                     if (value !== originalValue) {
                         view.attr(options.name, value);
@@ -6139,7 +6125,7 @@ define('app/widget',[
         var core = app.core;
         var _ = app.core._;
         var $ = app.core.$;
-        var mapAll = core.util.mapAll;
+        var mapArrayOrSingle = core.util.mapArrayOrSingle;
         var normalizePath = core.util.normalizePath;
         var ensureArray = core.util.ensureArray;
         var appConfig = app.config;
@@ -6188,22 +6174,6 @@ define('app/widget',[
             return app.widget._localWidgetExes[name];
         }
 
-        /**
-         * 声明widget为package，以便在其他widget中引用该widget
-         */
-        widget.package = function (widgetNames) {
-            var config = { packages: [] };
-            widgetNames || (widgetNames = core.getConfig().controls);
-            if (_.isString(widgetNames)) {
-                widgetNames = [widgetNames];
-            }
-            _.each(widgetNames, function (name) {
-                var namePart = app.widget.splitNameParts(name);
-                var pkg = widget.resolvePath(namePart);
-                config.packages.push(pkg);
-            });
-            require.config(config);
-        };
 
         /**
          * 注册 widget 为 本地 widget
@@ -6216,10 +6186,16 @@ define('app/widget',[
          * 获取 widge package 路径
          * @private
          */
-        widget.resolvePath = function (nameParts) {
-            return mapAll(nameParts, function (part) {
-                var name = part.name;
-                var src = part.source;
+        widget._getPackagesFrom = function (configs, normalized) {
+            if (normalized == null) {
+                normalized = true;
+            }
+            return mapArrayOrSingle(configs, function (config) {
+                if (normalized === false) {
+                    config = widget.normalizeConfig(config);
+                }
+                var name = config.name;
+                var src = config.options._source;
                 var isRelease = core.getConfig().debug === false;
                 var location = app.config.releaseWidgetPath + '/' + name;
 
@@ -6236,6 +6212,21 @@ define('app/widget',[
             });
         };
 
+        /**
+         * 声明widget为package，以便在其他widget中引用该widget
+         */
+        widget.package = function (widgetNames) {
+            widgetNames || (widgetNames = core.getConfig().controls);
+            if (_.isString(widgetNames)) {
+                widgetNames = [widgetNames];
+            }
+            var config = {
+                packages: widget._getPackagesFrom(widgetNames, false)
+            };
+
+            require.config(config);
+        };
+
         // 推测 source
         widget.deduceSource = function (nameTag) {
             if (app.config.autoParseSource) {
@@ -6245,33 +6236,17 @@ define('app/widget',[
         }
 
         /**
-         * 分隔传入的 name 为 nameParts
-         * @private
-         */
-        widget.splitNameParts = function (names) {
-            var result = mapAll(names, function (name) {
-                var nameParts = name.split('@');
-                return {
-                    name: nameParts[0],
-                    source: nameParts[1] || app.widget.deduceSource(name) || 'default',
-                    host: nameParts[2]
-                };
-            });
-            return result;
-        }
-
-        /**
          * 加载单个 widget
          * @private
          */
         widget.load = function (name, options, page) {
             var dfd = $.Deferred();
-            var nameParts = [{
+            var configs = [{
                 name: name,
-                source: options._source
+                options: options
             }];
 
-            var packages = app.widget.resolvePath(nameParts);
+            var packages = app.widget._getPackagesFrom(configs);
 
             options._name = name;
             options._page = page;
@@ -6283,7 +6258,7 @@ define('app/widget',[
                 return dfd.promise();
             }
 
-            var names = _.map(nameParts, function (p) { return p.name });
+            var names = _.map(configs, function (p) { return p.name });
             core.loader.require(names, true, { packages: packages })
                   .done(function (name, executors) {
                       var executor = executors;
@@ -6333,10 +6308,16 @@ define('app/widget',[
                     options: {}
                 };
             }
-            var parts = me.splitNameParts(config.name);
-            config.name = parts.name;
-            config.options._source = config.options._source || parts.source;
-            config.options.host = config.options.host || parts.host || appConfig.widget.defaultHost;
+
+            // resolve name expression
+            var pattern = /([\w|-]+)@?([\w|-]*)(?:=>)?(.*)/;
+            var nameParts = pattern.exec(config.name);
+
+            config.name = nameParts[1];
+            config.options._source = config.options._source ||
+                nameParts[2] || app.widget.deduceSource(config.name) || 'default';
+            config.options.host = config.options.host ||
+                nameParts[3] || appConfig.widget.defaultHost;
 
             return config;
         }
@@ -6348,7 +6329,8 @@ define('app/widget',[
             });
 
             // zip widget configs
-            return _.uniq(list, false, function (item) {
+            var uniqFunc = _.uniqBy || _.uniq;
+            return uniqFunc(list, false, function (item) {
                 if (item.options && item.options.el) return item.options.el;  // 确保一个元素上只有一个插件
                 return item.name + item.options.host;  // 确保一个父元素下，只有一个同样的插件
             });
@@ -6402,7 +6384,7 @@ define('app/widget',[
                     var options = arg[1];  // options
 
                     // Bugfixed：修复频繁切换页面导致错误加载的bug，当部件所在的页面不是当前页面，则不执行
-                    if (widget.isValid( options._page)) {
+                    if (widget.isValid(options._page)) {
                         var wg = widget.create(executor, options);
                         widget.clear(options.host, options._exclusive);
                         if (wg) {
