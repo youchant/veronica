@@ -444,7 +444,7 @@ var requirejs, require, define;
     };
 }());
 
-define("../bower_components/almond/almond", function(){});
+define("../node_modules/almond/almond", function(){});
 
 /*!
  * EventEmitter2
@@ -488,6 +488,7 @@ define("../bower_components/almond/almond", function(){});
     this.newListener = false;
     configure.call(this, conf);
   }
+  EventEmitter.EventEmitter2 = EventEmitter; // backwards compatibility for exporting EventEmitter property
 
   //
   // Attention, function return type now is array, always !
@@ -651,7 +652,9 @@ define("../bower_components/almond/almond", function(){});
                             'leak detected. %d listeners added. ' +
                             'Use emitter.setMaxListeners() to increase limit.',
                             tree._listeners.length);
-              console.trace();
+              if(console.trace){
+                console.trace();
+              }
             }
           }
         }
@@ -713,85 +716,199 @@ define("../bower_components/almond/almond", function(){});
     var type = arguments[0];
 
     if (type === 'newListener' && !this.newListener) {
-      if (!this._events.newListener) { return false; }
-    }
-
-    // Loop through the *_all* functions and invoke them.
-    if (this._all) {
-      var l = arguments.length;
-      var args = new Array(l - 1);
-      for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
-      for (i = 0, l = this._all.length; i < l; i++) {
-        this.event = type;
-        this._all[i].apply(this, args);
-      }
-    }
-
-    // If there is no 'error' event listener then throw.
-    if (type === 'error') {
-
-      if (!this._all &&
-        !this._events.error &&
-        !(this.wildcard && this.listenerTree.error)) {
-
-        if (arguments[1] instanceof Error) {
-          throw arguments[1]; // Unhandled 'error' event
-        } else {
-          throw new Error("Uncaught, unspecified 'error' event.");
-        }
+      if (!this._events.newListener) {
         return false;
       }
     }
 
+    var al = arguments.length;
+    var args,l,i,j;
     var handler;
 
-    if(this.wildcard) {
+    if (this._all && this._all.length) {
+      handler = this._all.slice();
+      if (al > 3) {
+        args = new Array(al);
+        for (j = 0; j < al; j++) args[j] = arguments[j];
+      }
+
+      for (i = 0, l = handler.length; i < l; i++) {
+        this.event = type;
+        switch (al) {
+        case 1:
+          handler[i].call(this, type);
+          break;
+        case 2:
+          handler[i].call(this, type, arguments[1]);
+          break;
+        case 3:
+          handler[i].call(this, type, arguments[1], arguments[2]);
+          break;
+        default:
+          handler[i].apply(this, args);
+        }
+      }
+    }
+
+    if (this.wildcard) {
       handler = [];
       var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
       searchListenerTree.call(this, handler, ns, this.listenerTree, 0);
+    } else {
+      handler = this._events[type];
+      if (typeof handler === 'function') {
+        this.event = type;
+        switch (al) {
+        case 1:
+          handler.call(this);
+          break;
+        case 2:
+          handler.call(this, arguments[1]);
+          break;
+        case 3:
+          handler.call(this, arguments[1], arguments[2]);
+          break;
+        default:
+          args = new Array(al - 1);
+          for (j = 1; j < al; j++) args[j - 1] = arguments[j];
+          handler.apply(this, args);
+        }
+        return true;
+      } else if (handler) {
+        // need to make copy of handlers because list can change in the middle
+        // of emit call
+        handler = handler.slice();
+      }
     }
-    else {
+
+    if (handler && handler.length) {
+      if (al > 3) {
+        args = new Array(al - 1);
+        for (j = 1; j < al; j++) args[j - 1] = arguments[j];
+      }
+      for (i = 0, l = handler.length; i < l; i++) {
+        this.event = type;
+        switch (al) {
+        case 1:
+          handler[i].call(this);
+          break;
+        case 2:
+          handler[i].call(this, arguments[1]);
+          break;
+        case 3:
+          handler[i].call(this, arguments[1], arguments[2]);
+          break;
+        default:
+          handler[i].apply(this, args);
+        }
+      }
+      return true;
+    } else if (!this._all && type === 'error') {
+      if (arguments[1] instanceof Error) {
+        throw arguments[1]; // Unhandled 'error' event
+      } else {
+        throw new Error("Uncaught, unspecified 'error' event.");
+      }
+      return false;
+    }
+
+    return !!this._all;
+  };
+
+  EventEmitter.prototype.emitAsync = function() {
+
+    this._events || init.call(this);
+
+    var type = arguments[0];
+
+    if (type === 'newListener' && !this.newListener) {
+        if (!this._events.newListener) { return Promise.resolve([false]); }
+    }
+
+    var promises= [];
+
+    var al = arguments.length;
+    var args,l,i,j;
+    var handler;
+
+    if (this._all) {
+      if (al > 3) {
+        args = new Array(al);
+        for (j = 1; j < al; j++) args[j] = arguments[j];
+      }
+      for (i = 0, l = this._all.length; i < l; i++) {
+        this.event = type;
+        switch (al) {
+        case 1:
+          promises.push(this._all[i].call(this, type));
+          break;
+        case 2:
+          promises.push(this._all[i].call(this, type, arguments[1]));
+          break;
+        case 3:
+          promises.push(this._all[i].call(this, type, arguments[1], arguments[2]));
+          break;
+        default:
+          promises.push(this._all[i].apply(this, args));
+        }
+      }
+    }
+
+    if (this.wildcard) {
+      handler = [];
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      searchListenerTree.call(this, handler, ns, this.listenerTree, 0);
+    } else {
       handler = this._events[type];
     }
 
     if (typeof handler === 'function') {
       this.event = type;
-      if (arguments.length === 1) {
-        handler.call(this);
+      switch (al) {
+      case 1:
+        promises.push(handler.call(this));
+        break;
+      case 2:
+        promises.push(handler.call(this, arguments[1]));
+        break;
+      case 3:
+        promises.push(handler.call(this, arguments[1], arguments[2]));
+        break;
+      default:
+        args = new Array(al - 1);
+        for (j = 1; j < al; j++) args[j - 1] = arguments[j];
+        promises.push(handler.apply(this, args));
       }
-      else if (arguments.length > 1)
-        switch (arguments.length) {
-          case 2:
-            handler.call(this, arguments[1]);
-            break;
-          case 3:
-            handler.call(this, arguments[1], arguments[2]);
-            break;
-          // slower
-          default:
-            var l = arguments.length;
-            var args = new Array(l - 1);
-            for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
-            handler.apply(this, args);
-        }
-      return true;
-    }
-    else if (handler) {
-      var l = arguments.length;
-      var args = new Array(l - 1);
-      for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
-
-      var listeners = handler.slice();
-      for (var i = 0, l = listeners.length; i < l; i++) {
+    } else if (handler && handler.length) {
+      if (al > 3) {
+        args = new Array(al - 1);
+        for (j = 1; j < al; j++) args[j - 1] = arguments[j];
+      }
+      for (i = 0, l = handler.length; i < l; i++) {
         this.event = type;
-        listeners[i].apply(this, args);
+        switch (al) {
+        case 1:
+          promises.push(handler[i].call(this));
+          break;
+        case 2:
+          promises.push(handler[i].call(this, arguments[1]));
+          break;
+        case 3:
+          promises.push(handler[i].call(this, arguments[1], arguments[2]));
+          break;
+        default:
+          promises.push(handler[i].apply(this, args));
+        }
       }
-      return (listeners.length > 0) || !!this._all;
-    }
-    else {
-      return !!this._all;
+    } else if (!this._all && type === 'error') {
+      if (arguments[1] instanceof Error) {
+        return Promise.reject(arguments[1]); // Unhandled 'error' event
+      } else {
+        return Promise.reject("Uncaught, unspecified 'error' event.");
+      }
     }
 
+    return Promise.all(promises);
   };
 
   EventEmitter.prototype.on = function(type, listener) {
@@ -843,7 +960,9 @@ define("../bower_components/almond/almond", function(){});
                         'leak detected. %d listeners added. ' +
                         'Use emitter.setMaxListeners() to increase limit.',
                         this._events[type].length);
-          console.trace();
+          if(console.trace){
+            console.trace();
+          }
         }
       }
     }
@@ -920,6 +1039,9 @@ define("../bower_components/almond/almond", function(){});
             delete this._events[type];
           }
         }
+
+        this.emit("removeListener", type, listener);
+
         return this;
       }
       else if (handlers === listener ||
@@ -931,8 +1053,30 @@ define("../bower_components/almond/almond", function(){});
         else {
           delete this._events[type];
         }
+
+        this.emit("removeListener", type, listener);
       }
     }
+
+    function recursivelyGarbageCollect(root) {
+      if (root === undefined) {
+        return;
+      }
+      var keys = Object.keys(root);
+      for (var i in keys) {
+        var key = keys[i];
+        var obj = root[key];
+        if ((obj instanceof Function) || (typeof obj !== "object"))
+          continue;
+        if (Object.keys(obj).length > 0) {
+          recursivelyGarbageCollect(root[key]);
+        }
+        if (Object.keys(obj).length === 0) {
+          delete root[key];
+        }
+      }
+    }
+    recursivelyGarbageCollect(this.listenerTree);
 
     return this;
   };
@@ -944,10 +1088,14 @@ define("../bower_components/almond/almond", function(){});
       for(i = 0, l = fns.length; i < l; i++) {
         if(fn === fns[i]) {
           fns.splice(i, 1);
+          this.emit("removeListenerAny", fn);
           return this;
         }
       }
     } else {
+      fns = this._all;
+      for(i = 0, l = fns.length; i < l; i++)
+        this.emit("removeListenerAny", fns[i]);
       this._all = [];
     }
     return this;
@@ -971,7 +1119,7 @@ define("../bower_components/almond/almond", function(){});
       }
     }
     else {
-      if (!this._events[type]) return this;
+      if (!this._events || !this._events[type]) return this;
       this._events[type] = null;
     }
     return this;
@@ -994,6 +1142,10 @@ define("../bower_components/almond/almond", function(){});
     return this._events[type];
   };
 
+  EventEmitter.prototype.listenerCount = function(type) {
+    return this.listeners(type).length;
+  };
+
   EventEmitter.prototype.listenersAny = function() {
 
     if(this._all) {
@@ -1012,7 +1164,7 @@ define("../bower_components/almond/almond", function(){});
     });
   } else if (typeof exports === 'object') {
     // CommonJS
-    exports.EventEmitter2 = EventEmitter;
+    module.exports = EventEmitter;
   }
   else {
     // Browser global.
@@ -1559,7 +1711,7 @@ define('core/history',[
         // returns `false`.
         loadUrl: function (fragment) {
             fragment = this.fragment = this.getFragment(fragment);
-            return _.any(this.handlers, function (handler) {
+            return _.some(this.handlers, function (handler) {
                 if (handler.route.test(fragment)) {
                     handler.callback(fragment);
                     return true;
@@ -2901,7 +3053,6 @@ define('app/page',[], function () {
 
                 _.each(config.inherits, function (parentName) {
                     var config = context.get(parentName);
-                    result.push(config.widgets);
                     result = getAllWidgetConfigs(config, context, result);
                 });
 
@@ -6329,8 +6480,10 @@ define('app/widget',[
             });
 
             // zip widget configs
-            var uniqFunc = _.uniqBy || _.uniq;
-            return uniqFunc(list, false, function (item) {
+            var uniqFunc = _.uniqBy || function (list, iteratee) {
+                return _.uniq(list, false, iteratee);
+            };
+            return uniqFunc(list, function (item) {
                 if (item.options && item.options.el) return item.options.el;  // 确保一个元素上只有一个插件
                 return item.name + item.options.host;  // 确保一个父元素下，只有一个同样的插件
             });

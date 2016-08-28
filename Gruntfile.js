@@ -30,17 +30,12 @@ module.exports = function (grunt) {
                     "baseUrl": "lib",
                     "paths": {
                         "veronica": "main",
-                        'underscore': '../bower_components/underscore/underscore',
+                        'underscore': 'empty:',
                         'jquery': 'empty:',
-                        'eventemitter': '../bower_components/eventemitter2/lib/eventemitter2',
-                        'art-dialog': '../lib/assets/artDialog/dist/dialog-plus',
-                        'text': '../bower_components/requirejs-text/text'
+                        'eventemitter': '../node_modules/eventemitter2/lib/eventemitter2',
+                        'text': '../node_modules/requirejs-text/text'
                     },
-                    'shim': {
-                        'art-dialog': { 'exports': 'dialog', deps: ['jquery'] },
-                        'noty': { 'exports': 'noty' }
-                    },
-                    "include": ["../bower_components/almond/almond", "veronica"],
+                    "include": ["../node_modules/almond/almond", "veronica"],
                     "exclude": ["jquery", "underscore", "text"],
                     "out": "dist/veronica.js",
                     "wrap": {
