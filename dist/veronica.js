@@ -1,5 +1,5 @@
 /*!
- * Veronica v1.0.5
+ * Veronica v2.0.0-alpha
  *
  * http://gochant.github.io/veronica
  *
@@ -4372,6 +4372,9 @@ define('app/viewEngine',[], function () {
             create: function (data) {
                 return data;
             },
+            bindEvents: function (vm, view) {
+
+            },
             get: function () {
 
             },
@@ -5388,9 +5391,6 @@ define('app/view/children',[],function () {
 
             // 创建视图
             _createView: function (view, name) {
-                if (_.isFunction(view)) {  // 方法
-                    view = view.apply(this);
-                }
 
                 if (view.cid) {  // 视图对象
                     view._name = name;
@@ -5398,6 +5398,13 @@ define('app/view/children',[],function () {
                 }
 
                 var viewConfig = view;
+                if (_.isFunction(view)) {  // 方法
+                    viewConfig = view.apply(this);
+                }
+
+                if (_.isString(viewConfig.initializer)) {
+                    viewConfig.initializer = app.widget._localWidgetExes[viewConfig.initializer];
+                }
                 // 确保 initializer 是个方法
                 var viewInitializer = app.view.define(viewConfig.initializer, true);
                 var viewOptions = $.extend({}, viewConfig.options) || {};
@@ -5809,6 +5816,7 @@ define('app/view/mvvm',[],function () {
              * @returns {object} 视图模型对象
              */
             model: function (data, autoBind) {
+                var me = this;
                 if (!_.isUndefined(data)) {
 
                     if (_.isString(data) && this._viewModel) {
@@ -5827,19 +5835,9 @@ define('app/view/mvvm',[],function () {
                         this._viewModel = this._createViewModel($.extend({}, baseModel, data));
                     }
 
-
                     // delegate model events
-                    var vm = this._viewModel;
-                    if (me.modelChanged) {
-                        vm.bind('change', function (e) {
-                            var handler = me.modelChanged[e.field];
-                            if (handler == null) {
-                                handler = me.modelChanged['defaults'] || $.noop;
-                            }
-
-                            me._invoke(handler, vm, e);
-                        });
-                    }
+                    this._viewEngine().bindEvents(me._viewModel, me);
+                  
                     this.delegateModelEvents(this._viewModel);
 
                     this.trigger('modelInit', this._viewModel);

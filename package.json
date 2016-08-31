@@ -1,6 +1,6 @@
 {
   "name": "veronica",
-  "version": "1.0.5",
+  "version": "2.0.0-alpha",
   "homepage": "http://gochant.github.io/veronica",
   "description": "A tiny web application library",
   "author": {
@@ -17,6 +17,7 @@
     }
   ],
   "devDependencies": {
+    "almond": "^0.3.2",
     "chai": "latest",
     "connect-livereload": "^0.5.3",
     "eventemitter2": "^2.1.0",

@@ -2,7 +2,7 @@
   "name": "veronica",
   "description": "A tiny web application library",
   "homepage": "http://gochant.github.io/veronica",
-  "version": "1.0.5",
+  "version": "2.0.0-alpha",
   "main": [
     "lib/main.js"
   ],
@@ -27,10 +27,10 @@
     "url": "git@github.com:gochant/veronica.git"
   },
   "dependencies": {
-    "jquery": "^1.11",
-    "underscore": ">=1.7"
   },
   "devDependencies": {
+    "jquery": "^1.11",
+    "underscore": ">=1.7",
     "require-css": "^0.1.7",
     "requirejs-text": "^2.0.14",
     "eventemitter2": "^0.4.14",

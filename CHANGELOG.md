@@ -1,30 +1,13 @@
-# Change Log
+# 更新日志
 
-## Unreleased
+## v1.0.7
 
-### Modified
-- 更改 _defaultListen 为 _listen
+* 视图的 view.initializer 可传入视图注册的名称，获取本地缓存视图
+* 修复 actionHandler 中，使用 invoke 调用报错的bug
 
-### Removed
-- 移除内置的 windowProvider，放到其他项目中维护
-- 移除窗口配置项 type
-- 移除 defineAttr，功能与 attr 合并
-- 移除 path
-- 移除页面加载时读取路由参数的机制
+## v 1.0.0
 
-## 1.0.0
 
-### Added
-* 新增 根据页面名称，自动跳转到页面，例如 ProjectDemo/Home/Index，则会去查找名为 ProjectDemo-Home-Index 的 Widget
-* 新增 定义view时，支持直接返回对象
-* 新增 requirejs 的插件 ver，这样不用手动注册 control 了
-
-### Fixed
-* 修复 ajax 缺失 options 的bug
-* 修复 dialog 默认弹出的bug
-* 修复 _render 方法内的bug
-
-### Removed
 * 移除 在全局配置 paths 中 widgets 路径的特性
 * 移除 widgetMapping 特性
 * 移除 widget 中 的 _widgetRef
@@ -32,6 +15,15 @@
 * 移除 autoReport的实现，改由用户自己实现
 * 移除 view 的 refresh 方法，并更名为 _refresh
 * 移除 dialog 的 destroyedOnClose 配置，后续版本再添加
+
+
+* 新增 根据页面名称，自动跳转到页面，例如 ProjectDemo/Home/Index，则会去查找名为 ProjectDemo-Home-Index 的 Widget
+* 新增 定义view时，支持直接返回对象
+* 新增 requirejs 的插件 ver，这样不用手动注册 control 了
+
+* 修复 ajax 缺失 options 的bug
+* 修复 dialog 默认弹出的bug
+* 修复 _render 方法内的bug
 
 ## v 0.2.3
 
