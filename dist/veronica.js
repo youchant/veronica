@@ -5837,7 +5837,7 @@ define('app/view/mvvm',[],function () {
 
                     // delegate model events
                     this._viewEngine().bindEvents(me._viewModel, me);
-                  
+
                     this.delegateModelEvents(this._viewModel);
 
                     this.trigger('modelInit', this._viewModel);
@@ -5883,7 +5883,9 @@ define('app/view/mvvm',[],function () {
         });
 
         base._extendMethod('_setup', function () {
-            this.model({});  // 该视图的视图模型
+            if (this.model() == null) {
+                this.model({});  // 该视图的视图模型
+            }
         })
 
         base._extendMethod('_listen', function () {
