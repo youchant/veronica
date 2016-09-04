@@ -26,17 +26,17 @@
     "type": "git",
     "url": "git@github.com:gochant/veronica.git"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "jquery": "^1.11",
-    "underscore": ">=1.7",
+    "lodash": "^4.15.0",
     "require-css": "^0.1.7",
     "requirejs-text": "^2.0.14",
     "eventemitter2": "^0.4.14",
     "requirejs": "^2.1.18",
     "almond": "^0.3.1",
     "bootstrap": "^3.3.4",
-    "requirejs-ver": "~0.1.0"
+    "requirejs-ver": "~0.1.0",
+    "has": "*"
   }
 }

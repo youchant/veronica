@@ -11,7 +11,7 @@
         <button data-action="hello">Hello</button>
     </div>
     <script src="../../bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="../../bower_components/underscore/underscore-min.js"></script>
+    <script src="../../bower_components/lodash/dist/lodash.js"></script>
     <script src="../../dist/veronica.js"></script>
     <script>
         // create app
@@ -20,7 +20,7 @@
         // create widget: hello-veronica
         var helloVeronicaWidget = {
             defaults: {
-                autoAction:true
+                autoAction: true
             },
             helloHandler: function () {
                 alert('Hello Veronica!');
@@ -31,7 +31,8 @@
         app.widget.register('hello-veronica', helloVeronicaWidget);
 
         // launch app
-        app.launch({ parse: true });
+        //app.launch({ parse: true });
+        app.parser.parse();
 
     </script>
 </body>

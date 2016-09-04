@@ -9,7 +9,7 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD.
-        define(['jquery', 'underscore'], factory);
+        define(['jquery', 'lodash'], factory);
     } else {
         // Browser globals
         root.veronica = factory(root.$, root._);
@@ -445,6 +445,417 @@ var requirejs, require, define;
 }());
 
 define("../node_modules/almond/almond", function(){});
+
+define('core/base/lodashExt/querystring',[
+    'lodash'
+], function (_) {
+    var qs = {};
+
+    /**
+     * 查询字符串的来源
+     * @enum
+     * @type {number}
+     */
+    var QueryStringType = {
+        /** 浏览器 URL 的查询部分 */
+        SEARCH: 0,
+        /** 浏览器 URL 的 hash 部分 */
+        HASH: 1
+    };
+
+    /**
+     * 查询字符串处理类
+     * @class QueryString
+     * @memberOf veronica
+     * @param {QueryStringType} choice - 查询字符串来源
+     */
+    function QueryString(choice) {
+        if (choice == null) { choice = 1 }
+        this.choice = choice;
+    }
+
+    function qsToJSON(str) {
+        str || (str = location.search.slice(1));
+        var pairs = str.split('&');
+
+        var result = {};
+        _.each(pairs, function (pair) {
+            pair = pair.split('=');
+            result[pair[0]] = decodeURIComponent(pair[1] || '');
+        });
+
+        return JSON.parse(JSON.stringify(result));
+    }
+
+    function updateQueryString(uri, key, value) {
+        var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+        var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+        if (uri.match(re)) {
+            return uri.replace(re, '$1' + key + "=" + value + '$2');
+        }
+        else {
+            return uri + separator + key + "=" + value;
+        }
+    }
+
+    /**@lends veronica.QueryString# */
+    var qs = QueryString.prototype;
+
+    /**
+     * 获取查询字符串的 url
+     * @private
+     */
+    qs._getUrl = function () {
+        var str = this.choice;
+        if (this.choice === 0) {
+            str = window.location.search;
+        }
+        if (this.choice === 1) {
+            str = window.location.hash;
+        }
+        return str;
+    };
+
+    /**
+     * 设置
+     * @param {string} key
+     * @param {Any} value
+     */
+    qs.set = function (key, value) {
+        var str = this._getUrl();
+
+        if (_.isObject(key)) {
+            _.each(key, function (val, k) {
+                str = updateQueryString(str, k, val);
+            });
+        } else {
+            str = updateQueryString(str, key, value);
+        }
+
+        if (this.choice == 1) {
+            window.location.hash = str;
+        } else {
+            window.location.search = str;
+        }
+
+    };
+
+    /**
+     * 获取值
+     * @param {string} key
+     * @returns {string} 结果
+     */
+    qs.get = function (key) {
+        var url = this._getUrl();
+
+        key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + key + "=([^&#]*)");
+        var results = regex.exec(url);
+
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    };
+
+    /**
+     * 整个转换为对象
+     * @returns {Object} 结果
+     */
+    qs.toJSON = function () {
+        var url = this._getUrl();
+
+        var obj1;
+        if (this.choice !== 0 && this.choice !== 1) {
+            obj1 = qsToJSON(url);
+        }
+        var obj2 = qsToJSON(window.location.search);
+
+        var matches = /([^\?]*)\?([^\?]+)/.exec(url);
+        if (matches != null) {
+            url = '?' + matches[2];
+        }
+        var obj3 = qsToJSON(url);
+
+        return _.extend({}, obj2, obj3, obj1);
+    };
+
+
+    if (!_.qs) {
+        _.qs = function (choice) {
+            return new QueryString(choice);
+        }
+    }
+});
+
+// core
+define('core/base/lodashExt/request',[
+    'lodash',
+    'jquery'
+], function (_, $) {
+    // Ajax
+
+    var request = {};
+
+    /**
+     * $.get 的包装
+     */
+    request.get = function (url, data) {
+        return $.get(url, data);
+    };
+
+    /**
+     * 获取JSON（$.getJSON）
+     */
+    request.getJSON = function (url, data) {
+        return $.getJSON(url, data);
+    };
+
+    /**
+     * 传入复杂对象进行 GET 请求（需要后台进行JSON字符串的反序列化）
+     * @param {string} url - 地址
+     * @param {Object} data - 数据
+     * @param {Object} [options] - 选项
+     */
+    request.getComplex = function (url, data, options) {
+        options || (options = {});
+
+        return $.ajax($.extend({
+            url: url,
+            type: 'GET',
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        }, options));
+    };
+
+    /**
+     * POST 简单对象
+     * @param {string} url - 请求路径
+     * @param {Object} data - 数据
+     * @returns {Deferred}
+     */
+    request.post = function (url, data) {
+        return $.post(url, data);
+    }
+
+    /**
+     * POST 复杂对象（使某些后台处理程序（如 ASP.NET MVC）能够正常进行数据绑定）
+     * @param {string} url - 地址
+     * @param {Object} data - 数据
+     * @param {Object} [options] - 选项
+     */
+    request.postComplex = function (url, data, options) {
+        return $.ajax($.extend({
+            url: url,
+            type: 'POST',
+            contentType: "application/json",
+            dataType: 'json',
+            data: JSON.stringify(data)
+        }, options));
+    }
+
+    /**
+     * 多个请求捆绑发送
+     * @param {...string|Object} url 或 延迟对象
+     * @returns {Deferred}
+     */
+    request.getBundle = function () {
+        var urls = Array.prototype.slice.call(arguments);
+        var requests = $.map(urls, function (item) {
+            if (_.isString(item)) {
+                return $.get(item);
+            } else {
+                return item.done ? item : $.get(item.url, item.data);
+            }
+        });
+
+        return _.whenSingleResult.apply(_, requests);
+    }
+
+    var isChromeFrame = function () {
+        var ua = navigator.userAgent.toLowerCase();
+        return ua.indexOf('chrome') >= 0 && window.externalHost;
+    };
+
+    /**
+     * 下载文件
+     * @param {Object} settings - 配置对象 eg: { url: '', data: [object] }
+     * @returns {}
+     */
+    request.download = function (settings) {
+        settings || (settings = {}); //eg: { url: '', data: [object] }
+        if (settings.url == undefined) {
+            return;
+        }
+        if (!_.isString(settings.data)) {
+            settings.data = $.param(settings.data, true);
+        }
+        if (!isChromeFrame()) {  // 当使用ChromeFrame时，采用新窗口打开
+            if ($('#global-download-iframe').length === 0) {
+                $('<iframe id="global-download-iframe" src="" style="width:0;height:0;display: inherit;border:0;" \>').appendTo(document.body);
+            }
+            $('#global-download-iframe').attr('src', settings.url + '?' + settings.data);
+        } else {
+            window.open(settings.url + '?' + settings.data, "newwindow");
+        }
+    };
+
+    if (!_.request) {
+        _.request = request;
+    }
+
+    return _;
+});
+
+// core
+define('core/base/lodashExt/util',[
+    'lodash',
+    'jquery'
+], function (_, $) {
+
+    'use strict';
+
+    // use lodash methods:
+    // _.get, _.set, 
+
+    function mixinIt(name, func) {
+        var obj = {};
+        obj[name] = func;
+        if (!_[name]) {
+            _.mixin(obj);
+        } else {
+            throw Error('mixin lodash !!' + name)
+        }
+    }
+
+    // Array & Collection
+
+    mixinIt('ensureArray', function (list) {
+        if (list == null) return [];
+        if (_.isObject(list) && !_.isArray(list)) {
+            list = [list];
+        }
+        return list;
+    })
+
+    // 将数据转换成另一种形式
+    mixinIt('mapArrayOrSingle', function (obj, iteratee) {
+        var isArray = _.isArray(obj);
+        if (!isArray) { obj = [obj]; }
+
+        var result = _.map(obj, iteratee);
+        return isArray ? result : result[0];
+    })
+
+
+
+    // Object
+
+    mixinIt('safeInvoke', function (context, method, params) {
+        var args = Array.slice.call(arguments, 2);
+        context && context[method].apply(context, args);
+    })
+
+
+    // String
+
+    /**
+     * 将字符串转换成反驼峰表示
+     * @function
+     */
+    mixinIt('decamelize', function (camelCase, delimiter) {
+        delimiter = (delimiter === undefined) ? '_' : delimiter;
+        return camelCase.replace(/([A-Z])/g, delimiter + '$1').toLowerCase();
+    })
+
+    mixinIt('normalizePath', function (path) {
+        return path.replace('//', '/').replace('http:/', 'http://');
+    })
+
+    /**
+     * 查询字符串转换成JSON对象
+     */
+    mixinIt('qsToJSON', function (str) {
+        str || (str = location.search.slice(1));
+        var pairs = str.split('&');
+
+        var result = {};
+        pairs.forEach(function (pair) {
+            pair = pair.split('=');
+            result[pair[0]] = decodeURIComponent(pair[1] || '');
+        });
+
+        return JSON.parse(JSON.stringify(result));
+    })
+
+
+    // Function
+
+    mixinIt('callArguments', function (func, args, context) {
+        return func.apply(context || this, Array.prototype.slice.call(args));
+    })
+
+
+    // thx: https://github.com/goatslacker/get-parameter-names/blob/master/index.js
+    var COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+    var DEFAULT_PARAMS = /=[^,]+/mg;
+    var FAT_ARROWS = /=>.*$/mg;
+
+    mixinIt('getParameterNames', function (fn) {
+        fn || (fn = this);
+        var code = fn.toString()
+          .replace(COMMENTS, '')
+          .replace(FAT_ARROWS, '')
+          .replace(DEFAULT_PARAMS, '');
+
+        var result = code.slice(code.indexOf('(') + 1, code.indexOf(')'))
+          .match(/([^\s,]+)/g);
+
+        return result === null ? [] : result;
+    })
+
+    // Deferred
+
+    mixinIt('whenSingleResult', function () {
+        var inputDeferreds = Array.prototype.slice.call(arguments);
+        var deferred = $.Deferred();
+        $.when.apply($, inputDeferreds).done(function () {
+            var args = _.toArray(arguments);
+            var result = _.map(args, function (prop) {
+                return _.isArray(prop) ? (prop[1] === 'success' ? prop[0] : prop) : prop;
+            });
+            deferred.resolve.apply(deferred, result);
+        }).fail(function () {
+            deferred.reject(arguments);
+        });
+        return deferred.promise();
+    })
+
+
+    mixinIt('doneDeferred', function (result) {
+        var dfd = $.Deferred();
+        dfd.resolve(result);
+        return dfd.promise();
+    })
+
+    mixinIt('failDeferred', function () {
+        var dfd = $.Deferred();
+        dfd.reject();
+        return dfd.promise();
+    })
+
+
+    return _;
+});
+
+define('core/base/lodashExt/index',[
+    'lodash',
+    './querystring',
+    './request',
+    './util'
+], function (_) {
+
+    'use strict';
+
+    return _;
+});
 
 /*!
  * EventEmitter2
@@ -1172,69 +1583,102 @@ define("../node_modules/almond/almond", function(){});
   }
 }();
 
-define('core/base',[
-    'jquery',
-    'underscore',
-    'eventemitter'
-], function ($, _, EventEmitter) {
+/*!
+  * klass: a classical JS OOP façade
+  * https://github.com/ded/klass
+  * License MIT (c) Dustin Diaz 2014
+  */
 
-    'use strict';
+!function (name, context, definition) {
+  if (typeof define == 'function') define('core/base/klass',definition)
+  else if (typeof module != 'undefined') module.exports = definition()
+  else context[name] = definition()
+}('klass', this, function () {
+  var context = this
+    , f = 'function'
+    , fnTest = /xyz/.test(function () {xyz}) ? /\bsupr\b/ : /.*/
+    , proto = 'prototype'
 
-    var base = {
-        $: $,
-        _: _,
-        EventEmitter: EventEmitter
-    };
+  function klass(o) {
+    return extend.call(isFn(o) ? o : function () {}, o, 1)
+  }
 
-    base.classBase = {
-        _call: function (func, args) {
-            func.apply(this, Array.prototype.slice.call(args));
-        },
-        _extend: function (obj) {
-            obj.options && $.extend(this._defaults, obj.options);
-            obj.configs && $.extend(this, obj.configs);
-            obj.methods && $.extend(this, obj.methods);
+  function isFn(o) {
+    return typeof o === f
+  }
 
-            // ��������ʱ����
-            if (obj.props) {
-                this._extendMethod('_initProps', function () {
-                    _.each(obj.props, function (prop, name) {
-                        this[name] = prop;
-                    });
-                });
-            }
-        },
-        _extendMethod: function (methodName, newMethod) {
-            var original = this[methodName];
-            this[methodName] = function () {
-                this._call(original, arguments);
-                this._call(newMethod, arguments);
-            }
-        }
+  function wrap(k, fn, supr) {
+    return function () {
+      var tmp = this.supr
+      this.supr = supr[proto][k]
+      var undef = {}.fabricatedUndefined
+      var ret = undef
+      try {
+        ret = fn.apply(this, arguments)
+      } finally {
+        this.supr = tmp
+      }
+      return ret
+    }
+  }
+
+  function process(what, o, supr) {
+    for (var k in o) {
+      if (o.hasOwnProperty(k)) {
+        what[k] = isFn(o[k])
+          && isFn(supr[proto][k])
+          && fnTest.test(o[k])
+          ? wrap(k, o[k], supr) : o[k]
+      }
+    }
+  }
+
+  function extend(o, fromSub) {
+    // must redefine noop each time so it doesn't inherit from previous arbitrary classes
+    function noop() {}
+    noop[proto] = this[proto]
+    var supr = this
+      , prototype = new noop()
+      , isFunction = isFn(o)
+      , _constructor = isFunction ? o : this
+      , _methods = isFunction ? {} : o
+    function fn() {
+      if (this.initialize) this.initialize.apply(this, arguments)
+      else {
+        fromSub || isFunction && supr.apply(this, arguments)
+        _constructor.apply(this, arguments)
+      }
     }
 
-    base.whenSingleResult = function () {
-        var inputDeferreds = Array.prototype.slice.call(arguments);
-        var deferred = $.Deferred();
-        $.when.apply($, inputDeferreds).done(function () {
-            var args = _.toArray(arguments);
-            var result = _.map(args, function (prop) {
-                return _.isArray(prop) ? (prop[1] === 'success' ? prop[0] : prop) : prop;
-            });
-            deferred.resolve.apply(deferred, result);
-        }).fail(function () {
-            deferred.reject(arguments);
-        });
-        return deferred.promise();
+    fn.methods = function (o) {
+      process(prototype, o, supr)
+      fn[proto] = prototype
+      return this
     }
 
-    return base;
+    fn.methods.call(fn, _methods).prototype.constructor = fn
+
+    fn.extend = arguments.callee
+    fn[proto].implement = fn.statics = function (o, optFn) {
+      o = typeof o == 'string' ? (function () {
+        var obj = {}
+        obj[o] = optFn
+        return obj
+      }()) : o
+      process(this, o, supr)
+      return this
+    }
+
+    return fn
+  }
+
+  return klass
 });
 
 // Events
 // borrow frome Backbone 1.1.2
-define('core/events',[
-    'underscore'
+define('core/base/events',[
+    'lodash'
 ], function (_) {
     'use strict';
 
@@ -1417,9 +1861,248 @@ define('core/events',[
     return Events;
 });
 
+define('core/base/aspect',[
+    'lodash',
+    'jquery',
+    'exports'
+], function (_, $, exports) {
+
+    'use strict';
+
+
+    // thx "aralejs"
+    // source:  https://github.com/aralejs/base/blob/master/src/aspect.js
+
+    exports.before = function (methodName, callback, context) {
+        return weave.call(this, 'before', methodName, callback, context);
+    };
+
+
+    exports.after = function (methodName, callback, context) {
+        return weave.call(this, 'after', methodName, callback, context);
+    };
+
+
+    // Helpers
+    // -------
+
+    var eventSplitter = /\s+/;
+
+    function weave(when, methodName, callback, context) {
+        var names = methodName.split(eventSplitter);
+        var name, method;
+
+        while (name = names.shift()) {
+            method = getMethod(this, name);
+            if (!method.__isAspected) {
+                wrap.call(this, name);
+            }
+            this.on(when + ':' + name, callback, context);
+        }
+
+        return this;
+    }
+
+
+    function getMethod(host, methodName) {
+        var method = host[methodName];
+        if (!method) {
+            throw new Error('Invalid method name: ' + methodName);
+        }
+        return method;
+    }
+
+
+    function wrap(methodName) {
+        var old = this[methodName];
+
+        this[methodName] = function () {
+            var args = Array.prototype.slice.call(arguments);
+            var beforeArgs = ['before:' + methodName].concat(args);
+
+            // prevent if trigger return false
+            if (this.trigger.apply(this, beforeArgs) === false) return;
+
+            var ret = old.apply(this, arguments);
+            var afterArgs = ['after:' + methodName, ret].concat(args);
+            this.trigger.apply(this, afterArgs);
+
+            return ret;
+        };
+
+        this[methodName].__isAspected = true;
+    }
+});
+
+define('core/base/classBase',[
+    'lodash',
+    './klass',
+    './events',
+    './aspect'
+], function (_, klass, Events, Aspect) {
+
+    'use strict';
+
+    var ClassBase = klass(_.extend({}, Aspect, Events, {
+        initialize: function () { },
+        _initProps: function () { },
+        _call: function (func, args) {
+            func.apply(this, Array.prototype.slice.call(args));
+        },
+        _extend: function (obj) {
+            var me = this;
+            obj.options && $.extend(this._defaults, obj.options);
+            obj.configs && $.extend(this, obj.configs);
+            obj.methods && $.extend(this, obj.methods);
+
+            // ��������ʱ����
+            if (obj.props) {
+                this._extendMethod('_initProps', function () {
+                    _.each(obj.props, function (prop, name) {
+                        me[name] = prop;
+                    });
+                });
+            }
+        },
+        _extendMethod: function (methodName, newMethod) {
+            var original = this[methodName];
+            this[methodName] = function () {
+                this._call(original, arguments);
+                this._call(newMethod, arguments);
+            }
+        }
+    }));
+
+    return ClassBase;
+});
+
+
+define('core/base/logger',[], function () {
+    'use strict';
+
+    // thx h5-boilerplate
+    // from: https://github.com/h5bp/html5-boilerplate/blob/master/src/js/plugins.js
+
+    (function () {
+        var method;
+        var noop = function () { };
+        var methods = [
+            'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
+            'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
+            'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
+            'timeline', 'timelineEnd', 'timeStamp', 'trace', 'warn'
+        ];
+        var length = methods.length;
+        var console = (window.console = window.console || {});
+
+        while (length--) {
+            method = methods[length];
+
+            // Only stub undefined methods.
+            if (!console[method]) {
+                console[method] = noop;
+            }
+        }
+    }());
+
+    // thx aurajs
+    // borrow from aura: https://github.com/aurajs/aura
+
+    var noop = function () { },
+        DEFAULT_NAME = 'veronica',
+        console = window.console || {};
+
+    var isIE8 = function _isIE8() {
+        return (!Function.prototype.bind || (Function.prototype.bind && typeof window.addEventListener === 'undefined')) &&
+            typeof console === 'object' &&
+            typeof console.log === 'object';
+    };
+
+    /**
+     * @classdesc 浏览器控制台日志对象
+     * @class Logger
+     * @memberOf veronica
+     */
+    function Logger(name) {
+        this.name = name || DEFAULT_NAME;
+        this._log = noop;
+        this._warn = noop;
+        this._error = noop;
+        this._info = noop;
+        this.time = noop;
+        return this;
+    }
+
+    /**@lends veronica.Logger#*/
+    var proto = {
+        constructor: Logger,
+        /**设置名称*/
+        setName: function (name) {
+            name || (name = DEFAULT_NAME);
+            this.name = name;
+            return this;
+        },
+        /** 启用 */
+        enable: function () {
+            this._log = (console.log || noop);
+            this._info = (console.info || this._info);
+            this._warn = (console.warn || this._log);
+            this._error = (console.error || this._log);
+            this.time = this._time;
+
+            if (Function.prototype.bind && typeof console === "object") {
+                var logFns = ["log", "warn", "error"];
+                for (var i = 0; i < logFns.length; i++) {
+                    console[logFns[i]] = Function.prototype.call.bind(console[logFns[i]], console);
+                }
+            }
+
+            return this;
+        },
+        write: function (output, args) {
+            var parameters = Array.prototype.slice.call(args);
+            parameters.unshift(this.name + ":");
+            if (isIE8()) {
+                output(parameters.join(' '));
+            } else {
+                output.apply(console, parameters);
+            }
+        },
+        /** 日志 */
+        log: function () {
+            this.write(this._log, arguments);
+        },
+        /** 警告 */
+        warn: function () {
+            this.write(this._warn, arguments);
+        },
+        /** 错误 */
+        error: function () {
+            this.write(this._error, arguments);
+        },
+        /** 消息 */
+        info: function () {
+            this.write(this._info, arguments);
+        },
+        /**
+         * 时间
+         * @param {string} name - 时间
+         * @param {string} tag - 开始计时时不传，结束计时时传 'End'
+         */
+        _time: function (name, tag) {
+            tag || (tag = '');
+            console['time' + tag](name);
+        }
+    };
+
+    Logger.prototype = proto;
+
+    return Logger;
+});
+
 // extend
 // borrow frome Backbone 1.1.2
-define('core/extend',[
+define('core/base/extend',[
 ], function ($, Events) {
     'use strict';
 
@@ -1465,119 +2148,9 @@ define('core/extend',[
     return extend;
 });
 
-// View
-// thx: borrow from Backbone 1.1.2:
-define('core/view',[
-    'jquery',
-    'underscore',
-    './events',
-    './extend'
-], function ($, _, Events, extend) {
-    'use strict';
-
-    var Backbone = {
-        $: $
-    };
-
-    // Backbone.View
-    // -------------
-
-    var View = Backbone.View = function (options) {
-        this.cid = _.uniqueId('view');
-        options || (options = {});
-        _.extend(this, _.pick(options, viewOptions));
-        this._ensureElement();
-        this.initialize.apply(this, arguments);
-        this.delegateEvents();
-    };
-
-    // Cached regex to split keys for `delegate`.
-    var delegateEventSplitter = /^(\S+)\s*(.*)$/;
-
-    var viewOptions = ['model', 'collection', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
-
-    // Set up all inheritable **Backbone.View** properties and methods.
-    _.extend(View.prototype, Events, {
-
-        // The default `tagName` of a View's element is `"div"`.
-        tagName: 'div',
-
-        $: function (selector) {
-            return this.$el.find(selector);
-        },
-
-        initialize: function () { },
-
-        render: function () {
-            return this;
-        },
-
-        remove: function () {
-            this.$el.remove();
-            this.stopListening();
-            return this;
-        },
-
-        // Change the view's element (`this.el` property), including event
-        // re-delegation.
-        setElement: function (element, delegate) {
-            if (this.$el) this.undelegateEvents();
-            this.$el = element instanceof Backbone.$ ? element : Backbone.$(element);
-            this.el = this.$el[0];
-            if (delegate !== false) this.delegateEvents();
-            return this;
-        },
-
-        // This only works for delegate-able events: not `focus`, `blur`, and
-        // not `change`, `submit`, and `reset` in Internet Explorer.
-        delegateEvents: function (events) {
-            if (!(events || (events = _.result(this, 'events')))) return this;
-            this.undelegateEvents();
-            for (var key in events) {
-                var method = events[key];
-                if (!_.isFunction(method)) method = this[events[key]];
-                if (!method) continue;
-
-                var match = key.match(delegateEventSplitter);
-                var eventName = match[1], selector = match[2];
-                method = _.bind(method, this);
-                eventName += '.delegateEvents' + this.cid;
-                if (selector === '') {
-                    this.$el.on(eventName, method);
-                } else {
-                    this.$el.on(eventName, selector, method);
-                }
-            }
-            return this;
-        },
-
-        undelegateEvents: function () {
-            this.$el.off('.delegateEvents' + this.cid);
-            return this;
-        },
-
-        _ensureElement: function () {
-            if (!this.el) {
-                var attrs = _.extend({}, _.result(this, 'attributes'));
-                if (this.id) attrs.id = _.result(this, 'id');
-                if (this.className) attrs['class'] = _.result(this, 'className');
-                var $el = Backbone.$('<' + _.result(this, 'tagName') + '>').attr(attrs);
-                this.setElement($el, false);
-            } else {
-                this.setElement(_.result(this, 'el'), false);
-            }
-        }
-
-    });
-
-    View.extend = extend;
-
-    return View;
-});
-
 // Router
 // borrow frome Backbone 1.1.2
-define('core/history',[
+define('core/base/history',[
     './events',
     './extend',
     'jquery'
@@ -1830,44 +2403,155 @@ define('core/history',[
 
 });
 
-// Router
-// borrow frome Backbone 1.1.2
-define('core/router',[
-    'underscore',
+define('core/base/index',[
+    'jquery',
+    './lodashExt/index',
+    'eventemitter',
+    './klass',
+    './classBase',
     './events',
-    './extend',
+    './logger',
+    './aspect',
     './history'
-], function (_, Events, extend, history) {
+
+], function ($, _, EventEmitter, klass, ClassBase, Events,
+    Logger, aspect, history) {
+
     'use strict';
 
-    var Backbone = { history: history };
-
-    // Backbone.Router
-    // ---------------
-
-    // Routers map faux-URLs to actions, and fire events when routes are
-    // matched. Creating a new one sets its `routes` hash, if not set statically.
-    var Router = Backbone.Router = function (options) {
-        options || (options = {});
-        if (options.routes) this.routes = options.routes;
-        this._bindRoutes();
-        this.initialize.apply(this, arguments);
+    var baseLib = {
+        _: _,
+        $: $,
+        EventEmitter: EventEmitter,
+        klass: klass,
+        ClassBase: ClassBase,
+        Events: Events,
+        Logger: Logger,
+        history: history,
+        aspect: aspect
     };
 
-    // Cached regular expressions for matching named param parts and splatted
-    // parts of route strings.
+    return baseLib;
+});
+
+define('core/framework/appComponent',[
+    '../base/index'
+],function (baseLib) {
+
+    var ClassBase = baseLib.ClassBase;
+    var AppComponent = ClassBase.extend({
+        initialize: function (options) {
+            options || (options = {});
+            this.supr(options);
+            this._app = options.app;
+            this.options = options;
+        },
+        app: function () {
+            return this._app;
+        },
+        logger: function () {
+            return this.app().logger;
+        },
+        appConfig: function (name) {
+            return this.app().config;
+        },
+        loader: function () {
+            return this.app().loader.get();
+        }
+    });
+
+    return AppComponent;
+});
+
+define('core/framework/appProvider',[
+    '../base/index',
+    './appComponent'
+], function (baseLib, AppComponent) {
+
+    var _ = baseLib._;
+    var extend = _.extend;
+
+    var AppProvider = AppComponent.extend({
+        initialize: function (options) {
+            this.supr(options);
+            this._pool = {};
+            this._defaultKey = 'default';
+            this._nested = false;
+        },
+        _preprocess: function (data) {
+            return data;
+        },
+        setDefault: function (key) {
+            this._defaultKey = key;
+        },
+        get: function (name) {
+            name || (name = this._defaultKey);
+            var r = this._nested ? _.get(this._pool, name) :
+                this._pool[name];
+            return r;
+        },
+        attach: function (obj) {
+            this._pool = extend({}, this._pool, obj);
+        },
+        add: function add(name, provider, options) {
+            var me = this;
+            // 按照 key-value 获取
+            if (_.isObject(name)) {
+                options = provider;
+                _.each(name, function (provider, key) {
+                    add.call(me, key, provider, options);
+                });
+            } else {
+                options = extend({
+                    force: false,
+                    inherit: 'default'
+                }, options);
+                var exists = this.get(name);
+                if (!exists || options.force === true) {
+                    var parent = this.get(options.inherit);
+                    if (!_.isFunction(provider)) {
+                        provider = extend({}, parent, provider);
+                    }
+                    provider.__id = name;
+                    provider = me._preprocess(provider);
+
+                    this._pool[name] = provider;
+                }
+            }
+
+        },
+        remove: function (name) {
+            this._pool[name] = null;
+            delete this._pool[name];
+        }
+    })
+
+    return AppProvider;
+});
+
+define('core/framework/router',[
+    '../base/index',
+    './appComponent'
+], function (baseLib, AppComponent) {
+    'use strict';
+
+    var _ = baseLib._;
+    var history = baseLib.history;
+
+    // thx: Backbone 1.1.2
+
     var optionalParam = /\((.*?)\)/g;
     var namedParam = /(\(\?)?:\w+/g;
     var splatParam = /\*\w+/g;
     var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
-    // Set up all inheritable **Backbone.Router** properties and methods.
-    _.extend(Router.prototype, Events, {
-
-        // Initialize is an empty function by default. Override it with your own
-        // initialization logic.
-        initialize: function () { },
-
+    var Router = AppComponent.extend({
+        initialize: function (options) {
+            options || (options = {});
+            this.supr(options);
+            if (options.routes) this.routes = options.routes;
+            this._bindRoutes();
+        },
         // Manually bind a single named route to a callback. For example:
         //
         //     this.route('search/:query/p:num', 'search', function(query, num) {
@@ -1882,12 +2566,12 @@ define('core/router',[
             }
             if (!callback) callback = this[name];
             var router = this;
-            Backbone.history.route(route, function (fragment) {
+            history.route(route, function (fragment) {
                 var args = router._extractParameters(route, fragment);
                 router.execute(callback, args);
                 router.trigger.apply(router, ['route:' + name].concat(args));
                 router.trigger('route', name, args);
-                Backbone.history.trigger('route', router, name, args);
+                history.trigger('route', router, name, args);
             });
             return this;
         },
@@ -1900,7 +2584,7 @@ define('core/router',[
 
         // Simple proxy to `Backbone.history` to save a fragment into the history.
         navigate: function (fragment, options) {
-            Backbone.history.navigate(fragment, options);
+            history.navigate(fragment, options);
             return this;
         },
 
@@ -1939,1537 +2623,364 @@ define('core/router',[
                 return param ? decodeURIComponent(param) : null;
             });
         }
-
-    });
-
-    Router.extend = extend;
+    })
 
     return Router;
 });
 
-// core
-define('core/loader',[
-    'jquery'
-], function ($) {
-
-    'use strict';
-
-    /**
-     * @namespace
-     * @memberOf veronica
-     */
-    var loader = {};
-
-    /**
-     * 使用全局的require变量
-     * @returns {Object} RequireJS 的 require 变量（修复使用 almond 后本地 require 被覆盖的问题）
-     */
-    loader.useGlobalRequire = function () {
-        return window.require ? window.require : require;
-    };
-
-    /**
-     * 使用全局的requirejs变量
-     * @returns {Object} RequireJS 的 requirejs 变量（修复使用 almond 后本地 requirejs 被覆盖的问题）
-     */
-    loader.useGlobalRequirejs = function () {
-        return window.requirejs ? window.requirejs : requirejs;
-    }
-
-    /**
-     * 请求一个脚本
-     * @param {Array|Object} modeuls - 要请求的模块（requirejs的require方法所需配置）
-     * @param {boolean} [condition=true] - 发起请求的条件，如果不满足条件，则不进行请求
-     * @param {object} [requireConfig] - 额外的 require 配置
-     * @return {Promise}
-     */
-    loader.require = function (modules, condition, requireConfig) {
-
-        var dfd = $.Deferred();
-        var require = loader.useGlobalRequire();
-
-        if (condition == null) condition = true;
-
-        if (condition) {
-            if (!$.isArray(modules)) { modules = [modules]; }
-
-            if (requireConfig) {
-                require.config(requireConfig);
-            }
-
-            require(modules, function () {
-                var args;
-                if (arguments.length === 1) {
-                    args = arguments[0];
-                } else {
-                    args = Array.prototype.slice.call(arguments);
-                }
-                dfd.resolve(modules, args);
-            }, function (err) {
-                console.error(err);
-                dfd.reject(err);
-            });
-        } else {
-            dfd.resolve(modules, null);
-        }
-        return dfd.promise();
-    }
-
-    return loader;
-
-});
-
-
-define('core/logger',[], function () {
-    'use strict';
-
-    // thx h5-boilerplate
-    // from: https://github.com/h5bp/html5-boilerplate/blob/master/src/js/plugins.js
-
-    (function () {
-        var method;
-        var noop = function () { };
-        var methods = [
-            'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
-            'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
-            'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
-            'timeline', 'timelineEnd', 'timeStamp', 'trace', 'warn'
-        ];
-        var length = methods.length;
-        var console = (window.console = window.console || {});
-
-        while (length--) {
-            method = methods[length];
-
-            // Only stub undefined methods.
-            if (!console[method]) {
-                console[method] = noop;
-            }
-        }
-    }());
-
-    // thx aurajs
-    // borrow from aura: https://github.com/aurajs/aura
-
-    var noop = function () { },
-        DEFAULT_NAME = 'veronica',
-        console = window.console || {};
-
-    var isIE8 = function _isIE8() {
-        return (!Function.prototype.bind || (Function.prototype.bind && typeof window.addEventListener === 'undefined')) &&
-            typeof console === 'object' &&
-            typeof console.log === 'object';
-    };
-
-    /**
-     * @classdesc 浏览器控制台日志对象
-     * @class Logger
-     * @memberOf veronica
-     */
-    function Logger(name) {
-        this.name = name || DEFAULT_NAME;
-        this._log = noop;
-        this._warn = noop;
-        this._error = noop;
-        this._info = noop;
-        this.time = noop;
-        return this;
-    }
-
-    /**@lends veronica.Logger#*/
-    var proto = {
-        constructor: Logger,
-        /**设置名称*/
-        setName: function (name) {
-            name || (name = DEFAULT_NAME);
-            this.name = name;
-            return this;
-        },
-        /** 启用 */
-        enable: function () {
-            this._log = (console.log || noop);
-            this._info = (console.info || this._info);
-            this._warn = (console.warn || this._log);
-            this._error = (console.error || this._log);
-            this.time = this._time;
-
-            if (Function.prototype.bind && typeof console === "object") {
-                var logFns = ["log", "warn", "error"];
-                for (var i = 0; i < logFns.length; i++) {
-                    console[logFns[i]] = Function.prototype.call.bind(console[logFns[i]], console);
-                }
-            }
-
-            return this;
-        },
-        write: function (output, args) {
-            var parameters = Array.prototype.slice.call(args);
-            parameters.unshift(this.name + ":");
-            if (isIE8()) {
-                output(parameters.join(' '));
-            } else {
-                output.apply(console, parameters);
-            }
-        },
-        /** 日志 */
-        log: function () {
-            this.write(this._log, arguments);
-        },
-        /** 警告 */
-        warn: function () {
-            this.write(this._warn, arguments);
-        },
-        /** 错误 */
-        error: function () {
-            this.write(this._error, arguments);
-        },
-        /** 消息 */
-        info: function () {
-            this.write(this._info, arguments);
-        },
-        /**
-         * 时间
-         * @param {string} name - 时间
-         * @param {string} tag - 开始计时时不传，结束计时时传 'End'
-         */
-        _time: function (name, tag) {
-            tag || (tag = '');
-            console['time' + tag](name);
-        }
-    };
-
-    Logger.prototype = proto;
-
-    return Logger;
-});
-
-// core
-define('core/util',[
-    'underscore',
-    'jquery'
-], function (_, $) {
-
-    'use strict';
-
-    // 扩展实例属性
-    function extend(obj, mixin) {
-        var method, name;
-        for (name in mixin) {
-            method = mixin[name];
-            obj[name] = method;
-        }
-        return obj;
-    };
-
-    // 扩展类属性
-    function include(klass, mixin) {
-        return extend(klass.prototype, mixin);
-    };
-
-    // 混入，传入对象或构造函数，分别混入实例属性和类属性
-    function mixin(obj, mixin) {
-        obj.prototype ? include(obj, mixin) : extend(obj, mixin);
-    }
-
-    if (!_.findIndex) {
-        _.mixin({
-            findIndex: function (array, test) {
-                var indexOfValue = _.indexOf;
-                if (!_.isFunction(test)) return indexOfValue(array, test);
-                for (var x = 0; x < array.length; x++) {
-                    if (test(array[x])) return x;
-                }
-                return -1;
-            }
-        });
-    }
-    if (!_.safeInvoke) {
-        _.mixin({
-            safeInvoke: function (context, method, params) {
-                var args = Array.slice.call(arguments, 2);
-                context && context[method].apply(context, args);
-            }
-        });
-    }
-
-    // Thx: http://stackoverflow.com/questions/6491463/accessing-nested-javascript-objects-with-string-key
-    function getter(o, s) {
-        s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
-        s = s.replace(/^\./, '');           // strip a leading dot
-        var a = s.split('.');
-        while (a.length) {
-            var n = a.shift();
-            if (n in o) {
-                o = o[n];
-            } else {
-                return;
-            }
-        }
-        return o;
-    }
-
-    function setter(o, s, v) {
-        s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
-        s = s.replace(/^\./, '');           // strip a leading dot
-        var a = s.split('.');
-        var body = 'o';
-        var p = o;
-        while (a.length) {
-            var n = a.shift();
-            if (n in p || a.length === 0) {
-                body += '["' + n + '"]';
-                p = p[n];
-            } else {
-                return;
-            }
-        }
-        body += '=v;';
-        (new Function('o, v', body))(o, v);
-    }
-
-    // thx: https://github.com/goatslacker/get-parameter-names/blob/master/index.js
-    var COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
-    var DEFAULT_PARAMS = /=[^,]+/mg;
-    var FAT_ARROWS = /=>.*$/mg;
-
-    function getParameterNames(fn) {
-        fn || (fn = this);
-        var code = fn.toString()
-          .replace(COMMENTS, '')
-          .replace(FAT_ARROWS, '')
-          .replace(DEFAULT_PARAMS, '');
-
-        var result = code.slice(code.indexOf('(') + 1, code.indexOf(')'))
-          .match(/([^\s,]+)/g);
-
-        return result === null
-          ? []
-          : result;
-    }
-
-    return /**@lends veronica.util */{
-        getParameterNames: getParameterNames,
-        /**
-         * 将字符串转换成反驼峰表示
-         * @function
-         */
-        decamelize: function (camelCase, delimiter) {
-            delimiter = (delimiter === undefined) ? '_' : delimiter;
-            return camelCase.replace(/([A-Z])/g, delimiter + '$1').toLowerCase();
-        },
-        /**
-         * 将字符串转换成驼峰表示
-         * @function
-         */
-        camelize: function (str) {
-            return str.replace(/(?:^|[-_])(\w)/g, function (_, c) {
-                return c ? c.toUpperCase() : '';
-            });
-        },
-        extend: extend,
-        include: include,
-        mixin: mixin,
-        getter: getter,
-        setter: setter,
-        /**
-         * 查询字符串转换成JSON对象
-         */
-        qsToJSON: function (str) {
-            str || (str = location.search.slice(1));
-            var pairs = str.split('&');
-
-            var result = {};
-            pairs.forEach(function (pair) {
-                pair = pair.split('=');
-                result[pair[0]] = decodeURIComponent(pair[1] || '');
-            });
-
-            return JSON.parse(JSON.stringify(result));
-        },
-        donePromise: function (result) {
-            var dfd = $.Deferred();
-            dfd.resolve(result);
-            return dfd.promise();
-        },
-        failPromise: function () {
-            var dfd = $.Deferred();
-            dfd.reject();
-            return dfd.promise();
-        },
-        normalizePath: function (path) {
-            return path.replace('//', '/').replace('http:/', 'http://');
-        },
-        // 将数据转换成另一种形式
-        mapArrayOrSingle: function (obj, iteratee) {
-            var isArray = _.isArray(obj);
-            if (!isArray) { obj = [obj]; }
-
-            var result = _.map(obj, iteratee);
-            return isArray ? result : result[0];
-        },
-        ensureArray: function (list) {
-            if (list == null) return [];
-            if (_.isObject(list) && !_.isArray(list)) {
-                list = [list];
-            }
-            return list;
-        }
-    };
-
-});
-
-define('core/aspect',[
-    'underscore',
-    'jquery',
-    'exports'
-], function (_, $, exports) {
-
-    'use strict';
-
-
-    // thx "aralejs"
-    // source:  https://github.com/aralejs/base/blob/master/src/aspect.js
-
-    exports.before = function (methodName, callback, context) {
-        return weave.call(this, 'before', methodName, callback, context);
-    };
-
-
-    exports.after = function (methodName, callback, context) {
-        return weave.call(this, 'after', methodName, callback, context);
-    };
-
-
-    // Helpers
-    // -------
-
-    var eventSplitter = /\s+/;
-
-    function weave(when, methodName, callback, context) {
-        var names = methodName.split(eventSplitter);
-        var name, method;
-
-        while (name = names.shift()) {
-            method = getMethod(this, name);
-            if (!method.__isAspected) {
-                wrap.call(this, name);
-            }
-            this.on(when + ':' + name, callback, context);
-        }
-
-        return this;
-    }
-
-
-    function getMethod(host, methodName) {
-        var method = host[methodName];
-        if (!method) {
-            throw new Error('Invalid method name: ' + methodName);
-        }
-        return method;
-    }
-
-
-    function wrap(methodName) {
-        var old = this[methodName];
-
-        this[methodName] = function () {
-            var args = Array.prototype.slice.call(arguments);
-            var beforeArgs = ['before:' + methodName].concat(args);
-
-            // prevent if trigger return false
-            if (this.trigger.apply(this, beforeArgs) === false) return;
-
-            var ret = old.apply(this, arguments);
-            var afterArgs = ['after:' + methodName, ret].concat(args);
-            this.trigger.apply(this, afterArgs);
-
-            return ret;
-        };
-
-        this[methodName].__isAspected = true;
-    }
-
-    _.mixin({
-        aopBefore: function (originFunc, func) {
-            return function () {
-                var args = arguments;
-                var ret = func.call(this, args);
-                if (ret === false) { return false; }
-                if (ret && ret.done) {
-                    return ret.done(function () {
-                        originFunc.apply(this, args);
-                    }).fail(function () {
-                        return false;
-                    });
-                } else {
-                    return originFunc.apply(this, args);
-                }
-            };
-        },
-        aopAfter: function (originFunc, func) {
-            return function () {
-                var ret = originFunc.apply(this, arguments);
-                if (ret === false) { return false; }
-                if (ret && ret.done) {
-                    return ret.done(function () {
-                        func.apply(this, arguments);
-                    }).fail(function () {
-                        return false;
-                    });
-                } else {
-                    return func.apply(this, arguments);
-                }
-            };
-        }
-    });
-
-});
-
-define('core/querystring',[
-    'underscore'
-], function (_) {
-    var qs = {};
-
-    /**
-     * 查询字符串的来源
-     * @enum
-     * @type {number}
-     */
-    var QueryStringType = {
-        /** 浏览器 URL 的查询部分 */
-        SEARCH: 0,
-        /** 浏览器 URL 的 hash 部分 */
-        HASH: 1
-    };
-
-    /**
-     * 查询字符串处理类
-     * @class QueryString
-     * @memberOf veronica
-     * @param {QueryStringType} choice - 查询字符串来源
-     */
-    function QueryString(choice) {
-        this.choice = choice;
-    }
-
-    function qsToJSON (str) {
-        str || (str = location.search.slice(1));
-        var pairs = str.split('&');
-
-        var result = {};
-        _.each(pairs, function (pair) {
-            pair = pair.split('=');
-            result[pair[0]] = decodeURIComponent(pair[1] || '');
-        });
-
-        return JSON.parse(JSON.stringify(result));
-    }
-
-    function updateQueryString(uri, key, value) {
-        var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
-        var separator = uri.indexOf('?') !== -1 ? "&" : "?";
-        if (uri.match(re)) {
-            return uri.replace(re, '$1' + key + "=" + value + '$2');
-        }
-        else {
-            return uri + separator + key + "=" + value;
-        }
-    }
-
-    /**@lends veronica.QueryString# */
-    var qs = QueryString.prototype;
-
-    /**
-     * 获取查询字符串的 url
-     * @private
-     */
-    qs._getUrl = function () {
-        var str = this.choice;
-        if (this.choice === 0) {
-            str = window.location.search;
-        }
-        if (this.choice === 1) {
-            str = window.location.hash;
-        }
-        return str;
-    };
-
-    /**
-     * 设置
-     * @param {string} key
-     * @param {Any} value
-     */
-    qs.set = function (key, value) {
-        var str = this._getUrl();
-
-        if (_.isObject(key)) {
-            _.each(key, function (val, k) {
-                str = updateQueryString(str, k, val);
-            });
-        } else {
-            str = updateQueryString(str, key, value);
-        }
-
-        if (this.choice == 1) {
-            window.location.hash = str;
-        } else {
-            window.location.search = str;
-        }
-
-    };
-
-    /**
-     * 获取值
-     * @param {string} key
-     * @returns {string} 结果
-     */
-    qs.get = function (key) {
-        var url = this._getUrl();
-
-        key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-        var regex = new RegExp("[\\?&]" + key + "=([^&#]*)");
-        var results = regex.exec(url);
-
-        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-    };
-
-    /**
-     * 整个转换为对象
-     * @returns {Object} 结果
-     */
-    qs.toJSON = function () {
-        var url = this._getUrl();
-
-        var obj1;
-        if (this.choice !== 0 && this.choice !== 1) {
-            obj1 = qsToJSON(url);
-        }
-        var obj2 = qsToJSON(window.location.search);
-
-        var matches = /([^\?]*)\?([^\?]+)/.exec(url);
-        if (matches != null) {
-            url = '?' + matches[2];
-        }
-        var obj3 = qsToJSON(url);
-
-        return _.extend({}, obj2, obj3, obj1);
-    };
-
-    return function (choice) {
-        return new QueryString(choice);
-    };
-});
-
-define('core/index',[
-    './base',
-    './events',
-    './view',
-    './history',
-    './router',
-    './loader',
-    './logger',
-    './util',
-    './aspect',
-    './querystring'
-], function (base, Events,
-    View, history, Router, loader, Logger, util, aspect, querystring) {
-
-    'use strict';
-
-    /**
-     * `veronica` 或者通过 `app.core`
-     * @namespace veronica
-     */
-
-    var EventEmitter = base.EventEmitter;
-    var $ = base.$;
-    var _ = base._;
-
-    /** @lends veronica# */
-    var veronica = $.extend({}, base, {
-        /**
-         * 帮助对象
-         */
-        helper: {},
-        View: View,
-        Router: Router,
-        history: history,
-        Events: Events,
-
-        /**
-         * 所有常量
-         */
-        constant: {
-            DEFAULT_MODULE_NAME: '__default__',
-            SCAFFOLD_LAYOUT_NAME: 'scaffold',
-            WIDGET_TYPE: 'widget',
-            WIDGET_CLASS: 'ver-widget',
-            WIDGET_TAG: 'ver-tag',
-            SANDBOX_REF_NAME: '__sandboxRef__'
-        },
-
-    });
-
-    /**
-     * 所有枚举
-     * @namespace
-     * @memberOf veronica
-     */
-    var enums = { }
-    veronica.enums = enums;
-
-    /**
-     * 沙箱宿主枚举
-     * @readonly
-     * @enum {string}
-     * @memberOf veronica.enums
-     */
-    var hostType = {
-        WIDGET: 'widget',
-        APP: 'app'
-    }
-    veronica.enums.hostType = hostType;
-
-    veronica.loader = loader;
-
-    /**
-     * 工具方法
-     * @namespace util
-     * @memberOf veronica
-     */
-    veronica.util = util;
-
-    veronica.aspect = aspect;
-
-    /**
-     * 获取全局配置
-     * @function
-     * @return {Object}
-     */
-    veronica.getConfig = (function () {
-        var requirejs = veronica.loader.useGlobalRequirejs();
-        var globalConfig = requirejs.s ? requirejs.s.contexts._.config : {
-            sources: {}
-        };
-
-        globalConfig.sources || (globalConfig.sources = {});
-
-        return function () {
-            return globalConfig;
-        };
-    }());
-
-    /**
-     * 日志记录
-     * @type {Logger}
-     */
-    veronica.logger = new Logger();
-
-    if (veronica.getConfig().debug) {
-        veronica.logger.enable();
-    }
-
-    /**
-     * 事件发送者
-     * @external EventEmitter
-     * @see {@link https://github.com/asyncly/EventEmitter2}
-     */
-
-    // 中介者
-    var emitterConfig = _.defaults(veronica.getConfig() || {}, {
-        wildcard: true,
-        delimiter: '.',
-        newListener: true,
-        maxListeners: 50
-    });
-
-    veronica.createMediator = function () {
-        return new EventEmitter(emitterConfig);
-    }
-
-
-
-    /**
-     * 消息中介者对象
-     * @type {EventEmitter}
-     */
-    veronica.mediator = new EventEmitter(emitterConfig);
-
-    /**
-     * 创建查询字符串处理对象
-     * @function
-     * @param {QueryStringType} choice - 查询字符串来源
-     * @return {QueryString}
-     */
-    veronica.qs = querystring;
-
-    return veronica;
-});
-
-define('core/application',[
-    './index'
-], function (core) {
-
-    'use strict';
-
-    /**
-     * 不用构造函数调用来创建 application 实例，而是使用 `veronica.createApp`
-     * @classdesc 应用程序类
-     * @class Application
-     * @memberOf veronica
-     */
-    function Application(options) {
-        var $ = core.$;
-
-        /**
-         * 应用程序配置参数
-         * @typedef AppOptions
-         * @property {string} [name='app'] - 应用程序名称
-         * @property {object} [homePage='home'] - 没有路由参数的起始页
-         * @property {array} [extensions=[]] - 扩展列表
-         * @property {array.<ModuleConfig>} [modules=[]] - 模块配置，当每个模块配置参数为字符串时，该字符串指定该模块的名称，其他参数采用默认参数
-         * @property {boolean} [autoParseWidgetName=false] - 自动解析 widget 名称
-         * @property {string}  [releaseWidgetPath='./widgets'] - 发布后的 widget 路径
-         * @property {regex} [widgetNamePattern=/(\w*)-?(\w*)-?(\w*)/] - 解析  widget 名称的正则
-         * @property {object} [module.defaults] - 模块默认参数
-         * @property {object} [module.defaultModule] - 当未配置任何模块时，使用的默认模块配置
-         * @property {object} [page] - page 和 layout 的默认配置
-         * @property {array} [features=['dialog', 'plugin', 'spa']] -
-         *   设置创建的该应用程序需要启用哪些特性，目前包括：
-         *
-         *    * dialog: 支持对话框
-         *    * plugin: 支持插件扩展widget
-         *    * spa: 支持单页面应用程序的构建（页面、布局、路由，导航等）
-         *
-         * @property {boolean} [autoBuildPage=false] -
-         *   是否启用自动页面配置。当通过路由或 `app.page.change`访问某个页面时，
-         *   如果未找到对应的页面配置，启用自动页面配置时，会根据页面名称自动生成页面配置。
-         *
-         *   > **关于自动页面配置**
-         *   >
-         *   > 访问 basic/home/index 或 basic-home-index 时，系统会去查找名为 basic-home-index 的widget，并且添加 _common 的页面继承;
-         *   > 如果访问index，则会查找basic/Home/index，如果访问 home/index，则会查找basic/home/index
-         *
-         */
-        var defaultOptions = {
-            name: 'app',
-            extensions: [],
-            modules: [],
-            autoBuildPage: false,  // 自动生成页面配置
-            features: ['dialog', 'plugin', 'spa'],
-            autoParseWidgetName: false,  // 自动解析 widget 名称
-            releaseWidgetPath: './widgets',  // 发布后的 widget 路径
-            widgetNamePattern: /(\w*)-?(\w*)-?(\w*)/,  // 解析  widget 名称的正则
-
-            global: true,  // 全局 app
-            plugins: {},
-            homePage: 'home',
-            page: {
-                defaultLayout: 'default',  // 默认布局
-                defaultLayoutRoot: 'v-render-body',  // 默认布局根
-                defaultSource: 'basic',  // 默认源
-                defaultInherit: '_common'  // 默认页面继承
-            },
-            widget: {
-                defaultHost: '.v-render-body',  // 默认宿主元素
-            },
-            defaultPage: 'default',  // 没用，废弃
-            router: {
-                pagePattern: '\/?(.+)\??(.+)'  // 没用，移除
-            }
-        };
-
-        options = $.extend(true, {}, defaultOptions, options || {});
-
-        /**@lends veronica.Application#*/
-        var prop = {
-            _extensions: [],
-            /**
-             * 应用程序名称
-             */
-            name: options.name,
-            /**
-             * veronica 对象
-             * @see {@link veronica}
-             */
-            core: core,
-            /**
-             * 语言配置
-             */
-            lang: {},
-            /**
-             * 配置项 options
-             */
-            config: options
-        };
-
-        $.extend(this, prop);
-
-    }
-
-
-    /**@lends veronica.Application# */
-    var proto = {
-        constructors: Application,
-        /**
-         * 启动应用程序
-         * @param {Object} [options={}] - 启动参数
-         * @param {boolean} [options.parse=false] - 是否解析当前页面
-         * @returns {Promise}
-         */
-        launch: function (options) {
-            var promises = [];
-            var me = this;
-
+define('core/framework/appRouter',[
+    '../base/index',
+    './router'
+], function (baseLib, Router) {
+    var _ = baseLib._;
+    var throttle = _.throttle;
+
+    var AppRouter = Router.extend({
+        initialize: function (options) {
             options || (options = {});
+            this.supr(options);
+            this._preParams = undefined;
+        },
+        routes: {
+            '(/)': 'entry',
+            '(/)?*params': 'entry',
+            'page=:page': 'openPage',
+            '(/)*page': 'openPage',
+            '(/)*page?*params': 'openPage',
+            'widget/:widget@:source': 'executeWidget'
+        },
+        entry: function (params) {
+            this._changePage(this.options.homePage, params);
+        },
+        _changePage: _.throttle(function (page, params) {
+            var app = this.app();
+            var sameParams = this.preParams === params;
+            this.preParams = params;
+            
+            // 更新查询字符串
+            if (app.page.isCurrent(page)) {
+                if (!sameParams) {
+                    app.sandbox.emit('qs-changed', qsToJSON(params));
+                } else {
+                    return;
+                }
+            }
 
-            // 加载扩展
-            _.each(this.config.extensions, function (ext) {
-
-                var dfd = core.loader.require(ext, _.isString(ext)).done(function (ext, fn) {
-                    if (fn == null) { fn = ext; }
-                    _.isFunction(fn) && me.use(fn);
-                });
-
-                promises.push(dfd);
-            });
-
-            // 加载模块
-            _.each(this.config.modules, function (moduleConfig) {
-                me.module.add(moduleConfig.name, moduleConfig);
-            });
-
-            return $.when.apply($, promises).done(function () {
-                if (options.parse) {
-                    me.parser.parse();
+            app.page.change(page, params);
+        }, 500),
+        executeWidget: function (widgetName, source) {
+            app.sandbox.startWidgets({
+                name: widgetName,
+                options: {
+                    _source: source || 'default',
+                    host: app.config.page.defaultHost
                 }
             });
         },
-        /**
-         * 停止应用程序
-         */
-        stop: function () {
-            this.sandbox.stop();
-        },
-        /**
-         * 使用用户扩展
-         * @param {Function} ext - 扩展函数
-         * @returns {Object} this
-         * @example
-         *  var extension = function(app){
-         *      app.ext.sayHello = function(){
-         *          alert('hello world');
-         *      }
-         *  }
-         *  app.use(extension);
-         */
-        use: function (ext) {
-            var me = this;
-            if (!_.isArray(ext)) {
-                ext = [ext];
-            }
-            $.each(ext, function (i, func) {
-                func(me, Application);
-            });
-            return this;
-        },
-        /**
-         * 混入
-         * @param {Object} mixin 混入的对象
-         * @param {boolean} [isExtend=true] 是否扩展到该实例上
-         * @returns {Object} this
-         */
-        mixin: function (mixin, isExtend) {
-            if (isExtend == null) {
-                isExtend = true;
-            }
-            if (isExtend) {
-                this.core.util.mixin(this, mixin);
-            } else {
-                this.core.util.mixin(Application, mixin);
-            }
-            return this;
-        },
-        /**
-         * 应用程序广播事件，它会在广播时自动附加应用程序名
-         * @param {string} name 消息名称
-         * @param {...unknowned} args  消息参数
-         */
-        emit: function () {
-            var args = Array.prototype.slice.call(arguments);
-            // args[0] = args[0] + '.' + this.name;
-            args.push(this.name);
-            this.sandbox.emit.apply(this.sandbox, args);
+            
+        openPage: function (page, params) {
+            router.changePage(page, params);
         }
-    }
+    })
 
-    Application.prototype = proto;
-
-    return Application;
-
+    return AppRouter;
 });
 
-define('app/provider',[], function () {
-    return function (app) {
-        var extend = app.core._.extend;
-        var logger = app.core.logger;
-        var util = app.core.util;
-        var classBase = app.core.classBase;
+define('core/framework/layoutManager',[
+    '../base/index',
+    './appProvider'
+], function (baseLib, AppProvider) {
 
-        app.providerBase = extend({}, classBase, {
-            _pool: {},
-            _defaultKey: 'default',
-            _nested: false,
-            _preprocess: function (data) {
-                return data;
-            },
-            setDefault: function (key) {
-                this._defaultKey = key;
-            },
-            get: function (name) {
-                name || (name = this._defaultKey);
-                var r = this._nested ? util.getter(this._pool, name) :
-                    this._pool[name];
-                return r;
-            },
-            attach: function (obj) {
-                this._pool = extend({}, this._pool, obj);
-            },
-            add: function add(name, provider, options) {
-                var me = this;
-                // 按照 key-value 获取
-                if (_.isObject(name)) {
-                    options = provider;
-                    _.each(name, function (provider, key) {
-                        add.call(me, key, provider, options);
-                    });
-                } else {
-                    options = extend({
-                        force: false,
-                        inherit: 'default'
-                    }, options);
-                    var exists = this.get(name);
-                    if (!exists || options.force === true) {
-                        var parent = this.get(options.inherit);
-                        if (!_.isFunction(provider)) {
-                            provider = extend({}, parent, provider);
-                        }
-                        provider.__id = name;
-                        provider = me._preprocess(provider);
+    'use strict';
 
-                        this._pool[name] = provider;
-                    }
-                }
 
-            }
-        });
+    /**
+     * 添加布局
+     * @param {object} layout - 布局配置
+     * @example
+     * ```
+     *   app.layout.add({
+     *    'admin': {
+     *        html: '<div class="v-render-body"></div>'
+     *    }
+     *   });
+     * ```
+     */
 
-        app.provider = {
-            create: function (obj) {
-                var r = extend({}, app.providerBase, obj);
-                // instance properties
-                r._pool = {};
-                return r;
-            }
-        }
+    /**
+     * @typedef LayoutConfig
+     * @property {string} html - 布局的HTML
+     * @property {string} url - 获取布局的地址
+     */
 
-        // 默认的 provider
+    /**
+     * 获取布局配置
+     * @param {string} name - 布局名称
+     * @returns {layoutConfig}
+     */
 
-        app.windowProvider = app.provider.create();
+    /**
+     * 无法直接构造
+     * @class veronica.Layout
+     * @classdesc 布局
+     */
 
-        var noop = function () { };
+    /**
+     * 布局
+     * @name layout
+     * @memberOf veronica.Application#
+     * @type {veronica.Layout}
+     */
 
-        app.windowProvider.add('default', {
-            options: function (options) {
-                return options;
-            },
-            create: function ($el, options, view) {
-                var wnd = {
-                    element: $el,
-                    core: null,
-                    config: options,
-                    open: noop,
-                    close: noop,
-                    destroy: noop,
-                    center: noop,
-                    setOptions: function (options) { },
-                    rendered: function (view) { },
-                    removeLoading: function () { }
+    var LayoutManager = AppProvider.extend({
+        _preprocess: function (data) {
+            if (_.isString(data)) {
+                data = {
+                    html: data
                 };
-                return wnd;
             }
-        });
+            return data;
+        },
+        _getLayoutRoot: function () {
+            var $el = $('.' + app.config.page.defaultLayoutRoot);
+            if ($el.length === 0) {
+                $el = $('body');
+            }
+            return $el;
+        },
+        /**
+         * 改变布局
+         * @param {string} name - 布局名称
+         * @returns {Promise}
+         * @fires Application#layout.layoutChanging
+         */
+        change: function (name) {
+            var me = this;
+            var app = this.app();
+            var dfd = doneDeferred();
 
-        app.uiKitProvider = app.provider.create();
-    };
-});
+            var $layoutRoot = me._getLayoutRoot();
 
-define('app/emitQueue',[
-], function () {
+            app.widget.stop($layoutRoot);
 
-    'use strict';
+            var layout = this.get(name);
 
-    return function (app) {
-        var _ = app.core._;
-        var $ = app.core.$;
+            // 找不到布局，则不进行切换
+            if (!layout) {
+                //app.core.logger.warn('Could not find the layout configuration! layout name: ' + name);
+                return doneDeferred();
+            }
 
-        // 消息发送队列，插件加载时由于异步，会导致消息监听丢失，因此使用该队列做缓存
-        // eg. [['open', 'who'], ['send', 'msg']]
-        app.emitQueue = {
-            _emitQueue: [],
-            empty: function () {
-                var emitQueue = this._emitQueue;
-                while (emitQueue.length > 0) {
-                    (emitQueue.shift())();
-                }
-            },
-            push: function (emit) {
-                this._emitQueue.push(emit);
+            /**
+             * **消息：** 布局改变中
+             * @event Application#layout.layoutChanging
+             * @type {string}
+             * @property {string} name - 名称
+             */
+            app.pub('layoutChanging', name);
+
+            if (layout.url) {
+                dfd = $.get(layout.url).done(function (resp) {
+                    layout.html = resp;
+                });
+            }
+
+            dfd.done(function () {
+                $layoutRoot.html(layout.html);
+                app.pub('layoutChanged', name);
+            });
+
+            return dfd;
+        },
+        /**
+         * 布局初始化
+         */
+        init: function () {
+            var scaffold = this.get(cst.SCAFFOLD_LAYOUT_NAME);
+            if (scaffold.html) {
+                $('body').prepend(scaffold.html);
             }
         }
-    };
+    });
 
+    return LayoutManager;
 });
-define('app/data',[], function () {
-    return function (app) {
 
-        /**
-         * 无法直接构造
-         * @class veronica.Data
-         * @classdesc 全局数据缓存
-         * @memberOf veronica
-         */
 
-        /** @lends veronica.Data# */
-        var Data = {
-            _data: {},
-            /**
-             * 获取数据
-             * @param {string} name - 数据名称
-             * @return {Object}
-             */
-            get: function (name) {
-                return this._data[name];
-            },
-            /**
-             * 设置数据
-             * @param {string} name - 名称
-             * @param {*} value - 值
-             */
-            set: function (name, value, emit) {
-                if (emit == null) {
-                    emit = true;
-                }
-                this._data[name] = value;
-                if (emit) {
-                    /**
-                     * **消息：** 数据改变时发布，消息名 'change.' + 数据名
-                     *
-                     * @event Application#data.change
-                     * @type {object}
-                     * @property {*} value - 数据值
-                     */
-                    app.sandbox.emit('change.' + name, value);
-                }
+define('core/framework/pageManager',[
+    '../base/index',
+    './appProvider'
+], function (baseLib, AppProvider) {
+
+    var $ = baseLib.$;
+    var _ = baseLib._;
+    var each = _.each;
+    var flatten = _.flatten;
+    var doneDeferred = _.doneDeferred;
+    var failDeferred = _.failDeferred;
+
+
+    /**
+     * 无法通过构造函数直接构造
+     * @classdesc 页面相关
+     * @class veronica.Page
+     */
+
+    /**
+     * **消息：** 布局加载完毕
+     * @event Application#layout.layoutChanged
+     * @param {string} name - 布局名称
+     */
+
+    /**
+     * **消息：** 页面未找到
+     * @event Application#page.pageNotFound
+     * @param {string} name - 页面名称
+     */
+
+    /**
+     * **消息：** 页面加载中
+     * @event Application#page.pageLoading
+     * @param {string} name - 页面名称
+     */
+
+    /**
+     * **消息：** 页面加载完毕
+     * @event Application#page.pageLoaded
+     * @param {string} name - 页面名称
+     */
+
+    /**
+     * @name page
+     * @memberOf veronica.Application#
+     * @type {veronica.Page}
+     */
+
+    var PageManager = AppProvider.extend({
+        initialize: function (options) {
+            this.supr(options);
+            this._currPageName = '';
+        },
+        // 递归获取所有的父级 widgets 配置
+        _getAllWidgetConfigs: function getAllWidgetConfigs(config, context, result) {
+            if (context == null) {
+                context = this;
             }
-        };
-        
+            if (result == null) {
+                result = [];
+            }
+            result.push(config.widgets);
+
+            each(config.inherits, function (parentName) {
+                var config = context.get(parentName);
+                result = getAllWidgetConfigs(config, context, result);
+            });
+
+            return result;
+        },
+        isCurrent: function (pageName) {
+            var currName = this.getCurrName();
+            return currName === 'default' || currName === pageName;
+        },
         /**
-         * @memberOf veronica.Application#
-         * @type {veronica.Data}
+         * 获取当前页面名称
+         * @function
+         * @name currName
+         * @memberOf Page#
          */
-        app.data = Data;
-    };
-});
+        getCurrName: function () {
+            return this._currPageName;
+        },
+        _setCurrName: function (name) {
+            this._currPageName = name;
+        },
+        _changeLayout: function (layout) {
+            var currPageName = this.getCurrName();
+            var currPageConfig = this.get(currPageName);
+            if (currPageName === '' || currPageConfig && currPageConfig.layout !== layout) {
+                return app.layout.change(layout);
+            }
+            return doneDeferred();
+        },
+        _loadWidgets: function (configs, pageName) {
+            return app.sandbox.startWidgets(configs, pageName).done(function () {
+                // 切换页面后进行垃圾回收
+                app.widget.recycle();
+            });
+        },
+        _build: function (name) {
+            var me = this;
+            if (me.options.autoResolvePage) {
+                var config = {
+                    name: name,
+                    widgets: [name]
+                };
+                me.add(name, config);
+                return config;
+            }
+            return null;
+        },
+        active: function (name) {
+            if (name) {
+                return this.change(name);
+            } else {
+                name = this.getCurrName();
+            }
+            return name;
+        },
+        // 解析页面配置
+        resolve: function (name) {
+            var config = this.get(name);
+            var me = this;
+            if (!config) {
+                config = me._build(name);
+            }
+            if (config) {
+                config.widgets = flatten(me._getAllWidgetConfigs(config));
+            }
 
-
-define('app/page',[], function () {
-
-    return function (app) {
-        var core = app.core;
-        var $ = app.core.$;
-        var _ = app.core._;
-
+            return config ? doneDeferred(config) : failDeferred();
+        },
         /**
-         * 无法通过构造函数直接构造
-         * @classdesc 页面相关
-         * @class veronica.Page
+         * 改变页面
+         * @param {string} name - 页面名称
+         * @fires Application#page.pageNotFound
+         * @fires Application#page.pageLoading
+         * @fires Application#layout.layoutChanged
+         * @fires Application#page.pageLoaded
          */
-
-        /**
-         * @name page
-         * @memberOf veronica.Application#
-         * @type {veronica.Page}
-         */
-        app.page = app.provider.create(/** @lends veronica.Page# */{
-            _currPageName: '',
-            _changeTitle: function () { },
-            // 递归获取所有的父级 widgets 配置
-            _getAllWidgetConfigs: function getAllWidgetConfigs(config, context, result) {
-                if (context == null) {
-                    context = this;
-                }
-                if (result == null) {
-                    result = [];
-                }
-                result.push(config.widgets);
-
-                _.each(config.inherits, function (parentName) {
-                    var config = context.get(parentName);
-                    result = getAllWidgetConfigs(config, context, result);
-                });
-
-                return result;
-            },
-            isCurrent: function (pageName) {
-                var currName = this.getCurrName();
-                return currName === 'default' || currName === pageName;
-            },
-            /**
-             * 获取当前页面名称
-             * @function
-             * @name currName
-             * @memberOf Page#
-             */
-            getCurrName: function () {
-                return this._currPageName;
-            },
-            setCurrName: function (name) {
-                this._currPageName = name;
-            },
-            /**
-             * 加载页面
-             * @param {string} name - 页面名称
-             * @private
-             */
-            _load: function (name, config, params) {
-                var me = this;
-                // 将获取到的 widget 配置扁平化
-                var widgetsConfig = _.flatten(this._getAllWidgetConfigs(config));
-                var currPageName = this.getCurrName();
-                var currPageConfig;
-                var dfd = $.Deferred();
-                var proms = core.util.donePromise();
-
-                /**
-                 * **消息：** 页面加载中
-                 * @event Application#page.pageLoading
-                 * @param {string} name - 页面名称
-                 */
-                app.emit('pageLoading', name);
-
-                // 在页面加载之前，进行布局的预加载
-                if (currPageName === '' ||
-                    (currPageConfig = this.get(currPageName)) && currPageConfig.layout !== config.layout) {
-
-                    proms = app.layout.change(config.layout).done(function () {
-
-                        /**
-                         * **消息：** 布局加载完毕
-                         * @event Application#layout.layoutChanged
-                         * @param {string} name - 布局名称
-                         */
-                        app.emit('layoutChanged', config.layout);
-                    }).fail(function () {
-                        dfd.reject();
-                    });
-                }
-
-                proms.done(function () {
-                    me.setCurrName(name);
-
-                    app.sandbox.startWidgets(widgetsConfig, name).done(function () {
-                        // 切换页面后进行垃圾回收
-                        app.widget.recycle();
-
-                        /**
-                         * **消息：** 页面加载完毕
-                         * @event Application#page.pageLoaded
-                         * @param {string} name - 页面名称
-                         */
-                        app.emit('pageLoaded', name);
-                        dfd.resolve();
+        change: function (name, params) {
+            var me = this;
+            var app = this.app();
+            me.resolve(name).done(function (config) {
+                me._changeLayout(config.layout).done(function () {
+                    app.pub('pageLoading', name);
+                    me._loadWidgets(config.widgets, name).then(function () {
+                        me._setCurrName(name);
+                        app.pub('pageLoaded', name);
                     });
                 });
+            }).fail(function () {
+                app.pub('pageNotFound', name);
+            });
+        }
+    });
 
-                return dfd.promise();
-            },
-            /**
-             * 活动
-             */
-            active: function (name) {
-                if (name) {
-                    return this.change(name);
-                } else {
-                    name = this.getCurrName();
-                }
-                return name;
-            },
-            /**
-             * 启动页面
-             * @param {boolean} [initLayout=false] - 是否初始化布局
-             * @fires Application#appStarted
-             */
-            start: function (initLayout) {
-                if (initLayout) {
-                    app.layout.init();
-                }
-                app.router.start();
-                /**
-                 * **消息：** 应用程序页面启动完成
-                 * @event Application#appStarted
-                 */
-                app.emit('appStarted');
-            },
-            // 解析页面配置
-            resolve: function (name) {
-                var config = this.get(name);
-                var proms = core.util.failPromise();
-                var me = this;
-                if (!config) {
-                    if (app.config.autoResolvePage) {
-                        var c = page.build(name);
-                        if (c) {
-                            var obj = {};
-                            obj[name] = c;
-                            me.add(obj);
-                            config = me.get(name);
-                        }
-
-                        // 未找到页面配置，则从该路径后台读取页面配置
-                        if (!config) {
-                            var pageUrl = name.replace('-', '/');
-                            proms = $.getJSON(pageUrl);
-                        }
-                    }
-                }
-                if (config) {
-                    proms = core.util.donePromise(config);
-                }
-
-                proms.fail(function () {
-                    /**
-                     * **消息：** 页面未找到
-                     * @event Application#page.pageNotFound
-                     * @param {string} name - 页面名称
-                     */
-                    app.emit('pageNotFound', name);
-                });
-
-                return proms;
-            },
-            build: function (name) {
-
-            },
-            /**
-             * 改变页面
-             * @param {string} name - 页面名称
-             * @fires Application#page.pageNotFound
-             * @fires Application#page.pageLoading
-             * @fires Application#layout.layoutChanged
-             * @fires Application#page.pageLoaded
-             */
-            change: function (name, params) {
-                var me = this;
-                me.resolve(name).done(function (config) {
-                    me._load(name, config, params);
-                });
-            }
-        });
-
-        app.page.add('_common', {
-            name: '_common',
-            inherits: false
-        });
-
-        app.page.add('default', {
-            name: 'default',
-            layout: 'default',
-            inherits: ['_common']
-        });
-
-    };
+    return PageManager;
 });
 
-define('app/layout',[
-], function () {
+define('core/framework/sandbox',[
+    '../base/index',
+    './appComponent'
+], function (baseLib, AppComponent) {
 
     'use strict';
 
-    return function (app) {
-        var _ = app.core._;
-        var $ = app.core.$;
-        var cst = app.core.constant;
-
-        /**
-         * 添加布局
-         * @param {object} layout - 布局配置
-         * @example
-         * ```
-         *   app.layout.add({
-         *    'admin': {
-         *        html: '<div class="v-render-body"></div>'
-         *    }
-         *   });
-         * ```
-         */
-
-        /**
-         * @typedef layoutConfig
-         * @property {string} html - 布局的HTML
-         * @property {string} url - 获取布局的地址
-         */
-
-        /**
-         * 获取布局配置
-         * @param {string} name - 布局名称
-         * @returns {layoutConfig}
-         */
-
-        /**
-         * 无法直接构造
-         * @class veronica.Layout
-         * @classdesc 布局
-         */
-
-        /**
-         * 布局
-         * @name layout
-         * @memberOf veronica.Application#
-         * @type {veronica.Layout}
-         */
-        app.layout = app.provider.create(/** @lends veronica.Layout# */{
-            _preprocess: function (data) {
-                if (_.isString(data)) {
-                    data = {
-                        html: data
-                    };
-                }
-                return data;
-            },
-            /**
-             * 改变布局
-             * @param {string} name - 布局名称
-             * @returns {Promise}
-             * @fires Application#layout.layoutChanging
-             */
-            change: function (name) {
-                var me = this;
-                var dfd = app.core.util.donePromise();
-
-                var $pageView = $('.' + app.config.page.defaultLayoutRoot);
-                if ($pageView.length === 0) {
-                    $pageView = $('body');
-                }
-                _.each($pageView.find('.ver-widget'), function (el) {
-                    app.widget.stop($(el));
-                });
-
-                var layout = this.get(name);
-
-                // 找不到布局，则不进行切换
-                if (!layout) {
-                    //app.core.logger.warn('Could not find the layout configuration! layout name: ' + name);
-                    //return app.core.util.failPromise();
-                    return app.core.util.donePromise();
-                }
-
-                /**
-                 * **消息：** 布局改变中
-                 * @event Application#layout.layoutChanging
-                 * @type {string}
-                 * @property {string} name - 名称
-                 */
-                app.emit('layoutChanging', name);
-
-                if (layout.url) {
-                    dfd = $.get(layout.url).done(function (resp) {
-                        layout.html = resp;
-                    });
-                }
-
-                dfd.done(function () {
-                    $pageView.html(layout.html);
-                });
-
-                return dfd;
-            },
-            /**
-             * 布局初始化
-             */
-            init: function () {
-                var scaffold = this.get(cst.SCAFFOLD_LAYOUT_NAME);
-                if (scaffold.html) {
-                    $('body').prepend(scaffold.html);
-                }
-            }
-        });
-
-        app.layout.add(cst.SCAFFOLD_LAYOUT_NAME, {
-            html: '<div class="' + app.config.page.defaultLayoutRoot + '"></div>'
-        });
-    };
-
-});
-
-define('app/module',[
-], function () {
-
-    'use strict';
-
-    return function (app) {
-        var core = app.core;
-        var _ = app.core._;
-
-        /**
-         * @name module
-         * @type {veronica.ModuleHandler}
-         * @memberOf veronica.Application#
-         */
-        app.module = app.provider.create();
-
-        app.module.add('default', {
-            name: 'default',
-            path: 'widgets',
-            multilevel: false,
-            locationPattern: /(\w*)-?(\w*)-?(\w*)-?(\w*)-?(\w*)/,
-            resolvePath: function () {
-                var path = this.path;
-                return path.replace('${name}', this.name);
-            },
-            resolveLocation: function (name) {
-                var me = this;
-                var resolvedName = name;
-                if (me.multilevel === true) {
-                    var parts = me.locationPattern.exec(name);
-                    resolvedName = _.reduce(parts, function (memo, name, i) {
-                        // 因为第0项是全名称，所以直接跳过
-                        if (name === '') { return memo; }
-                        if (i === 1) {
-                            // 如果第一个与source名称相同，则不要重复返回路径
-                            if (name === me.name) { return ''; }
-                            return name;
-                        }
-                        return memo + '/' + name;
-                    });
-                }
-
-                return me.resolvePath() + '/' + resolvedName;
-            }
-        });
-    };
-
-});
-
-define('core/sandbox',[
-    './index'
-], function (core) {
-
-    'use strict';
-
-    var _ = core._;
-    var $ = core.$;
+    /**
+     * @typedef SandboxChildren
+     * @property {string} ref - sandbox 的唯一标识符
+     * @property {string} caller - 开启该 sandbox 的对象的唯一标识符
+     */
 
     var attachListener = function (listenerType) {
         return function (name, listener, context, tag) {
@@ -3480,32 +2991,8 @@ define('core/sandbox',[
             context = context || this;
             var callback = function () {
                 var args = Array.prototype.slice.call(arguments);
-                var condition = true;
-                // 有条件的触发监听器
-                if (context.options && context.options.sandbox
-                    && args.length > 0 && args[0]._target) {
-                    var target = args[0]._target;
-                    var senderId = args[0]._senderId;
-                    var app = context.sandbox.app;
-                    var sender = app.sandboxes.get(senderId);
-                    var thisId = context.options.sandbox._id;
-                    var expectList = [];
-                    condition = false;
 
-                    if (target === 'children') {
-                        expectList = sender.children();
-                    }
-                    if (target === 'parents') {
-                        expectList = sender.parents();
-                    }
-                    if (expectList.indexOf(thisId) > -1) {
-                        condition = true;
-                    }
-                }
-
-                if (condition) {
-                    listener.apply(context, args);  // 将该回调的上下文绑定到sandbox
-                }
+                listener.apply(context, args);  // 将该回调的上下文绑定到sandbox
 
             };
 
@@ -3521,11 +3008,6 @@ define('core/sandbox',[
         };
     };
 
-    /**
-     * @typedef SandboxChildren
-     * @property {string} ref - sandbox的唯一标识符
-     * @property {string} caller - 开启该sandbox的对象的唯一标识符
-     */
 
     /**
      * @classdesc 沙箱，管理公共方法、消息传递、宿主生命周期维护
@@ -3533,68 +3015,54 @@ define('core/sandbox',[
      * @param {object} options - 参数对象
      * @memberOf veronica
      */
-    function Sandbox(options) {
+    var Sandbox = AppComponent.extend({
+        initialize: function (options) {
+            this.supr(options);
+            /**
+             * 名称
+             * @var {string} name
+             * @memberOf Sandbox#
+             */
+            this.name = options.name;
 
-        /**
-         * 名称
-         * @var {string} name
-         * @memberOf Sandbox#
-         */
-        this.name = options.name;
-        /**
-         * 当前应用程序实例
-         * @var {Application} app
-         * @memberOf Sandbox#
-         */
-        this.app = options.app;
-        this.type = 'sandbox';
-        /**
-         * 唯一标识符
-         * @var {string} _id
-         * @memberOf Sandbox#
-         */
-        this._id = options._id;
-        this._hostType = options._hostType;
-        /**
-         * 子集
-         * @var {SandboxChildren[]} _children
-         * @memberOf Sandbox#
-         * @private
-         */
-        this._children = [];
+            this.type = 'sandbox';
+            /**
+             * 唯一标识符
+             * @var {string} _id
+             * @memberOf Sandbox#
+             */
+            this._id = options._id;
+            this._hostType = options._hostType;
+            /**
+             * 子集
+             * @var {SandboxChildren[]} _children
+             * @memberOf Sandbox#
+             * @private
+             */
+            this._children = [];
 
-        this._events = [];
+            this._events = [];
 
-        // this.mediator = core.createMediator();
-
-    }
-
-    /**@lends veronica.Sandbox# */
-    var proto = {
-        constructor: Sandbox,
+            // this.mediator = core.createMediator();  
+        },
         /**
          * 为沙箱记录日志
          */
         log: function (msg, type) {
+            var logger = this.logger();
             type || (type = 'log');
-            core.logger.setName(this._hostType + '(' + this.name + ')');
+            logger.setName(this._hostType + '(' + this.name + ')');
             if (_.isArray(msg)) {
                 var info = [];
                 info.push(msg.shift());
                 info.push(msg.shift());
                 info.push(msg);
-                core.logger[type].apply(core.logger, info);
+                logger[type].apply(logger, info);
             } else {
-                core.logger[type](msg);
+                logger[type](msg);
             }
-            core.logger.setName();
+            logger.setName();
         },
-        /**
-         * 获取全局配置
-         * @function
-         * @see {@link veronica.getConfig}
-         */
-        getConfig: core.getConfig,
         /**
          * 订阅消息
          * @function
@@ -3637,8 +3105,8 @@ define('core/sandbox',[
          * @param {...*} params - 消息参数
          */
         emit: function () {
-            var mediator = core.mediator;
-            var app = core.app;
+            var app = this.app();
+            var mediator = app.mediator;
             var eventData = Array.prototype.slice.call(arguments);
 
             var emitFunc = _.bind(function () {
@@ -3653,7 +3121,7 @@ define('core/sandbox',[
                 this.log(eventData);
             }, this);
 
-            if (app.widget.isLoading) {
+            if (app.widget.isLoading()) {
                 app.emitQueue.push(emitFunc);
             } else {
                 emitFunc();
@@ -3688,19 +3156,19 @@ define('core/sandbox',[
          * @returns {Promise}
          */
         startWidgets: function (list, page, callerId) {
-            var app = core.app;
-
-            return app.widget.start(list, _.bind(function (widget) {
-                var sandbox = widget.sandbox;
-                sandbox._parent = this._id;
-                this._children.push({ ref: sandbox._id, caller: callerId });
-            }, this), page);
+            var app = this.app();
+            var me = this;
+            return app.widget.start(list, function (widget) {
+                var sandbox = widget.options.sandbox;
+                sandbox._parent = me._id;
+                me._children.push({ ref: sandbox._id, caller: callerId });
+            }, page);
         },
         /**
          * 停止并销毁该沙箱及其宿主
          */
         stop: function () {
-            var app = core.app;
+            var app = this.app();
             app.widget.stop(this);
         },
         /**
@@ -3709,7 +3177,7 @@ define('core/sandbox',[
          */
         stopChildren: function (callerId) {
             var children = this._children;
-            var app = core.app;
+            var app = this.app();
 
             if (callerId) {
                 children = _.filter(children, function (cd) {
@@ -3725,20 +3193,14 @@ define('core/sandbox',[
         /**
          * 获取沙箱拥有者
          * @returns {Object} 拥有者对象
-         * @deprecated
-         */
-        getHost: function () { },
-        /**
-         * 获取沙箱拥有者
-         * @returns {Object} 拥有者对象
          */
         getOwner: function () { },
         children: function (result) {
+            var app = this.app();
             if (result == null) {
                 result = [];
             }
             var children = this._children;
-            var app = this.app;
             if (children == null || children.length === 0) {
                 return result;
             }
@@ -3758,7 +3220,7 @@ define('core/sandbox',[
         },
         parents: function () {
             var parentId = this._parent;
-            var app = this.app;
+            var app = this.app();
             var result = [];
             while (parentId != null) {
                 result.push(parentId);
@@ -3768,622 +3230,182 @@ define('core/sandbox',[
 
             return result;
         }
-    };
-
-    Sandbox.prototype = proto;
+    });
 
     return Sandbox;
 
 });
 
-define('app/sandboxes',[
-    '../core/sandbox'
-], function (Sandbox) {
+define('core/framework/sandboxManager',[
+    '../base/index',
+    './sandbox',
+    './appProvider'
+], function (baseLib, Sandbox, AppProvider) {
 
     'use strict';
 
+    /**
+     * @typedef SandboxChildren
+     * @property {string} ref - sandbox 的唯一标识符
+     * @property {string} caller - 开启该 sandbox 的对象的唯一标识符
+     */
 
-    return function (app) {
+    var SANDBOX_TYPE_WIDGET = 'widget';
 
-        var core = app.core;
-        var _ = core._;
-        var SANDBOX_REF_NAME = core.constant.SANDBOX_REF_NAME;
 
-        /**
-         * 无法直接构造
-         * @classdesc 管理所有沙箱
-         * @class veronica.Sandboxes
-         */
-
-        /** @lends veronica.Sandboxes# */
-        var sandboxes = {
-            _sandboxPool: {}
-        };
-
+    /** @lends veronica.SandboxManager# */
+    var SandboxManager = AppProvider.extend({
         /**
          * 创建沙箱
-         * @param {string} name - 沙箱名称
-         * @param {veronica.enums.hostType} [hostType=WIDGET] - 宿主类型
+         * @param {string} name - 名称
+         * @param {string} [ownerType='widget'] - 拥有者类型
          * @returns {Sandbox}
          */
-        sandboxes.create = function (name, hostType) {
+        create: function (name, ownerType) {
+            var me = this;
+            var app = this.app();
             var id = _.uniqueId('sandbox$');
-            hostType || (hostType = core.enums.hostType.WIDGET);
+            ownerType || (ownerType = SANDBOX_TYPE_WIDGET);
             var sandbox = new Sandbox({
                 name: name,
                 _id: id,
-                _hostType: hostType,
-                app: core.app
+                _ownerType: ownerType,
+                app: app
             });
 
-            var sandboxPool = this._sandboxPool;  // 沙箱池
-            if (sandboxPool[id]) {
+            var exists = me.get(id);
+            if (exists) {
                 throw new Error("Sandbox with ref " + id + " already exists.");
             } else {
-                sandboxPool[id] = sandbox;
+                me.add(id, sandbox);
             }
 
             return sandbox;
-        };
-
-        /**
-         * 移除沙箱
-         * @param {string} id - 沙箱标识符
-         */
-        sandboxes.remove = function (id) {
-            this._sandboxPool[id] = null;
-            delete this._sandboxPool[id];
-        };
-
-        /**
-         * 从沙箱集合中根据引用获取沙箱
-         * @param {string} id - 沙箱标识符
-         * @returns {Sandbox}
-         */
-        sandboxes.get = function (id) {
-            return this._sandboxPool[id];
-        };
-
+        },
         /**
          * 根据插件名称获取沙箱
          * @param {string} name - 沙箱名称
-         * @returns {Sandbox[]}
+         * @returns {Array<Sandbox>}
          */
-        sandboxes.getByName = function (name) {
-            return _.filter(this._sandboxPool, function (o) {
+        getByName: function (name) {
+            return _.filter(this._pool, function (o) {
                 return o.name === name;
             });
-        };
-
-        sandboxes.getByEl = function (el) {
+        },
+        /**
+         * 根据 DOM 元素获取沙箱
+         * @param {object|string} el - 元素节点或选择器
+         * @returns {Sandbox}
+         */
+        getByEl: function (el) {
             var sandboxRef = $(el).data(SANDBOX_REF_NAME);
             return this.get(sandboxRef);
         }
+    });
 
-        /**
-         * @name sandboxes
-         * @memberOf veronica.Application#
-         * @type {veronica.Sandboxes}
-         */
-        app.sandboxes = sandboxes;
-    };
-
+    return SandboxManager;
 });
 
-define('app/parser',[
-], function () {
+define('core/framework/view',[
+    '../base/index',
+    './appComponent'
+], function (baseLib, AppComponent) {
 
     'use strict';
 
-    return function (app) {
-        var _ = app.core._;
-        var $ = app.core.$;
-        var VER_ROLE = 'data-ver-role';
+    var _ = baseLib._;
+    var $ = baseLib.$;
 
-        /**
-         * 无法直接构造
-         * @classdesc 页面 parser
-         * @class Parser
-         * @memberOf veronica
-         */
+    // thx: Backbone
 
-        /** @lends veronica.Parser# */
-        var parser = {
-            /**
-             * 解析页面，初始化指定 DOM 下的 widget
-             * @param {string|Object} [dom] - dom 元素或选择器
-             */
-            parse: function (dom) {
-                dom || (dom = 'body');
+    var delegateEventSplitter = /^(\S+)\s*(.*)$/;
+    var viewOptions = ['model', 'collection', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
 
-                var widgetList = [];
-                $(dom).find('[' + VER_ROLE + ']').each(function (idx, el) {
-                    var $el = $(el);
-                    var data = $el.data();
-
-                    data.options || (data.options = {});
-                    data.options.el = $el;
-                    widgetList.push({
-                        name: data.verRole,
-                        options: data.options
-                    });
-                });
-
-                app.sandbox.startWidgets(widgetList);
-            },
-
-            /**
-             * 解析 widget 下的所有视图
-             * @param {Widget} widget - widget
-             * @param {object} views - 初始化器键值对
-             */
-            parseView: function (widget, views) {
-                $(widget.$el).find('[' + VER_ROLE + ']').each(function (idx, el) {
-                    var $el = $(el);
-                    var data = $el.data();
-
-                    data.options || (data.options = {});
-                    data.options.el = $el;
-                    widget.view(data.verRole, {
-                        name: data.verRole,
-                        initializer: views[data.verRole],
-                        options: data.options
-                    });
-                });
-            }
-        }
-
-
-
-        /**
-         * 页面 parser
-         * @name parser
-         * @memberOf veronica.Application#
-         * @type {veronica.Parser}
-         */
-        app.parser = parser;
-    };
-
-});
-define('app/router',[],function () {
-
-    return function (app) {
-        var _ = app.core._;
-
-        /**
-         * Backbone 的 Router
-         * @external Backbone.Router
-         */
-
-        /**
-         * 无法直接构造
-         * @classdesc 前端路由
-         * @class veronica.Router
-         */
-
-        /** @lends veronica.Router# */
-        var router = {};
-        var preParams;  // 前一个查询字符串参数
-
-        // 页面切换
-        router.changePage = _.throttle(function (page, params) {
-            var sameParams = preParams === params;
-            preParams = params;
-            
-            // 更新查询字符串
-            if (app.page.isCurrent(page)) {
-                if (!sameParams) {
-                    app.sandbox.emit('qs-changed', app.core.util.qsToJSON(params));
-                } else {
-                    return;
-                }
-            }
-
-            app.page.change(page, params);
-        }, 500);
-
-
-        var base = {
-
-            routes: {
-                '(/)': 'entry',
-                '(/)?*params': 'entry',
-                'page=:page': 'openPage',
-                '(/)*page': 'openPage',
-                '(/)*page?*params': 'openPage',
-                'widget/:widget@:source': 'executeWidget'
-            },
-            initialize: function () {
-                // this.route(new RegExp(app.config.router.pagePattern), 'openPage');
-            },
-            entry: function (params) {
-                router.changePage(app.config.homePage, params);
-            },
-            executeWidget: function (widgetName, source) {
-                app.sandbox.startWidgets({
-                    name: widgetName,
-                    options: {
-                        _source: source || 'default',
-                        host: app.config.page.defaultHost
-                    }
-                });
-            },
-            openPage: function (page, params) {
-                router.changePage(page, params);
-            }
-
-        };
-
-        /**
-         * 基础配置对象
-         */
-        router.base = base;
-
-        /**
-         * 创建一个 Router
-         * @returns {Backbone.Router}
-         */
-        router.create = function (obj) {
-            var Router = app.core.Router.extend($.extend(true, {}, router.base, obj));
-            return new Router();
-        };
-
-        /**
-         * 开启路由，创建路由实例
-         */
-        router.start = function (obj) {
-            var r = router.create(obj);
-            /**
-             * 路由实例
-             * @name instance
-             * @type {Backbone.Router}
-             * @memberOf veronica.Application#router
-             */
-            router.instance = r;
-            app.core.history.start({ pushState: false });
-            return r;
-        }
-
-        /**
-         * 更新浏览器地址栏
-         * @see {@link http://backbonejs.org/#Router-navigate}
-         */
-        router.navigate = function (fragment, options) {
-            router.instance.navigate(fragment, options);
-        }
-
-        /**
-         * @name router
-         * @memberOf veronica.Application#
-         * @type {veronica.Router}
-         */
-        app.router = router;
-
-        return router;
-    };
-});
-
-define('app/request',[
-], function () {
-    return function (app) {
-
-        var $ = app.core.$;
-        var core = app.core;
-
-        /**
-         * 无法直接构造
-         * @classdesc 网络请求
-         * @class veronica.Request
-         */
-
-        /**
-         * @lends veronica.Request#
-         */
-        var request = {};
-
-        /**
-         * $.get 的包装
-         */
-        request.get = function (url, data) {
-            return $.get(url, data);
-        };
-
-        /**
-         * 获取JSON（$.getJSON）
-         */
-        request.getJSON = function (url, data) {
-            return $.getJSON(url, data);
-        };
-
-        /**
-         * 传入复杂对象进行 GET 请求（需要后台进行JSON字符串的反序列化）
-         * @param {string} url - 地址
-         * @param {Object} data - 数据
-         * @param {Object} [options] - 选项
-         */
-        request.getComplex = function (url, data, options) {
+    var View = AppComponent.extend({
+        initialize: function (options) {
             options || (options = {});
+            this.supr(options);
+            this._app = options.sandbox.app();
+            this.cid = _.uniqueId('view');
+            _.extend(this, _.pick(options, viewOptions));
+            this._ensureElement();
+            this._initialize.apply(this, arguments);
+            this.delegateEvents();
+        },
+        // The default `tagName` of a View's element is `"div"`.
+        tagName: 'div',
 
-            return $.ajax($.extend({
-                url: url,
-                type: 'GET',
-                contentType: "application/json",
-                data: JSON.stringify(data)
-            }, options));
-        };
+        $: function (selector) {
+            return this.$el.find(selector);
+        },
 
-        /**
-         * POST 简单对象
-         * @param {string} url - 请求路径
-         * @param {Object} data - 数据
-         * @returns {Deferred}
-         */
-        request.post = function (url, data) {
-            return $.post(url, data);
-        }
+        _initialize: function () { },
 
-        /**
-         * POST 复杂对象（使某些后台处理程序（如 ASP.NET MVC）能够正常进行数据绑定）
-         * @param {string} url - 地址
-         * @param {Object} data - 数据
-         * @param {Object} [options] - 选项
-         */
-        request.postComplex = function (url, data, options) {
-            return $.ajax($.extend({
-                url: url,
-                type: 'POST',
-                contentType: "application/json",
-                dataType: 'json',
-                data: JSON.stringify(data)
-            }, options));
-        }
+        render: function () {
+            return this;
+        },
 
-        /**
-         * 多个请求捆绑发送
-         * @param {...string|Object} url 或 延迟对象
-         * @returns {Deferred}
-         */
-        request.getBundle = function () {
-            var urls = Array.prototype.slice.call(arguments);
-            var requests = $.map(urls, function (item) {
-                if (_.isString(item)) {
-                    return $.get(item);
+        remove: function () {
+            this.$el.remove();
+            this.stopListening();
+            return this;
+        },
+
+        // Change the view's element (`this.el` property), including event
+        // re-delegation.
+        setElement: function (element, delegate) {
+            if (this.$el) this.undelegateEvents();
+            this.$el = element instanceof $ ? element : $(element);
+            this.el = this.$el[0];
+            if (delegate !== false) this.delegateEvents();
+            return this;
+        },
+
+        // This only works for delegate-able events: not `focus`, `blur`, and
+        // not `change`, `submit`, and `reset` in Internet Explorer.
+        delegateEvents: function (events) {
+            if (!(events || (events = _.result(this, 'events')))) return this;
+            this.undelegateEvents();
+            for (var key in events) {
+                var method = events[key];
+                if (!_.isFunction(method)) method = this[events[key]];
+                if (!method) continue;
+
+                var match = key.match(delegateEventSplitter);
+                var eventName = match[1], selector = match[2];
+                method = _.bind(method, this);
+                eventName += '.delegateEvents' + this.cid;
+                if (selector === '') {
+                    this.$el.on(eventName, method);
                 } else {
-                    return item.done ? item : $.get(item.url, item.data);
+                    this.$el.on(eventName, selector, method);
                 }
-            });
-
-            return core.whenSingleResult.apply(core, requests);
-        }
-
-        var isChromeFrame = function () {
-            var ua = navigator.userAgent.toLowerCase();
-            return ua.indexOf('chrome') >= 0 && window.externalHost;
-        };
-
-        /**
-         * 下载文件
-         * @param {Object} settings - 配置对象 eg: { url: '', data: [object] }
-         * @returns {}
-         */
-        request.download = function (settings) {
-            settings || (settings = {}); //eg: { url: '', data: [object] }
-            if (settings.url == undefined) {
-                return;
             }
-            if (!_.isString(settings.data)) {
-                settings.data = $.param(settings.data, true);
-            }
-            if (!isChromeFrame()) {  // 当使用ChromeFrame时，采用新窗口打开
-                if ($('#global-download-iframe').length === 0) {
-                    $('<iframe id="global-download-iframe" src="" style="width:0;height:0;display: inherit;border:0;" \>').appendTo(document.body);
-                }
-                $('#global-download-iframe').attr('src', settings.url + '?' + settings.data);
+            return this;
+        },
+
+        undelegateEvents: function () {
+            this.$el.off('.delegateEvents' + this.cid);
+            return this;
+        },
+
+        _ensureElement: function () {
+            if (!this.el) {
+                var attrs = _.extend({}, _.result(this, 'attributes'));
+                if (this.id) attrs.id = _.result(this, 'id');
+                if (this.className) attrs['class'] = _.result(this, 'className');
+                var $el = Backbone.$('<' + _.result(this, 'tagName') + '>').attr(attrs);
+                this.setElement($el, false);
             } else {
-                window.open(settings.url + '?' + settings.data, "newwindow");
+                this.setElement(_.result(this, 'el'), false);
             }
-        };
+        }
+    })
 
-        /**
-         * @memberOf veronica.Application#
-         * @name request
-         * @type {veronica.Request}
-         */
-        app.request = request;
-    };
+    return View;
 });
 
-define('app/qs',[
-], function () {
-    return function (app) {
-        var $ = app.core.$;
-
-        var changeMode = function (mode) {
-            var qs = app.core.qs(mode);
-            return qs;
-        };
-
-        var qs = changeMode(1);
-
-        /**
-         * ��ѯ�ַ�������
-         * @type {veronica.QueryString}
-         * @memberOf veronica.Application#
-         */
-        app.qs = qs;
-    };
-});
-
-define('app/i18n',[], function () {
-    return function (app) {
-        var extend = app.core._.extend;
-        var logger = app.core.logger;
-        var _ = app.core._;
-
-        /**
-         * ��ʾ�ı������ʻ���
-         * @namespace
-         * @memberOf veronica
-         */
-        app.i18n = app.provider.create();
-
-        app.i18n.add('default', {
-            /** �Ի������� */
-            defaultDialogTitle: '�Ի���',
-            /** �Ի����ر��ı� */
-            windowCloseText: '�ر�',
-            /** �������ı� */
-            loadingText: '������...'
-        });
-    };
-});
-
-define('app/attrProvider',[], function () {
-    return function (app) {
-        var extend = app.core._.extend;
-        var logger = app.core.logger;
-        var _ = app.core._;
-
-
-        app.attrProvider = app.provider.create();
-
-        app.attrProvider.add('default', {
-            bind: function(view) {
-            },
-            unbind: function () {
-
-            },
-            create: function (data) {
-                return data;
-            },
-            get: function () { },
-            set: function () { }
-        });
-
-        app.attrProvider.add('querystring', {
-            create: function(options, view) {
-                if (options.getter == null) {
-                    options.getter = function (opt) {
-                        return app.qs.get(opt.sourceKey);
-                    }
-                }
-                // ������ѯ�ַ����ı�
-                view.sub('qs-changed', function (obj) {
-                    var value = obj[options.sourceKey];
-                    var originalValue = view.attr(options.name);
-                    if (value !== originalValue) {
-                        view.attr(options.name, value);
-                    }
-                });
-
-                return options;
-            }
-        });
-
-        app.attrProvider.add('options', {
-            create: function (options, view) {
-                if (options.getter == null) {
-                    options.getter = function (data) {
-                        return view.options[data.sourceKey];
-                    }
-                }
-
-                return options;
-            }
-        });
-
-        app.attrProvider.add('global', {
-            create: function (options, view) {
-                if (options.getter == null) {
-                    options.getter = function () {
-                        return app.data.get(options.sourceKey);
-                    }
-                }
-
-                view.sub('change.' + options.sourceKey, function (value) {
-                    var originalValue = view.attr(options.name);
-                    if (value !== originalValue) {
-                        view.attr(options.name, value);
-                    }
-                });
-
-                return options;
-            }
-        });
-    };
-});
-
-define('app/templateEngine',[], function () {
-    return function (app) {
-        var extend = app.core._.extend;
-        var logger = app.core.logger;
-        var _ = app.core._;
-
-
-        app.templateEngine = app.provider.create();
-
-        app.templateEngine.add('default', {
-            options: function (view) {
-                return {};
-            },
-            compile: function (text) {
-                return function () {
-                    return text;
-                }
-            }
-        });
-
-        app.templateEngine.add('underscore', {
-            options: function (view) {
-                return _.extend({ lang: app.lang[view.options.langClass] }, view.options);
-            },
-            compile: function (text, view) {
-                return _.template(text, { variable: 'data' });
-            }
-        });
-
-        app.templateEngine.add('lodash', {
-            options: function(view) {
-                return _.extend({ lang: app.lang[view.options.langClass] }, view.options);
-            },
-            compile: function(text, view) {
-                return _.template(text, { variable: 'data' });
-            }
-        });
-    };
-});
-
-define('app/viewEngine',[], function () {
-    return function (app) {
-        var extend = app.core._.extend;
-        var logger = app.core.logger;
-        var _ = app.core._;
-
-
-        app.viewEngine = app.provider.create();
-
-        app.viewEngine.add('default', {
-            bind: function (view, $dom, model) {
-
-            },
-            unbind: function () {
-
-            },
-            create: function (data) {
-                return data;
-            },
-            bindEvents: function (vm, view) {
-
-            },
-            get: function () {
-
-            },
-            set: function () { }
-        });
-    };
-});
-
-define('app/view/mixin',[],function () {
+define('view/mixin',[],function () {
 
     return function (base, app) {
         var $ = app.core.$;
@@ -4439,7 +3461,7 @@ define('app/view/mixin',[],function () {
     };
 });
 
-define('app/view/meta',[],function () {
+define('view/meta',[],function () {
 
     return function (base, app) {
 
@@ -4453,7 +3475,7 @@ define('app/view/meta',[],function () {
     };
 });
 
-define('app/view/aspect',[],function () {
+define('view/aspect',[],function () {
 
     return function (base, app) {
         var $ = app.core.$;
@@ -4485,7 +3507,7 @@ define('app/view/aspect',[],function () {
     };
 });
 
-define('app/view/lifecycle',[],function () {
+define('view/lifecycle',[],function () {
 
     return function (base, app) {
         var $ = app.core.$;
@@ -4521,7 +3543,7 @@ define('app/view/lifecycle',[],function () {
                  * @inner
                  * @listens View#initialize
                  */
-                initialize: function (options) {
+                _initialize: function (options) {
 
                     options || (options = {});
 
@@ -4603,7 +3625,7 @@ define('app/view/lifecycle',[],function () {
     };
 });
 
-define('app/view/listen',[],function () {
+define('view/listen',[],function () {
 
     return function (base, app) {
 
@@ -4767,7 +3789,7 @@ define('app/view/listen',[],function () {
     };
 });
 
-define('app/view/window',[],function () {
+define('view/window',[],function () {
 
     return function (base, app) {
         var core = app.core;
@@ -5076,7 +4098,7 @@ define('app/view/window',[],function () {
 
                 var wnd = this._windows[name];
                 var $el = wnd.element;
-                var app = this.options.sandbox.app;
+                var app = this.app();
 
                 // 销毁窗口内的子视图
                 $.each(wnd.vToBeDestroyed, function (name, view) {
@@ -5117,7 +4139,7 @@ define('app/view/window',[],function () {
     };
 });
 
-define('app/view/attr',[],function () {
+define('view/attr',[],function () {
 
     return function (base, app) {
         var $ = app.core.$;
@@ -5211,7 +4233,7 @@ define('app/view/attr',[],function () {
     };
 });
 
-define('app/view/action',[],function () {
+define('view/action',[],function () {
 
     return function (base, app) {
         var $ = app.core.$;
@@ -5248,39 +4270,13 @@ define('app/view/action',[],function () {
                     }
 
                     context[actionName] && context[actionName](e, app, _, $);
-                },
-                _getViewTriggerOptions: function (attr) {
-                    var nameParts = attr.split('?');
-                    var name = nameParts[0];
-                    var options = {};
-                    if (nameParts[1]) {
-                        options = app.core.util.qsToJSON(nameParts[1]);
-                    }
-                    options._viewName = name;
-                    return options;
-                },
-                _dlgViewHandler: function (e) {
-                    var $el = $(e.currentTarget);
-                    var options = this._getViewTriggerOptions($el.attr('data-dlg-view'));
-
-                    var initializer = function (options) {
-                        var ctor = app.view.ctor(options._viewName);
-                        return new ctor(options);
-                    };
-                    this.viewWindow(options._viewName, initializer, options);
-                },
-                _dlgWidgetHandler: function (e) {
-                    var $el = $(e.currentTarget);
-                    var options = this._getViewTriggerOptions($el.attr('data-dlg-widget'));
-
-                    this.widgetWindow(options._viewName, options);
                 }
             }
         });
     };
 });
 
-define('app/view/children',[],function () {
+define('view/children',[],function () {
 
     return function (base, app) {
         var $ = app.core.$;
@@ -5472,7 +4468,7 @@ define('app/view/children',[],function () {
     };
 });
 
-define('app/view/render',[],function () {
+define('view/render',[],function () {
 
     return function (base, app) {
         var $ = app.core.$;
@@ -5571,7 +4567,7 @@ define('app/view/render',[],function () {
                 this.$el.get(0).innerHTML = html;
             },
             _templateEngine: function () {
-                var app = this.options.sandbox.app;
+                var app = this.app();
                 return app.templateEngine.get(this.templateEngine);
             },
             _compileTemplate: function (templateText) {
@@ -5699,7 +4695,7 @@ define('app/view/render',[],function () {
     };
 });
 
-define('app/view/mvvm',[],function () {
+define('view/mvvm',[],function () {
 
     return function (base, app) {
         var $ = app.core.$;
@@ -5905,7 +4901,7 @@ define('app/view/mvvm',[],function () {
     };
 });
 
-define('app/view/_combine',[
+define('view/_combine',[
     './mixin',
     './meta',
     './aspect',
@@ -5928,46 +4924,47 @@ define('app/view/_combine',[
     }
 });
 
-define('app/view/index',[
+define('view/index',[
+    '../core/base/index',
     './_combine'
-], function (combineFunction) {
+], function (baseLib, combineFunction) {
 
-    return function (app) {
-        var $ = app.core.$;
-        var _ = app.core._;
-        var classBase = app.core.classBase;
+    var _ = baseLib._;
+    var $ = baseLib.$;
+    var extend = _.extend;
 
-        /**
-         * 选项
-         * @typedef ViewOptions
-         * @property {boolean} [autoAction=false] - 自动绑定Action事件
-         *   当在模板中使用如下写法时
-         *   ```html
-         *   <button data-action="add">添加</button>
-         *   ```
-         *   如果该属性为 `true` 将自动查找该视图的 `addHandler` 方法作为该按钮点击事件的处理函数
-         *
-         * @property {boolean} [autoRender=true] - 自动渲染. 视图一初始化就进行渲染
-         * @property {number} [_place=0] - 插入位置（0：append，1：prepend）
-         * @property {string|object} [host] - 父元素，可以是选择器或jQuery对象
-         * @property {boolean} [autoResize=false] - 自适应窗口变化. 该属性设为true后当窗口大小变化时会自动调用`resize`方法，因此需要重写该方法
-         * @property {boolean} [autoCreateSubview=true] - 在视图渲染时，自动创建子视图，需设置 views 属性
-         * @property {boolean} [activeView=null] - 设置在switchable中默认活动的视图
-         * @property {boolean} [autoST=false] -自动设置触发器. 该属性为true后，会广播 `setTriggers` 消息可将该视图的工具条由defaultToolbarTpl 指定注入到其他widget，需要额外设置 `toolbar` 项指定该视图的注入到的widget名称
-         * @property {string} [toolbar='toolbar'] - 触发器放置的 widget name
-         * @property {string} [defaultToolbarTpl='.tpl-toolbar'] - 触发器默认模板的选择器
-         * @property {object} [windowOptions=false] - 设置当视图单独位于窗口中时，窗口的选项
-         * @property {object} [sharedModel=null] - 视图没有自己的视图模型，来源于该属性共享的视图模型
-         * @property {array} [sharedModelProp=null] - 共享视图模型的属性集合
-         *   ```
-         *   [['destPropName', 'originPropName'], 'propName2']
-         *   ```
-         * @property {string} [langClass=null] - 视图所属的 language class 在模板中，可通过`data.lang.xxx` 来访问特定的语言文本
-         * @property {boolean} [bindEmptyModel=false] - 当视图模型没赋值时 是否也进行绑定
-         * @property {string} [activeView=null] - 初始活动的子视图名称
-         */
+    /**
+     * 选项
+     * @typedef ViewOptions
+     * @property {boolean} [autoAction=false] - 自动绑定Action事件
+     *   当在模板中使用如下写法时
+     *   ```html
+     *   <button data-action="add">添加</button>
+     *   ```
+     *   如果该属性为 `true` 将自动查找该视图的 `addHandler` 方法作为该按钮点击事件的处理函数
+     *
+     * @property {boolean} [autoRender=true] - 自动渲染. 视图一初始化就进行渲染
+     * @property {number} [_place=0] - 插入位置（0：append，1：prepend）
+     * @property {string|object} [host] - 父元素，可以是选择器或jQuery对象
+     * @property {boolean} [autoResize=false] - 自适应窗口变化. 该属性设为true后当窗口大小变化时会自动调用`resize`方法，因此需要重写该方法
+     * @property {boolean} [autoCreateSubview=true] - 在视图渲染时，自动创建子视图，需设置 views 属性
+     * @property {boolean} [activeView=null] - 设置在switchable中默认活动的视图
+     * @property {boolean} [autoST=false] -自动设置触发器. 该属性为true后，会广播 `setTriggers` 消息可将该视图的工具条由defaultToolbarTpl 指定注入到其他widget，需要额外设置 `toolbar` 项指定该视图的注入到的widget名称
+     * @property {string} [toolbar='toolbar'] - 触发器放置的 widget name
+     * @property {string} [defaultToolbarTpl='.tpl-toolbar'] - 触发器默认模板的选择器
+     * @property {object} [windowOptions=false] - 设置当视图单独位于窗口中时，窗口的选项
+     * @property {string} [langClass=null] - 视图所属的 language class 在模板中，可通过`data.lang.xxx` 来访问特定的语言文本
+     * @property {string} [activeView=null] - 初始活动的子视图名称
+     */
 
-        var base = _.extend({}, classBase, {
+
+    /**
+     * @classdesc 视图
+     * @class veronica.View
+     * @augments Backbone.View
+     */
+    var ViewBase = function (app) {
+        var base = extend({}, {
             /**
              * 该视图的默认参数
              * @type {object}
@@ -6000,7 +4997,31 @@ define('app/view/index',[
 
                 this._activeViewName = null;
             },
+            _call: function (func, args) {
+                func.apply(this, Array.prototype.slice.call(args));
+            },
+            _extend: function (obj) {
+                var me = this;
+                obj.options && extend(this._defaults, obj.options);
+                obj.configs && extend(this, obj.configs);
+                obj.methods && extend(this, obj.methods);
 
+                // 加入运行时属性
+                if (obj.props) {
+                    this._extendMethod('_initProps', function () {
+                        _.each(obj.props, function (prop, name) {
+                            me[name] = prop;
+                        });
+                    });
+                }
+            },
+            _extendMethod: function (methodName, newMethod) {
+                var original = this[methodName];
+                this[methodName] = function () {
+                    this._call(original, arguments);
+                    this._call(newMethod, arguments);
+                }
+            },
             _i18n: function (key) {
                 var i18n = app.i18n.get();
                 return i18n[key];
@@ -6030,21 +5051,21 @@ define('app/view/index',[
                 return _.isFunction(method) ? method.apply(this, args.slice(sliceLen)) : method;
             }
         });
-
         combineFunction(base, app);
+        return base;
+    }
 
-        /**
-         * @classdesc 视图
-         * @class veronica.View
-         * @augments Backbone.View
-         */
-        app.view.base = base;
-    };
+    return ViewBase;
 });
 
-define('app/view',[
-    './view/index'
-], function (base) {
+define('core/framework/viewManager',[
+    '../base/index',
+    './appProvider',
+    './view',
+    '../../view/index'
+], function (baseLib, AppProvider, View, viewBase) {
+
+    var extend = baseLib._.extend;
 
     /**
      * Backbone View Object
@@ -6064,89 +5085,49 @@ define('app/view',[
      * @param {...*} param - 消息传递的参数
      */
 
-
-    return function (app) {
-        var $ = app.core.$;
-        var _ = app.core._;
-        var noop = $.noop;
-
-
-        /**
-         * 不能用构造器构造
-         * @classdesc 视图操作
-         * @class veronica.ViewHandler
-         */
-
-        /** @lends veronica.ViewHandler# */
-        var view = {
-            _ctors: {}
-        };
-
-
-
-        /**
-         * 全局注册 View
-         */
-        view.register = function (name, ctor) {
-            if (!app.view.ctor(name)) {  // 重复名称的不注册
-                app.view._ctors[name] = ctor;
+    /**
+     * @classdesc 视图操作
+     * @class veronica.ViewManager
+     * @augments veronica.Provider
+     */
+    var ViewManager = AppProvider.extend(/** @lends veronica.ViewManager# */{
+        getBase: function () {
+            return viewBase(this.app());
+        },
+        register: function (name, ctor) {
+            if (!this.get(name)) {  // 重复名称的不注册
+                this.add(name, ctor); 
             } else {
-                // app.core.logger.warn('View naming conflicts: ' + name);
+                // app.logger.warn('View naming conflicts: ' + name);
             }
-        }
-
-        // 查找 View 构造器
-        view.ctor = function (name, ctor) {
-            if (ctor != null) {
-                app.view._ctors[name] = ctor;
+        },
+        create: function (initializer, options) {
+            // 将构造器中的 _widgetName 附加到 视图中
+            if (initializer._widgetName) {
+                options._widgetName = initializer._widgetName;
             }
-
-            return app.view._ctors[name];
-        }
-
-        view.execute = function (executor, options) {
-            var result = executor;
-            while (result != null && _.isFunction(result)) {
-               result = result(options);
+            if (typeof initializer === 'object') {
+                initializer = this.define(initializer);
+            }
+            var result = initializer;
+            while (result != null && typeof result === 'function') {
+                result = result(options);
             }
 
             return result;
-        }
-
+        },
         /**
          * 创建一个自定义 View 定义
          * @param {object|function} [obj={}] - 自定义属性或方法
-         * @param {array} [inherits=[]] - 继承的属性或方法组
          * @param {boolean} [isFactory=false] - 是否该视图定义是个工厂方法（不需要 `new`）
          */
-        view.define = function (obj, inherits, isFactory) {
-            if (_.isBoolean(inherits) && isFactory == null) {
-                isFactory = inherits;
-                inherits = [];
-            }
+        define: function (obj, isFactory) {
+            var me = this;
+            if (isFactory == null) { isFactory = true; }
 
-            if (isFactory == null) { isFactory = false };
-            if (inherits == null) { inherits = [] };
-
-            var ctor;
-
-            if (_.isObject(obj) && !_.isFunction(obj)) {  // 普通对象
-                var newObj = $.extend({}, app.view.base);
-                var myInherits = obj.inherits || newObj.inherits;
-                if (myInherits) {
-                    inherits = inherits.concat(myInherits(app));
-                }
-                _.each(inherits, function(inherit) {
-                    if (_.isFunction(inherit)) {
-                        inherit(newObj, app);
-                    } else {
-                        $.extend(true, newObj, inherit);
-                    }
-                });
-                // 最后混入当前对象，避免覆盖
-                $.extend(true, newObj, obj);
-
-                ctor = app.core.View.extend(newObj);
+            if (typeof obj === 'object') {  // 普通对象
+                var literal = extend({}, me.getBase(), obj);
+                ctor = View.extend(literal);
             } else {
                 if (obj.extend) {  // 本身是 Backbone.View 构造函数
                     ctor = obj;
@@ -6155,10 +5136,9 @@ define('app/view',[
                 }
             }
 
-
             // 注册 View
             if (obj && obj.name) {
-                app.view.register(obj.name, ctor);
+                me.register(obj.name, ctor);
             }
 
             // 使用工厂模式
@@ -6169,23 +5149,18 @@ define('app/view',[
             }
 
             return ctor;
-        };
+        }
+    });
 
-        /**
-         * @name view
-         * @memberOf veronica.Application#
-         * @type {veronica.ViewHandler}
-         */
-        app.view = view;
-
-        base(app);
-    };
+    return ViewManager;
 });
 
-define('core/widget',[],function () {
+// 加载模块
+define('core/framework/widget',[
+    '../base/index'
+], function (baseLib) {
 
     'use strict';
-
 
     /**
      * widget 配置，他继承部分启动时配置，不需要自己创建
@@ -6198,6 +5173,11 @@ define('core/widget',[],function () {
      * @see {@link WidgetStartConfig} 其他属性请查看启动时配置的 `options` 属性
      */
 
+    var extend = baseLib._.extend;
+    var SANDBOX_REF_NAME = '__sandboxRef__';
+    var WIDGET_CLASS = 'ver-widget';
+    var WIDGET_TAG = 'ver-tag';
+
     /**
      * @classdesc widget 对象一般是一个视图，称为“主视图”
      * @class Widget
@@ -6207,219 +5187,195 @@ define('core/widget',[],function () {
      * @param {veronica.Application} app - 当前应用程序
      * @see {@link veronica.View}
      */
-    var Widget = function (executor, options, app) {
-        var core = app.core;
-        var $ = core.$;
-        var name = options._name;
-
-        var sandbox = app.sandboxes.create(name);
+    var Widget = function (initializer, options, app) {
+        var sandbox = app.sandboxes.create(options._name);
+        sandbox.getOwner = function () {
+            return app.widget._runningPool[this._id];
+        };
 
         var defaults = {
             _name: null,
             _page: null,
-            _sandboxRef: sandbox._id,
             _exclusive: false,
+            _sandboxRef: sandbox._id,
             sandbox: sandbox
         };
 
-        options = $.extend(defaults, options);
-        if (executor._widgetName) {
-            options._widgetName = executor._widgetName;
+        options = extend(defaults, options);
+
+
+        var result = app.view.create(initializer, options);
+
+        if (result == null) {
+            console.error('Widget should return an object. [errorWidget:' + options._name);
+            return result;
         }
 
-        var widgetObj = app.view.execute(app.view.define(executor, true), options);
-
-        if (widgetObj == null) {
-            console.error('Widget should return an object. [errorWidget:' + name);
-            return null;
+        if (!result._name) {
+            result._name = options._name;
+        }
+        if (!result.options) {
+            result.options = options;
+        }
+        if (result.$el) {
+            result.$el
+                .addClass(WIDGET_CLASS)
+                .addClass(options._name)
+                .data(WIDGET_CLASS, options._name)
+                .data(SANDBOX_REF_NAME, options._sandboxRef)
+                .data(WIDGET_TAG, options._tag);
         }
 
-        /**
-         * @var {string} name - 名称
-         * @memberOf Widget#
-         */
-        widgetObj._name = options._name;
-        // deprecated
-        widgetObj.sandbox = sandbox;
-        /**
-         * @var {WidgetOptions} options - 配置项
-         * @memberOf Widget#
-         */
-        widgetObj.options || (widgetObj.options = options);
-
-        widgetObj.$el && widgetObj.$el
-            .addClass(sandbox.name)  // 这里与视图的设置重复
-            .addClass(core.constant.WIDGET_CLASS)
-            .data(core.constant.WIDGET_CLASS, sandbox.name)
-            .data(core.constant.WIDGET_TAG, options._tag)
-            .data(core.constant.SANDBOX_REF_NAME, sandbox._id);  // 在该元素上保存对插件对象的引用
-
-        sandbox.getOwner = function () {
-            return app.widget._widgetsPool[sandbox._id];
-        };
-
-        // deprecated
-        sandbox.getHost = sandbox.getOwner;
-
-        return widgetObj;
+        return result;
 
     };
 
     return Widget;
 });
 
-// 加载模块
-define('app/widget',[
-    '../core/widget'
-], function (Widget) {
+define('core/framework/widgetManager',[
+    '../base/index',
+    './widget',
+    './appComponent'
+], function (baseLib, Widget, AppComponent) {
 
     'use strict';
 
-    return function (app) {
-        var core = app.core;
-        var _ = app.core._;
-        var $ = app.core.$;
-        var mapArrayOrSingle = core.util.mapArrayOrSingle;
-        var normalizePath = core.util.normalizePath;
-        var ensureArray = core.util.ensureArray;
-        var appConfig = app.config;
+    var WIDGET_CLASS = 'ver-widget';
 
-        var WIDGET_CLASS = core.constant.WIDGET_CLASS;
-        var require = core.loader.useGlobalRequire();  // 使用 requirejs，而不是
+    var _ = baseLib._;
+    var ensureArray = _.ensureArray;
+    var uniqBy = _.uniqBy;
+    var each = _.each;
 
-        /**
-         * @classdesc 部件操作类
-         * @class veronica.WidgetHandler
-         */
-
-        /** @lends veronica.WidgetHandler# */
-        var widget = {
-            /**
-             * 本地 widget 初始化器
-             * @private
-             */
-            _localWidgetExes: {},
-            /**
-             * 所有部件引用
-             * @private
-             */
-            _widgetsPool: {},
-            /**
-             * 当前活动的部件配置列表
-             * @private
-             */
-            _currWidgetList: [],
-            /**
-             * 上一页部件配置列表
-             * @private
-             */
-            _oldWidgetList: [],
-            /**
-             * 当前批部件是否正在加载
-             */
-            isLoading: false
-        };
-
-        function hasLocal(name) {
-            return !!app.widget._localWidgetExes[name];
-        }
-
-        function getLocal(name) {
-            return app.widget._localWidgetExes[name];
-        }
-
-
+    var WidgetManager = AppComponent.extend({
+        initialize: function (options) {
+            this.supr(options);
+            this._declarationPool = { };
+            this._runningPool = {};
+            this._currBatchName = null;
+            this._currBatchConfigList = [];
+            this._lastBatchConfigList = [];
+            this._isLoading = false;
+        },
+        isLoading: function () {
+            return this._isLoading;
+        },
+        hasLocal: function (name) {
+            return !!this._declarationPool[name];
+        },
+        getLocal: function (name) {
+            return this._declarationPool[name];
+        },
         /**
          * 注册 widget 为 本地 widget
          */
-        widget.register = function (name, execution) {
-            app.widget._localWidgetExes[name] = execution;
-        };
+        register: function (name, declaration) {
+            this._declarationPool[name] = declaration;
+        },
+        _resolveLocation: function (config) {
+            var app = this.app();
+            var name = config.name;
+            var context = config.options._context;
+            var isDebug = app.env.isDebug();
+            var location = app.config.releaseWidgetPath + '/' + name;  // release widget
 
+            if (isDebug) {
+                var mod = app.module.get(context);
+                location = mod.resolveLocation(name);
+            }
+
+            return normalizePath(location);
+
+        },
         /**
-         * 获取 widge package 路径
+         * 从配置中创建 package
+         * @param {Array|Object} configs
          * @private
          */
-        widget._getPackagesFrom = function (configs, normalized) {
-            if (normalized == null) {
-                normalized = true;
+        _getPackages: function (configs, isNormalized) {
+            var me = this;
+            if (isNormalized == null) {
+                isNormalized = true;
             }
-            return mapArrayOrSingle(configs, function (config) {
-                if (normalized === false) {
-                    config = widget.normalizeConfig(config);
+            return _.mapArrayOrSingle(configs, function (config) {
+                if (isNormalized === false) {
+                    config = me.normalizeConfig(config);
                 }
-                var name = config.name;
-                var src = config.options._source;
-                var isRelease = core.getConfig().debug === false;
-                var location = app.config.releaseWidgetPath + '/' + name;
-
-                if (!isRelease) {
-                    var mod = app.module.get(src);
-                    location = mod.resolveLocation(name);
-                }
+                var location = me._resolveLocation(config);
 
                 return {
                     name: name,
-                    location: normalizePath(location),
+                    location: location,
                     main: 'main'
                 };
             });
-        };
-
+        },
         /**
          * 声明widget为package，以便在其他widget中引用该widget
          */
-        widget.package = function (widgetNames) {
-            widgetNames || (widgetNames = core.getConfig().controls);
+        configurePackage: function (widgetNames) {
+            var me = this;
             if (_.isString(widgetNames)) {
                 widgetNames = [widgetNames];
             }
             var config = {
-                packages: widget._getPackagesFrom(widgetNames, false)
+                packages: me._getPackages(widgetNames, false)
             };
 
-            require.config(config);
-        };
-
-        // 推测 source
-        widget.deduceSource = function (nameTag) {
-            if (app.config.autoParseSource) {
-                return nameTag.split('-')[0];
+            me.app().loader().config(config);
+        },
+        /**
+         * 从名称推测 context
+         * @param {string} name - 名称
+         * @returns {string} context 名称
+         */
+        parseContext: function (name) {
+            if (this.options.autoParseContext) {
+                return name.split('-')[0];
             }
             return null;
-        }
-
+        },
         /**
          * 加载单个 widget
-         * @private
+         * @param {Object} config - widget 配置
+         * @param {string} batchName - 所属批次名称
+         * @returns {Deferred|null}
          */
-        widget.load = function (name, options, page) {
+        load: function (config, batchName) {
+            var me = this;
+            var loader = this.loader();
             var dfd = $.Deferred();
-            var configs = [{
-                name: name,
-                options: options
-            }];
+            var name = config.name;
 
-            var packages = app.widget._getPackagesFrom(configs);
+            config.options._name = name;
+            config.options._page = batchName;
 
-            options._name = name;
-            options._page = page;
-
-            // 如果是本地部件
-            if (hasLocal(name)) {
-                var executor = getLocal(name);
-                dfd.resolve(executor, options);
-                return dfd.promise();
+            // 加载 “空” widget
+            if (name === 'empty') {
+                me.clear(config.options._hostNode, config.options._exclusive);
+                return null;
             }
 
-            var names = _.map(configs, function (p) { return p.name });
-            core.loader.require(names, true, { packages: packages })
-                  .done(function (name, executors) {
-                      var executor = executors;
-                      if (_.isArray(executor)) {
-                          executor = executors[0];  // 如果加载了多个，取第一个(plugin 遗留写法)
+            if (!me._allowLoad(config)) {
+                return null;
+            }
+
+            // 如果是本地部件
+            if (me.hasLocal(name)) {
+                var initializer = me.getLocal(name);
+                dfd.resolve(initializer, config.options);
+            } else {
+                var packages = me._getPackages([config]);
+
+                loader.require([name], true, { packages: packages })
+                  .done(function (name, initializers) {
+                      var initializer = initializers;
+                      //TODO: 这里检测下
+                      if (_.isArray(initializer)) {
+                          initializer = initializers[0];
                       }
-                      dfd.resolve(executor, options);
+                      dfd.resolve(initializer, options);
                   }).fail(function (err) {
                       if (err.requireType === 'timeout') {
                           console && console.warn && console.warn('Could not load module ' + err.requireModules);
@@ -6430,32 +5386,17 @@ define('app/widget',[
                       }
                       dfd.reject();
                   });
+            }
 
             return dfd.promise();
-        };
-
+        },
         /**
-         * widget 启动时配置
-         * @typedef WidgetStartConfig
-         * @property {string} name - widget 名称（配置时名称）
-         * @property {object} options - 选项
-         * @property {string} options._source - 源
-         * @property {string|DOM|jQueryObject} options.host - 附加到该DOM元素的子集
-         * @property {string|DOM|jQueryObject} options.el - 附加到该DOM元素
-         * @property {string} [options._exclusive=false] - 是否独占式（为 true 时，则初始化该 widget 会导致相同 host 下的其他 widget 被卸载）
-         * @example
-         *   {
-         *     name: 'widget1',
-         *     options: {
-         *       _source: 'basic',
-         *       host: 'body'
-         *     }
-         *   }
+         * 规范化创建 widget 的配置
+         * @param {string|Object} config - 配置
+         * @returns {Object}
          */
-
-        widget.normalizeConfig = function (config) {
+        normalizeConfig: function (config) {
             var me = this;
-            // 将 config name 进行分解
             if (_.isString(config)) {
                 config = {
                     name: config,
@@ -6464,136 +5405,109 @@ define('app/widget',[
             }
 
             // resolve name expression
-            var pattern = /([\w|-]+)@?([\w|-]*)(?:=>)?(.*)/;
-            var nameParts = pattern.exec(config.name);
+            var namePattern = /([\w|-]+)@?([\w|-]*)(?:=>)?(.*)/;
+            var nameFragmentArray = namePattern.exec(config.name);
 
-            config.name = nameParts[1];
-            config.options._source = config.options._source ||
-                nameParts[2] || app.widget.deduceSource(config.name) || 'default';
-            config.options.host = config.options.host ||
-                nameParts[3] || appConfig.widget.defaultHost;
+            config.name = nameFragmentArray[1];
+            config.options._context = config.options._context ||
+                nameFragmentArray[2] || me.parseContext(config.name) || me.options.defaultContext;
+            config.options._hostNode = config.options._hostNode ||
+                nameFragmentArray[3] || me.options.defaultHostNode;
 
             return config;
-        }
-
-        widget.preprocessConfigs = function (list) {
+        },
+        /**
+         * 预处理一批配置
+         */
+        preprocessConfigs: function (configs) {
             var me = this;
-            list = _.map(list, function (config) {
+            configs = _.map(configs, function (config) {
                 return me.normalizeConfig(config);
             });
 
-            // zip widget configs
-            var uniqFunc = _.uniqBy || function (list, iteratee) {
-                return _.uniq(list, false, iteratee);
-            };
-            return uniqFunc(list, function (item) {
+            // 去重
+            return uniqBy(configs, function (item) {
                 if (item.options && item.options.el) return item.options.el;  // 确保一个元素上只有一个插件
-                return item.name + item.options.host;  // 确保一个父元素下，只有一个同样的插件
+                return item.name + item.options._hostNode;  // 确保一个父元素下，只有一个同样的插件
             });
-        }
-
+        },
+        _isCurrBatch: function (batchName) {
+            var app = this.app();
+            return !batchName || !app.page || app.page.isCurrent(batchName);
+        },
         /**
          * 启动一个或一组 widget
          * @param {WidgetStartConfig[]|WidgetStartConfig} list - widget 配置（列表）
-         * @param {function} [callback] - 每个widget加载完毕后执行的回调
-         * @param {string} [page] - 当前加载的widget列表所属的页面名称
+         * @param {Function} [eachCallback] - 每个widget加载完毕后执行的回调
+         * @param {string} [batchName] - 当前加载的widget列表所属批次名称
          * @returns {Promise}
          * @fires Application#widget.widgetLoaded
          * @fires Application#widget.widgetsLoaded
          */
-        widget.start = function (list, callback, page) {
+        start: function (list, eachCallback, batchName) {
             var promises = [];
             var me = this;
-            // 传入单个对象时
-            list = ensureArray(list);
+            var app = this.app();
 
-            app.widget.isLoading = true;
+            me._isLoading = true;
 
-            list = me.preprocessConfigs(list);
+            list = me.preprocessConfigs(ensureArray(list));
 
-            widget._cacheList(list, page);
+            me._updateCurrConfigList(list, batchName);
 
-            _.each(list, function (config) {
-                var name = config.name;  // widget name
-                var options = config.options || {};
-                var host = options.host;
-
-                if (name === 'empty') {
-                    widget.clear(host, options._exclusive);
+            each(list, function (config) {
+                var loadDeferred = me.load(config, batchName);
+                if (loadDeferred != null) {
+                    promises.push(loadDeferred);
                 }
-
-                if (widget._allowLoad(config)) {
-                    // 加载单个 widget
-                    var loadDf = app.widget.load(name, options, page);
-                    promises.push(loadDf);
-                }
-
             });
 
             return $.when.apply($, promises).done(function () {
-                var results = arguments;
-                if (promises.length === 1) { results = [arguments]; }
+                var returns = arguments;
+                if (promises.length === 1) {
+                    returns = [arguments];
+                }
 
-                // 加载完毕后执行所有部件
-                _.each(results, function (arg) {
-                    var executor = arg[0];  // widget
+                each(returns, function (arg) {
+                    var initializer = arg[0];  // widget
                     var options = arg[1];  // options
 
-                    // Bugfixed：修复频繁切换页面导致错误加载的bug，当部件所在的页面不是当前页面，则不执行
-                    if (widget.isValid(options._page)) {
-                        var wg = widget.create(executor, options);
-                        widget.clear(options.host, options._exclusive);
-                        if (wg) {
-                            widget.add(wg);
-                            callback && callback(wg);  // 每个widget执行完毕后，执行回调
-
-                            /**
-                             * **消息：** 单个widget加载完毕， 'widgetLoaded.' + widget名称
-                             * @event Application#widget.widgetLoaded
-                             * @type {*}
-                             */
-                            core.mediator.emit("widgetLoaded." + wg._name);
-                        }
-                    }
+                    me.create(initializer, options, eachCallback);
                 });
 
-                app.widget.isLoading = false;
+                me._isLoading = false;
                 /**
                  * **消息：** 所有widget全部加载完毕
                  * @event Application#widget.widgetsLoaded
                  * @type {*}
                  */
-                core.mediator.emit("widgetsLoaded");
+                app.pub("widgetsLoaded");
                 app.emitQueue.empty();  // 调用消息队列订阅
             });
-        };
-        // 验证页面是否匹配
-        widget.isValid = function (page) {
-            return !page || !app.page || app.page.isCurrent(page);
         },
         /**
          * 扫描某个宿主元素下的所有插件，对不在插件列表中插件进行删除
          * @param {string|DOM|jQueryObject} 宿主对象
          * @returns {void}
          */
-        widget.clear = function (host, force) {
+        clear: function (hostNode, force) {
             var me = this;
-            if (!host) return;
+            if (!hostNode) return;
             if (force == null) { force = false; }
 
-            var hostExpectList = _.filter(app.widget._currWidgetList, function (config) {
-                return config.options.host === host;
+            var expectList = _.filter(me._currBatchConfigList, function (config) {
+                return config.options._hostNode === hostNode;
             });
-            var hostActualList = me.findDom($(host));
+            var actualList = me.findDom($(hostNode));
 
-            _.each(hostActualList, function (item) {
+            each(actualList, function (item) {
                 var $item = $(item);
                 var stopIt = force;
                 if (!force) {
                     // 将实际存在的widget与期望存在的列表进行匹配
-                    var expectExists = _.some(hostExpectList, function (w) {
-                        var hasClass = $item.hasClass(w.name);
-                        var sameTag = w.options._tag === $item.data('verTag');
+                    var expectExists = _.some(expectList, function (conf) {
+                        var hasClass = $item.hasClass(conf.name);
+                        var sameTag = conf.options._tag === $item.data('verTag');
                         return hasClass && sameTag;
                     });
                     stopIt = !expectExists;
@@ -6604,77 +5518,102 @@ define('app/widget',[
                 }
             });
 
-        }
+        },
+        /**
+         * 更新当前的配置列表
+         * @param {Array} list - 配置列表
+         * @param {string} batchName - 批次名称
+         */
+        _updateCurrConfigList: function (list, batchName) {
+            var me = this;
 
-        // 缓存列表（参数列表，页面名称）
-        widget._cacheList = function (list, page) {
-            // 当切换页面时候，缓存老部件列表
-            if (page) {
-                widget._oldWidgetList = widget._currWidgetList;
-                widget._currWidgetList = list;
+            if (batchName) {
+                me._lastBatchConfigList = me._currBatchConfigList;
+                me._currBatchName = batchName;
+                me._currBatchConfigList = list;
             } else {
-                widget._currWidgetList = widget._currWidgetList.concat(list);
+                me._currBatchConfigList = me._currBatchConfigList.concat(list);
             }
-        }
-
+        },
         // 是否允许该配置的 widget 加载
-        widget._allowLoad = function (config) {
-            var options = config.options || {};
-            var host = options.host;
-            var widgetName = config.name;
-            var noSameNameWidget = $(host).find('.' + widgetName).length === 0;  // 该宿主下没有同样名称的 widget
+        _allowLoad: function (config) {
+            var options = config.options;
+            var name = config.name;
+            var hostNode = options._hostNode;
 
-            // 判别是否是完全相同的部件
-            var allSame = _.find(app.widget._oldWidgetList, function (oldConfig) {
-                var sameName = oldConfig.name === config.name;
-                var sameTag = oldConfig.options._tag === config.options._tag;
-                var sameHost = oldConfig.options.host === config.options.host;
-                var sameEl = oldConfig.options.el === config.options.el;
+            // 该宿主下没有同样名称的 widget
+            var noSameNameWidget = $(hostNode).find('.' + name).length === 0;
+            if (noSameNameWidget) {
+                return true;
+            }
+
+            // 判别是否存在完全相同的部件
+            var hasSame = !!_.find(app.widget._lastBatchConfigList, function (oldConfig) {
+                var sameName = oldConfig.name === name;
+                var sameTag = oldConfig.options._tag === options._tag;
+                var sameHost = oldConfig.options._hostNode === hostNode;
+                var sameEl = oldConfig.options.el === options.el;
 
                 return sameName && sameTag && sameHost && sameEl;
             });
 
-            return widgetName !== 'empty' &&
-                        (noSameNameWidget || !allSame);
-        }
-
+            return !hasSame;
+        },
         // 添加
-        widget.add = function (wg) {
-            widget._widgetsPool[wg.options.sandbox._id] = wg;
-        }
-
+        add: function (widget) {
+            var id = widget.options.sandbox._id;
+            this._runningPool[id] = widget;
+        },
         // 创建
-        widget.create = function (executor, options) {
-            return Widget(executor, options, app);
-        }
+        create: function (initializer, options, callback) {
+            var app = this.app();
+            var me = this;
+            // Bugfixed：修复频繁切换页面导致错误加载的bug，当部件所在的页面不是当前页面，则不执行
+            if (me._isCurrBatch(options._page)) {
+                var widget = Widget(initializer, options, app);
+                me.clear(options._hostNode, options._exclusive);
+                if (widget) {
+                    me.add(widget);
+                    callback && callback(widget);  // 每个widget执行完毕后，执行回调
 
+                    /**
+                     * **消息：** 单个widget加载完毕， 'widgetLoaded.' + widget名称
+                     * @event Application#widget.widgetLoaded
+                     * @type {*}
+                     */
+                    app.pub("widgetLoaded." + widget._name);
+                }
+                return widget;
+            }
+            return null;
+        },
         // 获取
-        widget.get = function (id) {
-            return widget._widgetsPool[id];
-        }
+        get: function (id) {
+            return this._runningPool[id];
+        },
 
         // 移除
-        widget.remove = function (id) {
-            app.widget._widgetsPool[id] = null;
-            delete app.widget._widgetsPool[id];
-        }
+        remove: function (id) {
+            this._runningPool[id] = null;
+            delete this._runningPool[id];
+        },
 
-        widget.findDom = function ($context) {
+        findDom: function ($context) {
             return $context.find('.' + WIDGET_CLASS);
-        }
+        },
 
         /**
          * 停止 widget
          * @param {Sandbox|string|jQueryObject|DOM} tag - 传入sandbox、名称、jquery对象等
          */
-        widget.stop = function (tag) {
+        stop: function (tag) {
             var me = this;
 
             if (tag == null) return;
 
             if (_.isString(tag)) {  // 1. 传入名称
                 var name = tag;
-                // var name = core.util.decamelize(tag);
+
                 _.each(app.sandboxes.getByName(name), function (sandbox) {
                     app.widget.stop(sandbox);
                 });
@@ -6735,13 +5674,13 @@ define('app/widget',[
                 }
             }
 
-        };
+        },
 
         /**
          * 垃圾回收
          * @private
          */
-        widget.recycle = function () {
+        recycle: function () {
             _.each(app.sandboxes._sandboxPool, function (sandbox) {
                 if (!sandbox.getOwner) return;
                 var widgetObj = sandbox.getOwner();
@@ -6750,13 +5689,13 @@ define('app/widget',[
                     app.widget.stop(sandbox);
                 }
             });
-        };
+        },
 
         /**
          * 卸载一个模块
          * @private
          */
-        widget._unload = function (ref) {
+        _unload: function (ref) {
             var key;
             if (require.s) {  // 仅当存在 requirejs 时才进行卸载
                 var contextMap = require.s.contexts._.defined;
@@ -6769,21 +5708,509 @@ define('app/widget',[
                 }
             }
 
-        };
+        }
+    });
+
+    return WidgetManager;
+});
+
+define('core/framework/index',[
+    './appComponent',
+    './appProvider',
+    './appRouter',
+    './layoutManager',
+    './pageManager',
+    './sandboxManager',
+    './viewManager',
+    './widgetManager'
+], function (AppComponent, AppProvider, AppRouter, LayoutManager, PageManager, SandboxManager, ViewManager, WidgetManager) {
+
+    'use strict';
+
+    var frameworkLib = {
+        AppComponent: AppComponent,
+        AppProvider: AppProvider,
+        AppRouter: AppRouter,
+        LayoutManager: LayoutManager,
+        PageManager: PageManager,
+        SandboxManager: SandboxManager,
+        ViewManager: ViewManager,
+        WidgetManager: WidgetManager
+    }
+
+    return frameworkLib;
+});
+
+define('core/index',[
+    'lodash',
+    './base/index',
+    './framework/index'
+], function (_, base, framework) {
+
+    'use strict';
+
+    var extend = _.extend;
+
+    var coreLib = {};
+
+    extend(coreLib, base);
+    extend(coreLib, framework);
+
+    return coreLib;
+
+});
+
+define('app/attrProvider',[], function () {
+    return function (app) {
+        var extend = app.core._.extend;
+        var _ = app.core._;
+
+        app.createProvider('attrProvider');
+
+        app.attrProvider.add('default', {
+            bind: function(view) {
+            },
+            unbind: function () {
+
+            },
+            create: function (data) {
+                return data;
+            },
+            get: function () { },
+            set: function () { }
+        });
+
+        app.attrProvider.add('querystring', {
+            create: function(options, view) {
+                if (options.getter == null) {
+                    options.getter = function (opt) {
+                        return _.qs(1).get(opt.sourceKey);
+                    }
+                }
+                // ������ѯ�ַ����ı�
+                view.sub('qs-changed', function (obj) {
+                    var value = obj[options.sourceKey];
+                    var originalValue = view.attr(options.name);
+                    if (value !== originalValue) {
+                        view.attr(options.name, value);
+                    }
+                });
+
+                return options;
+            }
+        });
+
+        app.attrProvider.add('options', {
+            create: function (options, view) {
+                if (options.getter == null) {
+                    options.getter = function (data) {
+                        return view.options[data.sourceKey];
+                    }
+                }
+
+                return options;
+            }
+        });
+
+        app.attrProvider.add('global', {
+            create: function (options, view) {
+                if (options.getter == null) {
+                    options.getter = function () {
+                        return app.data.get(options.sourceKey);
+                    }
+                }
+
+                view.sub('change.' + options.sourceKey, function (value) {
+                    var originalValue = view.attr(options.name);
+                    if (value !== originalValue) {
+                        view.attr(options.name, value);
+                    }
+                });
+
+                return options;
+            }
+        });
+    };
+});
+
+define('app/data',[], function () {
+    return function (app) {
+
+        app.createProvider('data', {
+            /**
+             * 设置数据
+             * @param {string} name - 名称
+             * @param {*} value - 值
+             */
+            set: function (name, value, emit) {
+                var app = this.app();
+                if (emit == null) {
+                    emit = true;
+                }
+                this._pool[name] = value;
+                if (emit) {
+                    /**
+                     * **消息：** 数据改变时发布，消息名 'change.' + 数据名
+                     *
+                     * @event Application#data.change
+                     * @type {object}
+                     * @property {*} value - 数据值
+                     */
+                    app.pub('change.' + name, value);
+                }
+            }
+        });
+    };
+});
+
+define('app/emitQueue',[
+], function () {
+
+    'use strict';
+
+    return function (app) {
+
+        // 消息发送队列，插件加载时由于异步，会导致消息监听丢失，因此使用该队列做缓存
+        // eg. [['open', 'who'], ['send', 'msg']]
+        app.emitQueue = {
+            _emitQueue: [],
+            empty: function () {
+                var emitQueue = this._emitQueue;
+                while (emitQueue.length > 0) {
+                    (emitQueue.shift())();
+                }
+            },
+            push: function (emit) {
+                this._emitQueue.push(emit);
+            }
+        }
+    };
+
+});
+define('app/env',[
+    //'has'
+], function (has) {
+
+    'use strict';
+
+    //var AppEnviroment = AppComponent.extend({
+    //    initialize: function (options) {
+    //        //window.has = has;
+
+    //        //has.add('debug', function () {
+    //        //    return !!options.debug;
+    //        //})
+    //    }
+    //});
+
+    return function (app) {
+        var core = app.core;
+        var _ = app.core._;
+        var $ = app.core.$;
+
+        app.env = {};
 
         /**
-         * @name widget
-         * @type {veronica.WidgetHandler}
+         * 是否是调试模式
+         */
+        app.env.isDebug = function () {
+            return core.getConfig().debug === true;
+        }
+
+        /**
+         * 获取发布后的 widget 路径
+         */
+        app.env.getReleaseWidgetPath = function () {
+            return app.config.releaseWidgetPath;
+        }
+    };
+
+});
+
+define('app/i18n',[], function () {
+    return function (app) {
+        /**
+         * 显示文本（国际化）
+         * @namespace
+         * @memberOf veronica
+         */
+        app.createProvider('i18n');
+
+        app.i18n.add('default', {
+            /** 对话框标题 */
+            defaultDialogTitle: '对话框',
+            /** 对话框关闭文本 */
+            windowCloseText: '关闭',
+            /** 加载中文本 */
+            loadingText: '加载中...'
+        });
+    };
+});
+
+define('app/layout',[
+
+], function () {
+    return function (app) {
+
+        var SCAFFOLD_LAYOUT_NAME = 'scaffold';
+
+        app.layout.add(SCAFFOLD_LAYOUT_NAME, {
+            html: '<div class="' + app.config.page.defaultLayoutRoot + '"></div>'
+        });
+    };
+});
+
+define('app/loader',[
+    'jquery'
+], function ($) {
+
+    'use strict';
+
+    return function (app) {
+        app.createProvider('loader');
+
+        // default loader: use requirejs
+        app.loader.add('default', {
+            _useGlobalRequire: function () {
+                return window.require ? window.require : require;
+            },
+            _useGlobalRequirejs: function () {
+                return window.requirejs ? window.requirejs : requirejs;
+            },
+            config: function (config) {
+                if (config) {
+                    var require = this._useGlobalRequire();
+                    require.config(config)
+                }
+                return requirejs.s ? requirejs.s.contexts._.config : {};
+            },
+            /**
+             * 请求一个脚本
+             * @param {Array|Object} modeuls - 要请求的模块（requirejs的require方法所需配置）
+             * @param {boolean} [condition=true] - 发起请求的条件，如果不满足条件，则不进行请求
+             * @param {object} [requireConfig] - 额外的 require 配置
+             * @return {Promise}
+             */
+            require: function (modules, condition, requireConfig) {
+
+                var dfd = $.Deferred();
+                var require = this._useGlobalRequire();
+
+                if (condition == null) condition = true;
+
+                if (condition) {
+                    if (!$.isArray(modules)) { modules = [modules]; }
+
+                    if (requireConfig) {
+                        require.config(requireConfig);
+                    }
+
+                    require(modules, function () {
+                        var args;
+                        if (arguments.length === 1) {
+                            args = arguments[0];
+                        } else {
+                            args = Array.prototype.slice.call(arguments);
+                        }
+                        dfd.resolve(modules, args);
+                    }, function (err) {
+                        console.error(err);
+                        dfd.reject(err);
+                    });
+                } else {
+                    dfd.resolve(modules, null);
+                }
+                return dfd.promise();
+            }
+        })
+    }
+});
+
+define('app/module',[
+], function () {
+
+    'use strict';
+
+    return function (app) {
+        var _ = app.core._;
+
+        /**
+         * @name module
+         * @type {veronica.ModuleHandler}
          * @memberOf veronica.Application#
          */
-        app.widget = widget;
+        app.createProvider('module');
 
+        app.module.add('default', {
+            name: 'default',
+            path: 'widgets',
+            multilevel: false,
+            locationPattern: /(\w*)-?(\w*)-?(\w*)-?(\w*)-?(\w*)/,
+            resolvePath: function () {
+                var path = this.path;
+                return path.replace('${name}', this.name);
+            },
+            resolveLocation: function (name) {
+                var me = this;
+                var resolvedName = name;
+                if (me.multilevel === true) {
+                    var parts = me.locationPattern.exec(name);
+                    resolvedName = _.reduce(parts, function (memo, name, i) {
+                        // 因为第0项是全名称，所以直接跳过
+                        if (name === '') { return memo; }
+                        if (i === 1) {
+                            // 如果第一个与source名称相同，则不要重复返回路径
+                            if (name === me.name) { return ''; }
+                            return name;
+                        }
+                        return memo + '/' + name;
+                    });
+                }
+
+                return me.resolvePath() + '/' + resolvedName;
+            }
+        });
+    };
+
+});
+
+define('app/page',[
+], function () {
+
+    'use strict';
+
+    return function (app) {
+
+        app.page.add('_common', {
+            name: '_common',
+            inherits: false
+        });
+
+        app.page.add('default', {
+            name: 'default',
+            layout: 'default',
+            inherits: ['_common']
+        });
+
+    };
+
+});
+
+define('app/parser',[
+], function () {
+
+    'use strict';
+
+    return function (app) {
+        var _ = app.core._;
+        var $ = app.core.$;
+        var VER_ROLE = 'data-ver-role';
+
+        /**
+         * 无法直接构造
+         * @classdesc 页面 parser
+         * @class Parser
+         * @memberOf veronica
+         */
+
+        /** @lends veronica.Parser# */
+        var parser = {
+            /**
+             * 解析页面，初始化指定 DOM 下的 widget
+             * @param {string|Object} [dom] - dom 元素或选择器
+             */
+            parse: function (dom) {
+                dom || (dom = 'body');
+
+                var widgetList = [];
+                $(dom).find('[' + VER_ROLE + ']').each(function (idx, el) {
+                    var $el = $(el);
+                    var data = $el.data();
+
+                    data.options || (data.options = {});
+                    data.options.el = $el;
+                    widgetList.push({
+                        name: data.verRole,
+                        options: data.options
+                    });
+                });
+
+                app.sandbox.startWidgets(widgetList);
+            },
+
+            /**
+             * 解析 widget 下的所有视图
+             * @param {Widget} widget - widget
+             * @param {object} views - 初始化器键值对
+             */
+            parseView: function (widget, views) {
+                $(widget.$el).find('[' + VER_ROLE + ']').each(function (idx, el) {
+                    var $el = $(el);
+                    var data = $el.data();
+
+                    data.options || (data.options = {});
+                    data.options.el = $el;
+                    widget.view(data.verRole, {
+                        name: data.verRole,
+                        initializer: views[data.verRole],
+                        options: data.options
+                    });
+                });
+            }
+        }
+
+        /**
+         * 页面 parser
+         * @name parser
+         * @memberOf veronica.Application#
+         * @type {veronica.Parser}
+         */
+        app.parser = parser;
+    };
+
+});
+define('app/templateEngine',[], function () {
+    return function (app) {
+        var extend = app.core._.extend;
+        var _ = app.core._;
+
+
+        app.createProvider('templateEngine');
+
+        app.templateEngine.add('default', {
+            options: function (view) {
+                return {};
+            },
+            compile: function (text) {
+                return function () {
+                    return text;
+                }
+            }
+        });
+
+        app.templateEngine.add('underscore', {
+            options: function (view) {
+                return _.extend({ lang: app.lang[view.options.langClass] }, view.options);
+            },
+            compile: function (text, view) {
+                return _.template(text, { variable: 'data' });
+            }
+        });
+
+        app.templateEngine.add('lodash', {
+            options: function(view) {
+                return _.extend({ lang: app.lang[view.options.langClass] }, view.options);
+            },
+            compile: function(text, view) {
+                return _.template(text, { variable: 'data' });
+            }
+        });
     };
 });
 
 define('app/uiKit',[], function () {
     return function (app) {
-        app.uiKit = app.provider.create();
+        app.createProvider('uiKit');
 
         app.uiKit.add('default', {
             init: function (view, $dom) {
@@ -6795,26 +6222,80 @@ define('app/uiKit',[], function () {
     };
 });
 
+define('app/viewEngine',[], function () {
+    return function (app) {
+        var extend = app.core._.extend;
+        var _ = app.core._;
+
+
+        app.createProvider('viewEngine');
+
+        app.viewEngine.add('default', {
+            bind: function (view, $dom, model) {
+
+            },
+            unbind: function () {
+
+            },
+            create: function (data) {
+                return data;
+            },
+            bindEvents: function (vm, view) {
+
+            },
+            get: function () {
+
+            },
+            set: function () { }
+        });
+    };
+});
+
+define('app/windowProvider',[], function () {
+    return function (app) {
+
+        app.createProvider('windowProvider');
+
+        app.windowProvider.add('default', {
+            options: function (options) {
+                return options;
+            },
+            create: function ($el, options, view) {
+                var wnd = {
+                    element: $el,
+                    core: null,
+                    config: options,
+                    open: function () { },
+                    close: function () { },
+                    destroy: function () { },
+                    center: function () { },
+                    setOptions: function (options) { },
+                    rendered: function (view) { },
+                    removeLoading: function () { }
+                };
+                return wnd;
+            }
+        });
+
+    };
+});
+
 
 define('app/_combine',[
-    './provider',
-    './emitQueue',
-    './data',
-    './page',
-    './layout',
-    './module',
-    './sandboxes',
-    './parser',
-    './router',
-    './request',
-    './qs',
-    './i18n',
     './attrProvider',
+    './data',
+    './emitQueue',
+    './env',
+    './i18n',
+    './layout',
+    './loader',
+    './module',
+    './page',
+    './parser',
     './templateEngine',
+    './uiKit',
     './viewEngine',
-    './view',
-    './widget',
-    './uiKit'
+    './windowProvider'
 ], function () {
     var args = Array.prototype.slice.call(arguments);
     return function (app) {
@@ -6822,61 +6303,259 @@ define('app/_combine',[
     }
 });
 
-
 define('app/index',[
     '../core/index',
-    '../core/application',
     './_combine'
-], /**@lends veronica */function (core, Application, combineFunctions) {
+], function (coreLib, combine) {
+
+    return function (app) {
+        var config = app.config;
+        app.core = coreLib;
+
+        app.logger = new coreLib.Logger();
+        if (config.debug) {
+            app.logger.enable();
+        }
+        
+        /**
+         * 事件发送者
+         * @external EventEmitter
+         * @see {@link https://github.com/asyncly/EventEmitter2}
+         */
+        app.createComponent('mediator', coreLib.EventEmitter);
+        app.createComponent('view', coreLib.ViewManager);
+        app.createComponent('widget', coreLib.WidgetManager);
+        app.createComponent('sandboxes', coreLib.SandboxManager);
+        app.createComponent('layout', coreLib.LayoutManager);
+        app.createComponent('page', coreLib.PageManager);
+
+        app.use(combine);
+
+
+    };
+});
+
+define('application',[
+    './core/index',
+    './app/index'
+], function (coreLib, appInjection) {
 
     'use strict';
 
     /**
-     * jQuery 延迟对象
-     * @typedef Promise
+     * 应用程序配置参数
+     * @typedef AppOptions
+     * @property {string} [name='app'] - 应用程序名称
+     * @property {object} [homePage='home'] - 没有路由参数的起始页
+     * @property {Array} [extensions=[]] - 扩展列表
+     * @property {Array.<ModuleConfig>} [modules=[]] - 模块配置，当每个模块配置参数为字符串时，该字符串指定该模块的名称，其他参数采用默认参数
+     * @property {boolean} [autoParseWidgetName=false] - 自动解析 widget 名称
+     * @property {string}  [releaseWidgetPath='./widgets'] - 发布后的 widget 路径
+     * @property {regex} [widgetNamePattern=/(\w*)-?(\w*)-?(\w*)/] - 解析  widget 名称的正则
+     * @property {object} [module.defaults] - 模块默认参数
+     * @property {object} [module.defaultModule] - 当未配置任何模块时，使用的默认模块配置
+     * @property {object} [page] - page 和 layout 的默认配置
+     * @property {boolean} [autoBuildPage=false] -
+     *   是否启用自动页面配置。当通过路由或 `app.page.change`访问某个页面时，
+     *   如果未找到对应的页面配置，启用自动页面配置时，会根据页面名称自动生成页面配置。
+     *
+     *   > **关于自动页面配置**
+     *   >
+     *   > 访问 basic/home/index 或 basic-home-index 时，系统会去查找名为 basic-home-index 的widget，并且添加 _common 的页面继承;
+     *   > 如果访问index，则会查找basic/Home/index，如果访问 home/index，则会查找basic/home/index
+     *
      */
+
+    var SANDBOX_TYPE_APP = 'app';
+
+    var each = coreLib._;
+    var ClassBase = coreLib.ClassBase;
+    var extend = coreLib.$.extend;
 
     /**
-     * 创建 app
-     * @function veronica#createApp
-     * @param {AppOptions} [options={}]
-     * @returns {veronica.Application}
+     * @classdesc 应用程序类
+     * @class Application
+     * @memberOf veronica
      */
-    core.createApp = function (options) {
+    var Application = ClassBase.extend({
+        initialize: function (options) {
+            var defaultOptions = {
+                name: 'app',
+                widget: {
+                    autoParseContext: false,
+                },
+                autoBuildPage: false,  // 自动生成页面配置
+                autoParseWidgetName: false,  // 自动解析 widget 名称
+                autoParseContext: false,
+                releaseWidgetPath: './widgets',  // 发布后的 widget 路径
 
-        // 停止以前的 app
-        if (core.app) { core.app.stop(); }
+                global: true,  // 全局 app
+                layout: {
+                    rootNode: '.v-layout-root'
+                },
+                page: {
+                    autoResolvePage: false,
+                    autoBuild: false,
+                    homePage: 'home',
+                    defaultConfig: {
+                        layout: 'default',
+                        inherits: ['_common']
+                    },
+                    defaultLayout: 'default',  // 默认布局
+                    defaultLayoutRoot: 'v-render-body',  // 默认布局根
+                    defaultSource: 'basic',  // 默认源
+                    defaultInherit: '_common'  // 默认页面继承
+                },
+                widget: {
+                    autoParseContext: false,
+                    namePattern: '',
+                    releasePath: './widgets',
+                    defaultHostNode: '.v-render-host',
+                    defaultContext: 'default'
+                },
+                mediator: {
+                    wildcard: true,
+                    delimiter: '.',
+                    newListener: true,
+                    maxListeners: 50
+                },
+                router: {
+                    homePage: 'home'
+                }
+            };
 
-        var app = new Application(options);
+            options = extend(true, {}, defaultOptions, options || {});
 
-        app.use(combineFunctions);
+            this.core = coreLib;
 
+            /**@lends veronica.Application#*/
+            var props = {
+                _extensions: [],
+                /**
+                 * 应用程序名称
+                 */
+                name: options.name,
+                /**
+                 * veronica 对象
+                 * @see {@link veronica}
+                 */
+                core: coreLib,
+                /**
+                 * 语言配置
+                 */
+                lang: {},
+                /**
+                 * 配置项 options
+                 */
+                config: options
+            };
 
+            extend(this, props);
+            appInjection(this);
+
+            this.sandbox = this.sandboxes.create(this.name, SANDBOX_TYPE_APP);
+        },
         /**
-         * `Application` 类的实例，在`global` 设为 `true` 的情况下，可通过`window.__verApp`访问
-         * @name app
-         * @type {Application}
-         * @memberOf veronica
+         * 启动页面
+         * @param {boolean} [initLayout=false] - 是否初始化布局
+         * @fires Application#appStarted
          */
-        core.app = app;
+        start: function () {
+            this.createComponent('router', coreLib.AppRouter);
+            coreLib.history.start({ pushState: false });
+            /**
+             * **消息：** 应用程序页面启动完成
+             * @event Application#appStarted
+             */
+            this.pub('appStarted');
+        },
+        /**
+         * 停止应用程序
+         */
+        stop: function () {
+            this.sandbox.stop();
+        },
+        /**
+         * 使用用户扩展
+         * @param {Function} ext - 扩展函数
+         * @returns {Object} this
+         * @example
+         *  var extension = function(app){
+         *      app.ext.sayHello = function(){
+         *          alert('hello world');
+         *      }
+         *  }
+         *  app.use(extension);
+         */
+        use: function (ext) {
+            var me = this;
+            if (!_.isArray(ext)) {
+                ext = [ext];
+            }
+            $.each(ext, function (i, func) {
+                func(me, Application);
+            });
+            return this;
+        },
+        /**
+         * 应用程序广播事件，它会在广播时自动附加应用程序名
+         * @param {string} name 消息名称
+         * @param {...unknowned} args  消息参数
+         */
+        pub: function () {
+            var args = Array.prototype.slice.call(arguments);
+            // args[0] = args[0] + '.' + this.name;
+            args.push(this.name);
+            this.sandbox.emit.apply(this.sandbox, args);
+        },
+        sub: function (name, callback) {
+            this.sandbox.on(name, callback);
+        },
+        createComponent: function (name, ctor, options) {
+            var me = this;
+            options = extend({
+                app: me
+            }, me.config[name], options);
+            var component = new ctor(options);
+            if (name != null) {
+                me[name] = component;
+            }
+            return component;
+        },
+        createProvider: function (name, ctor, options) {
+            if (ctor == null) {
+                ctor = coreLib.AppProvider;
+            }
+            if (typeof ctor === 'object') {
+                ctor = coreLib.AppProvider.extend(ctor);
+            }
+            return this.createComponent(name, ctor, options);
+        }
+    })
 
-        app.sandbox = app.sandboxes.create(app.name, core.enums.hostType.APP);
-
-        if (app.config.global) { window.__verApp = app; }
-
-        return app;
-    };
-
-    return core;
+    return Application;
 });
 
 define('veronica',[
-    './app/index'
-], function (core) {
+    './core/index',
+    './application'
+], function (coreLib, Application) {
 
     'use strict';
 
-    return core;
+    // entry method
+    coreLib.createApp = function (options) {
+        if (window.__verApp) {
+            window.__verApp.stop();
+        }
+        var app = new Application(options);
+        if (app.config.global) {
+            window.__verApp = app;
+        }
+        return app;
+    }
+
+    return coreLib;
 });
 
     //Register in the values from the outer closure for common dependencies
@@ -6885,7 +6564,7 @@ define('veronica',[
         return $;
     });
 
-    define('underscore', function(){
+    define('lodash', function(){
         return _;
     });
 

@@ -30,13 +30,13 @@ module.exports = function (grunt) {
                     "baseUrl": "lib",
                     "paths": {
                         "veronica": "main",
-                        'underscore': 'empty:',
+                        'lodash': 'empty:',
                         'jquery': 'empty:',
                         'eventemitter': '../node_modules/eventemitter2/lib/eventemitter2',
                         'text': '../node_modules/requirejs-text/text'
                     },
                     "include": ["../node_modules/almond/almond", "veronica"],
-                    "exclude": ["jquery", "underscore", "text"],
+                    "exclude": ["jquery", "lodash", "text"],
                     "out": "dist/veronica.js",
                     "wrap": {
                         "startFile": "tools/wrap.start",

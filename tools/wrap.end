@@ -4,7 +4,7 @@
         return $;
     });
 
-    define('underscore', function(){
+    define('lodash', function(){
         return _;
     });
 
