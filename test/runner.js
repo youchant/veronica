@@ -4,7 +4,7 @@ var should;
 require.config({
     baseUrl: './',
     paths: {
-        'underscore': '../bower_components/underscore/underscore',
+        'lodash': '../bower_components/lodash/dist/lodash',
         'jquery': '../bower_components/jquery/dist/jquery',
         'eventemitter': '../bower_components/eventemitter2/lib/eventemitter2',
         'text': '../bower_components/requirejs-text/text',
@@ -14,7 +14,6 @@ require.config({
         'veronica': '../dist/veronica'
     },
     shim: {
-        'underscore': { 'exports': '_' },
         'jquery': { 'exports': 'jquery' },
         'sinon': { 'exports': 'sinon' }
     }
@@ -33,7 +32,7 @@ define(['chai'], function (chai) {
     });
 
     require([
-        'main-spec'
+        'specs/index'
     ], function () {
         mocha.run();
     });
