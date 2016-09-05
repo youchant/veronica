@@ -11,12 +11,17 @@ require.config({
         'css': '../bower_components/require-css/css',
         'chai': '../node_modules/chai/chai',
         'sinon': '../node_modules/sinon/pkg/sinon',
-        'veronica': '../dist/veronica'
+        // 'veronica': '../dist/veronica'
     },
     shim: {
         'jquery': { 'exports': 'jquery' },
         'sinon': { 'exports': 'sinon' }
-    }
+    },
+    packages: [{
+        name: 'veronica',
+        location: '../lib',
+        main: 'main'
+    }]
 });
 
 define(['chai'], function (chai) {

@@ -666,7 +666,7 @@ define('core/base/lodashExt/request',[
             }
         });
 
-        return _.whenSingleResult.apply(_, requests);
+        return _.whenAjax.apply(_, requests);
     }
 
     var isChromeFrame = function () {
@@ -713,7 +713,7 @@ define('core/base/lodashExt/util',[
     'use strict';
 
     // use lodash methods:
-    // _.get, _.set, 
+    // _.get, _.set,
 
     function mixinIt(name, func) {
         var obj = {};
@@ -749,8 +749,11 @@ define('core/base/lodashExt/util',[
     // Object
 
     mixinIt('safeInvoke', function (context, method, params) {
-        var args = Array.slice.call(arguments, 2);
-        context && context[method].apply(context, args);
+        if(context && context[method]){
+            var args = Array.prototype.slice.call(arguments, 2);
+            return context[method].apply(context, args);
+        }
+        return null;
     })
 
 
@@ -760,13 +763,21 @@ define('core/base/lodashExt/util',[
      * 将字符串转换成反驼峰表示
      * @function
      */
-    mixinIt('decamelize', function (camelCase, delimiter) {
-        delimiter = (delimiter === undefined) ? '_' : delimiter;
-        return camelCase.replace(/([A-Z])/g, delimiter + '$1').toLowerCase();
+    mixinIt('decamelize', function (str, sep) {
+        if (typeof str !== 'string') {
+            throw new TypeError('Expected a string');
+        }
+
+        sep = typeof sep === 'undefined' ? '_' : sep;
+
+        return str
+            .replace(/([a-z\d])([A-Z])/g, '$1' + sep + '$2')
+            .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1' + sep + '$2')
+            .toLowerCase();
     })
 
     mixinIt('normalizePath', function (path) {
-        return path.replace('//', '/').replace('http:/', 'http://');
+        return path.replace(/(\/+)/g, '/').replace('http:/', 'http://');
     })
 
     /**
@@ -787,12 +798,7 @@ define('core/base/lodashExt/util',[
 
 
     // Function
-
-    mixinIt('callArguments', function (func, args, context) {
-        return func.apply(context || this, Array.prototype.slice.call(args));
-    })
-
-
+    
     // thx: https://github.com/goatslacker/get-parameter-names/blob/master/index.js
     var COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
     var DEFAULT_PARAMS = /=[^,]+/mg;
@@ -813,7 +819,7 @@ define('core/base/lodashExt/util',[
 
     // Deferred
 
-    mixinIt('whenSingleResult', function () {
+    mixinIt('whenAjax', function () {
         var inputDeferreds = Array.prototype.slice.call(arguments);
         var deferred = $.Deferred();
         $.when.apply($, inputDeferreds).done(function () {
@@ -5787,7 +5793,7 @@ define('app/attrProvider',[], function () {
                         return _.qs(1).get(opt.sourceKey);
                     }
                 }
-                // ������ѯ�ַ����ı�
+                // 监听查询字符串改变
                 view.sub('qs-changed', function (obj) {
                     var value = obj[options.sourceKey];
                     var originalValue = view.attr(options.name);
@@ -5841,6 +5847,7 @@ define('app/data',[], function () {
              * 设置数据
              * @param {string} name - 名称
              * @param {*} value - 值
+             * @param {boolean} emit - 是否发送消息
              */
             set: function (name, value, emit) {
                 var app = this.app();
@@ -5936,6 +5943,7 @@ define('app/i18n',[], function () {
          */
         app.createProvider('i18n');
 
+        // 默认使用中文
         app.i18n.add('default', {
             /** 对话框标题 */
             defaultDialogTitle: '对话框',
@@ -6036,7 +6044,7 @@ define('app/module',[
 
         /**
          * @name module
-         * @type {veronica.ModuleHandler}
+         * @type {veronica.ModuleManager}
          * @memberOf veronica.Application#
          */
         app.createProvider('module');
@@ -6381,9 +6389,6 @@ define('application',[
         initialize: function (options) {
             var defaultOptions = {
                 name: 'app',
-                widget: {
-                    autoParseContext: false,
-                },
                 autoBuildPage: false,  // 自动生成页面配置
                 autoParseWidgetName: false,  // 自动解析 widget 名称
                 autoParseContext: false,
@@ -6396,7 +6401,6 @@ define('application',[
                 page: {
                     autoResolvePage: false,
                     autoBuild: false,
-                    homePage: 'home',
                     defaultConfig: {
                         layout: 'default',
                         inherits: ['_common']
@@ -6456,9 +6460,9 @@ define('application',[
             this.sandbox = this.sandboxes.create(this.name, SANDBOX_TYPE_APP);
         },
         /**
-         * 启动页面
-         * @param {boolean} [initLayout=false] - 是否初始化布局
+         * 启动应用程序，开始页面路由
          * @fires Application#appStarted
+         * @returns {void}
          */
         start: function () {
             this.createComponent('router', coreLib.AppRouter);
@@ -6476,8 +6480,8 @@ define('application',[
             this.sandbox.stop();
         },
         /**
-         * 使用用户扩展
-         * @param {Function} ext - 扩展函数
+         * 使用扩展
+         * @param {function} ext - 扩展函数
          * @returns {Object} this
          * @example
          *  var extension = function(app){
@@ -6511,6 +6515,13 @@ define('application',[
         sub: function (name, callback) {
             this.sandbox.on(name, callback);
         },
+        /**
+         * 创建组件
+         * @param {string} name - 名称
+         * @param {function} ctor - 构造器
+         * @param {Object} [options] - 初始化参数
+         * @returns {Object}
+         */
         createComponent: function (name, ctor, options) {
             var me = this;
             options = extend({
@@ -6522,6 +6533,13 @@ define('application',[
             }
             return component;
         },
+        /**
+         * 创建提供者组件
+         * @param {string} name - 名称
+         * @param {function} [ctor=AppProvider] - 构造器
+         * @param {Object} options - 调用参数
+         * @returns {*|Object}
+         */
         createProvider: function (name, ctor, options) {
             if (ctor == null) {
                 ctor = coreLib.AppProvider;
