@@ -1,5 +1,5 @@
 /*!
- * Veronica v1.0.5
+ * Veronica v2.0.0-alpha
  *
  * http://gochant.github.io/veronica
  *
@@ -1191,6 +1191,7 @@ define('core/base',[
             func.apply(this, Array.prototype.slice.call(args));
         },
         _extend: function (obj) {
+            var me = this;
             obj.options && $.extend(this._defaults, obj.options);
             obj.configs && $.extend(this, obj.configs);
             obj.methods && $.extend(this, obj.methods);
@@ -1199,7 +1200,7 @@ define('core/base',[
             if (obj.props) {
                 this._extendMethod('_initProps', function () {
                     _.each(obj.props, function (prop, name) {
-                        this[name] = prop;
+                        me[name] = prop;
                     });
                 });
             }
@@ -4372,6 +4373,9 @@ define('app/viewEngine',[], function () {
             create: function (data) {
                 return data;
             },
+            bindEvents: function (vm, view) {
+
+            },
             get: function () {
 
             },
@@ -5388,9 +5392,6 @@ define('app/view/children',[],function () {
 
             // 创建视图
             _createView: function (view, name) {
-                if (_.isFunction(view)) {  // 方法
-                    view = view.apply(this);
-                }
 
                 if (view.cid) {  // 视图对象
                     view._name = name;
@@ -5398,6 +5399,13 @@ define('app/view/children',[],function () {
                 }
 
                 var viewConfig = view;
+                if (_.isFunction(view)) {  // 方法
+                    viewConfig = view.apply(this);
+                }
+
+                if (_.isString(viewConfig.initializer)) {
+                    viewConfig.initializer = app.widget._localWidgetExes[viewConfig.initializer];
+                }
                 // 确保 initializer 是个方法
                 var viewInitializer = app.view.define(viewConfig.initializer, true);
                 var viewOptions = $.extend({}, viewConfig.options) || {};
@@ -5809,6 +5817,7 @@ define('app/view/mvvm',[],function () {
              * @returns {object} 视图模型对象
              */
             model: function (data, autoBind) {
+                var me = this;
                 if (!_.isUndefined(data)) {
 
                     if (_.isString(data) && this._viewModel) {
@@ -5827,19 +5836,9 @@ define('app/view/mvvm',[],function () {
                         this._viewModel = this._createViewModel($.extend({}, baseModel, data));
                     }
 
-
                     // delegate model events
-                    var vm = this._viewModel;
-                    if (me.modelChanged) {
-                        vm.bind('change', function (e) {
-                            var handler = me.modelChanged[e.field];
-                            if (handler == null) {
-                                handler = me.modelChanged['defaults'] || $.noop;
-                            }
+                    this._viewEngine().bindEvents(me._viewModel, me);
 
-                            me._invoke(handler, vm, e);
-                        });
-                    }
                     this.delegateModelEvents(this._viewModel);
 
                     this.trigger('modelInit', this._viewModel);
@@ -5885,7 +5884,9 @@ define('app/view/mvvm',[],function () {
         });
 
         base._extendMethod('_setup', function () {
-            this.model({});  // 该视图的视图模型
+            if (this.model() == null) {
+                this.model({});  // 该视图的视图模型
+            }
         })
 
         base._extendMethod('_listen', function () {
@@ -6131,7 +6132,7 @@ define('app/view',[
             var ctor;
 
             if (_.isObject(obj) && !_.isFunction(obj)) {  // 普通对象
-                var newObj = $.extend({}, app.view.base);
+                var newObj = $.extend(true, {}, app.view.base);
                 var myInherits = obj.inherits || newObj.inherits;
                 if (myInherits) {
                     inherits = inherits.concat(myInherits(app));
@@ -6298,22 +6299,22 @@ define('app/widget',[
              * 本地 widget 初始化器
              * @private
              */
-            _localWidgetExes: {},
+            _declarationPool: {},
             /**
              * 所有部件引用
              * @private
              */
-            _widgetsPool: {},
+            _runningPool: {},
             /**
              * 当前活动的部件配置列表
              * @private
              */
-            _currWidgetList: [],
+            _currBatchList: [],
             /**
              * 上一页部件配置列表
              * @private
              */
-            _oldWidgetList: [],
+            _lastBatchList: [],
             /**
              * 当前批部件是否正在加载
              */
@@ -6321,11 +6322,11 @@ define('app/widget',[
         };
 
         function hasLocal(name) {
-            return !!app.widget._localWidgetExes[name];
+            return !!app.widget._declarationPool[name];
         }
 
         function getLocal(name) {
-            return app.widget._localWidgetExes[name];
+            return app.widget._declarationPool[name];
         }
 
 
@@ -6333,11 +6334,11 @@ define('app/widget',[
          * 注册 widget 为 本地 widget
          */
         widget.register = function (name, execution) {
-            app.widget._localWidgetExes[name] = execution;
+            app.widget._declarationPool[name] = execution;
         };
 
         /**
-         * 获取 widge package 路径
+         * 从配置中 package 路径
          * @private
          */
         widget._getPackagesFrom = function (configs, normalized) {
@@ -6349,12 +6350,12 @@ define('app/widget',[
                     config = widget.normalizeConfig(config);
                 }
                 var name = config.name;
-                var src = config.options._source;
-                var isRelease = core.getConfig().debug === false;
-                var location = app.config.releaseWidgetPath + '/' + name;
+                var context = config.options._source;
+                var isDebug = app.env.isDebug();
+                var location = app.config.releaseWidgetPath + '/' + name;  // release widget
 
-                if (!isRelease) {
-                    var mod = app.module.get(src);
+                if (isDebug) {
+                    var mod = app.module.get(context);
                     location = mod.resolveLocation(name);
                 }
 
@@ -6381,17 +6382,24 @@ define('app/widget',[
             require.config(config);
         };
 
-        // 推测 source
-        widget.deduceSource = function (nameTag) {
-            if (app.config.autoParseSource) {
-                return nameTag.split('-')[0];
+        /**
+         * 从名称推测 context
+         * @param {string} name - 名称
+         * @returns {string} context 名称
+         */
+        widget.parseContext = function (name) {
+            if (app.config.autoParseContext) {
+                return name.split('-')[0];
             }
             return null;
         }
 
         /**
          * 加载单个 widget
-         * @private
+         * @param {string} name - 名称
+         * @param {object} options - 传入参数
+         * @param {string} page - 所属页面名称
+         * @returns {Deferred}
          */
         widget.load = function (name, options, page) {
             var dfd = $.Deferred();
@@ -6417,7 +6425,7 @@ define('app/widget',[
                   .done(function (name, executors) {
                       var executor = executors;
                       if (_.isArray(executor)) {
-                          executor = executors[0];  // 如果加载了多个，取第一个(plugin 遗留写法)
+                          executor = executors[0];
                       }
                       dfd.resolve(executor, options);
                   }).fail(function (err) {
@@ -6464,14 +6472,14 @@ define('app/widget',[
             }
 
             // resolve name expression
-            var pattern = /([\w|-]+)@?([\w|-]*)(?:=>)?(.*)/;
-            var nameParts = pattern.exec(config.name);
+            var namePattern = /([\w|-]+)@?([\w|-]*)(?:=>)?(.*)/;
+            var nameFragmentArray = namePattern.exec(config.name);
 
-            config.name = nameParts[1];
+            config.name = nameFragmentArray[1];
             config.options._source = config.options._source ||
-                nameParts[2] || app.widget.deduceSource(config.name) || 'default';
+                nameFragmentArray[2] || app.widget.parseContext(config.name) || 'default';
             config.options.host = config.options.host ||
-                nameParts[3] || appConfig.widget.defaultHost;
+                nameFragmentArray[3] || appConfig.widget.defaultHost;
 
             return config;
         }
@@ -6570,7 +6578,12 @@ define('app/widget',[
         // 验证页面是否匹配
         widget.isValid = function (page) {
             return !page || !app.page || app.page.isCurrent(page);
-        },
+        }
+
+        widget.isSame = function (config1, config2) {
+
+        }
+
         /**
          * 扫描某个宿主元素下的所有插件，对不在插件列表中插件进行删除
          * @param {string|DOM|jQueryObject} 宿主对象
@@ -6581,7 +6594,7 @@ define('app/widget',[
             if (!host) return;
             if (force == null) { force = false; }
 
-            var hostExpectList = _.filter(app.widget._currWidgetList, function (config) {
+            var hostExpectList = _.filter(app.widget._currBatchList, function (config) {
                 return config.options.host === host;
             });
             var hostActualList = me.findDom($(host));
@@ -6610,22 +6623,29 @@ define('app/widget',[
         widget._cacheList = function (list, page) {
             // 当切换页面时候，缓存老部件列表
             if (page) {
-                widget._oldWidgetList = widget._currWidgetList;
-                widget._currWidgetList = list;
+                widget._lastBatchList = widget._currBatchList;
+                widget._currBatchList = list;
             } else {
-                widget._currWidgetList = widget._currWidgetList.concat(list);
+                widget._currBatchList = widget._currBatchList.concat(list);
             }
         }
 
         // 是否允许该配置的 widget 加载
         widget._allowLoad = function (config) {
             var options = config.options || {};
-            var host = options.host;
             var widgetName = config.name;
-            var noSameNameWidget = $(host).find('.' + widgetName).length === 0;  // 该宿主下没有同样名称的 widget
+            if (widgetName === 'empty') {
+                return true;
+            }
 
-            // 判别是否是完全相同的部件
-            var allSame = _.find(app.widget._oldWidgetList, function (oldConfig) {
+            // 该宿主下没有同样名称的 widget
+            var noSameNameWidget = $(options.host).find('.' + widgetName).length === 0;
+            if (noSameNameWidget) {
+                return true;
+            }
+
+            // 判别是否存在完全相同的部件
+            var hasSame = !!_.find(app.widget._lastBatchList, function (oldConfig) {
                 var sameName = oldConfig.name === config.name;
                 var sameTag = oldConfig.options._tag === config.options._tag;
                 var sameHost = oldConfig.options.host === config.options.host;
@@ -6634,13 +6654,12 @@ define('app/widget',[
                 return sameName && sameTag && sameHost && sameEl;
             });
 
-            return widgetName !== 'empty' &&
-                        (noSameNameWidget || !allSame);
+            return !hasSame;
         }
 
         // 添加
         widget.add = function (wg) {
-            widget._widgetsPool[wg.options.sandbox._id] = wg;
+            widget._runningPool[wg.options.sandbox._id] = wg;
         }
 
         // 创建
@@ -6650,13 +6669,13 @@ define('app/widget',[
 
         // 获取
         widget.get = function (id) {
-            return widget._widgetsPool[id];
+            return widget._runningPool[id];
         }
 
         // 移除
         widget.remove = function (id) {
-            app.widget._widgetsPool[id] = null;
-            delete app.widget._widgetsPool[id];
+            app.widget._runningPool[id] = null;
+            delete app.widget._runningPool[id];
         }
 
         widget.findDom = function ($context) {
