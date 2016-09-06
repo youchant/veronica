@@ -1,5 +1,7 @@
 define([
-    './base/_ext'
+    './base',
+    './_ext',
+    './component'
 ], function(){
 
 })

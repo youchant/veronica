@@ -91,10 +91,35 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
         })
 
         describe('_.querystring', function () {
-            it('test1', function () {
-                expect(2).to.be.a('number');
+
+            it('get', function(){
+                var target = _.qs('?a=sccd&b=1');
+                expect(target.get('a')).to.equal('sccd');
+                expect(target.get('b')).to.equal('1');
             })
-        })
+
+            it('set', function () {
+                var target = _.qs('?a=sccd&b=1');
+                var actual1 = target.set('a', 2);
+                var actual2 = target.set('c', 3);
+                var actual3 = target.set({
+                    b: 'zz',
+                    c: 'dd'
+                });
+                expect(actual1).to.equal('?a=2&b=1');
+                expect(actual2).to.equal('?a=sccd&b=1&c=3');
+                expect(actual3).to.equal('?a=sccd&b=zz&c=dd');
+            })
+
+            it('toJSON', function(){
+                var target = _.qs('?a=sccd&b=1');
+                var actual1 = target.toJSON();
+                expect(actual1).to.deep.equal({
+                    a: 'sccd',
+                    b: '1'
+                })
+            })
+        });
 
         describe('_.request', function () {
             it('test1', function () {
