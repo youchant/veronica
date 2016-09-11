@@ -11,6 +11,7 @@ require.config({
         'css': '../bower_components/require-css/css',
         'chai': '../node_modules/chai/chai',
         'sinon': '../node_modules/sinon/pkg/sinon',
+        'sinon-chai': '../node_modules/sinon-chai/lib/sinon-chai'
         // 'veronica': '../dist/veronica'
     },
     shim: {
@@ -27,8 +28,8 @@ require.config({
 define(['chai'], function (chai) {
     window.chai = chai;
     window.expect = chai.expect;
-    window.assert = chai.assert;
-    window.should = chai.should();
+    // window.assert = chai.assert;
+    // window.should = chai.should();
     window.notrack = true;
 
     mocha.setup({

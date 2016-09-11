@@ -43,6 +43,7 @@
     "mocha": "^2.2.5",
     "requirejs": "^2.1.18",
     "requirejs-text": "^2.0.12",
-    "sinon": "latest"
+    "sinon": "latest",
+    "sinon-chai": "^2.8.0"
   }
 }
