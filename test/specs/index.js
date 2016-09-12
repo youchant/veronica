@@ -1,7 +1,8 @@
 define([
     './base',
     './_ext',
-    './component'
+    './component',
+    './widget'
 ], function(){
-
-})
+    return {};
+});

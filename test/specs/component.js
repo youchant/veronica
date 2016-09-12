@@ -313,123 +313,109 @@ define(['chai', 'sinon', 'sinon-chai', 'veronica'],
                 })
             })
 
-            describe('Sandbox', function () {
-                var app;
-                var target;
-                var noop = function(){};
+            // describe('Sandbox', function () {
+            //     var app;
+            //     var target;
+            //     var noop = function(){};
+            //
+            //     beforeEach(function () {
+            //         app = veronica.createApp();
+            //         target = new veronica.Sandbox({
+            //             app: app,
+            //             name: 'test',
+            //             _ownerType: 'widget'
+            //
+            //         })
+            //     });
+            //
+            //     it('has properties', function(){
+            //
+            //     });
+            //
+            //     it('log', function(){
+            //         var logStub = app.logger.log = sinon.spy();
+            //         var warnStub = app.logger.warn = sinon.spy();
+            //         var errortub = app.logger.error = sinon.spy();
+            //         var infoStub = app.logger.info = sinon.spy();
+            //         var setNameStub = app.logger.setName = sinon.spy();
+            //
+            //         target.log('xxx');
+            //         expect(logStub).to.have.been.calledWith('xxx');
+            //         expect(setNameStub).to.have.been.calledWith('widget(test)');
+            //         expect(setNameStub).to.have.been.calledWith();
+            //
+            //         // 支持复合参数
+            //         var args = ['xxx', {}];
+            //         target.log(args);
+            //         expect(logStub).to.have.been.calledWith('xxx', {});
+            //
+            //         target.log('xxx', 'warn');
+            //         expect(warnStub).to.have.been.called;
+            //
+            //         target.log('xxx', 'error');
+            //         expect(errortub).to.have.been.called;
+            //
+            //         target.log('xxx', 'info');
+            //         expect(infoStub).to.have.been.called;
+            //     });
+            //
+            //     it('emit', function(){
+            //         var stub = app.mediator.emit = sinon.spy();
+            //
+            //         target.emit({
+            //             _target: 'children'
+            //         });
+            //
+            //         expect(stub).to.have.been.calledWith({
+            //             _target: 'children',
+            //             _senderId: target._id
+            //         });
+            //
+            //         target.emit('xxx')
+            //         expect(stub).to.have.been.calledWith('xxx');
+            //
+            //         // 正加载时，会延迟执行
+            //         var pushStub = app.emitQueue.push = sinon.spy();
+            //
+            //         app.widget._isLoading = true;
+            //         target.emit('xx');
+            //         expect(pushStub).to.have.been.called;
+            //         app.widget._isLoading = false;
+            //
+            //         // 会记日志
+            //         var logStub = target.log = sinon.spy();
+            //         target.emit('xx');
+            //         expect(logStub).to.have.been.called;
+            //
+            //
+            //     });
+            //
+            //     it('on', function(){
+            //
+            //     });
+            // })
+            //
+            // describe('SandboxManager', function () {
+            //     var app;
+            //     var target;
+            //     var noop = function(){};
+            //
+            //     beforeEach(function () {
+            //         app = veronica.createApp();
+            //         target = new veronica.SandboxManager({
+            //             app: app,
+            //             name: 'test',
+            //             _ownerType: 'widget'
+            //
+            //         })
+            //     });
+            //
+            //     it('create', function(){
+            //        var stub = target.add = spy.spy();
+            //         var actual = target.create();
+            //
+            //     })
+            // })
 
-                beforeEach(function () {
-                    app = veronica.createApp();
-                    target = new veronica.Sandbox({
-                        app: app,
-                        name: 'test',
-                        _ownerType: 'widget'
-
-                    })
-                });
-
-                it('has properties', function(){
-
-                });
-
-                it('log', function(){
-                    var logStub = app.logger.log = sinon.spy();
-                    var warnStub = app.logger.warn = sinon.spy();
-                    var errortub = app.logger.error = sinon.spy();
-                    var infoStub = app.logger.info = sinon.spy();
-                    var setNameStub = app.logger.setName = sinon.spy();
-
-                    target.log('xxx');
-                    expect(logStub).to.have.been.calledWith('xxx');
-                    expect(setNameStub).to.have.been.calledWith('widget(test)');
-                    expect(setNameStub).to.have.been.calledWith();
-
-                    // 支持复合参数
-                    var args = ['xxx', {}];
-                    target.log(args);
-                    expect(logStub).to.have.been.calledWith('xxx', {});
-
-                    target.log('xxx', 'warn');
-                    expect(warnStub).to.have.been.called;
-
-                    target.log('xxx', 'error');
-                    expect(errortub).to.have.been.called;
-
-                    target.log('xxx', 'info');
-                    expect(infoStub).to.have.been.called;
-                });
-
-                it('emit', function(){
-                    var stub = app.mediator.emit = sinon.spy();
-
-                    target.emit({
-                        _target: 'children'
-                    });
-
-                    expect(stub).to.have.been.calledWith({
-                        _target: 'children',
-                        _senderId: target._id
-                    });
-
-                    target.emit('xxx')
-                    expect(stub).to.have.been.calledWith('xxx');
-
-                    // 正加载时，会延迟执行
-                    var pushStub = app.emitQueue.push = sinon.spy();
-
-                    app.widget._isLoading = true;
-                    target.emit('xx');
-                    expect(pushStub).to.have.been.called;
-                    app.widget._isLoading = false;
-
-                    // 会记日志
-                    var logStub = target.log = sinon.spy();
-                    target.emit('xx');
-                    expect(logStub).to.have.been.called;
-
-
-                });
-
-                it('on', function(){
-
-                });
-            })
-
-            describe('SandboxManager', function () {
-                var app;
-                var target;
-                var noop = function(){};
-
-                beforeEach(function () {
-                    app = veronica.createApp();
-                    target = new veronica.SandboxManager({
-                        app: app,
-                        name: 'test',
-                        _ownerType: 'widget'
-
-                    })
-                });
-
-                it('create', function(){
-                   var stub = target.add = spy.spy();
-                    var actual = target.create();
-
-                })
-            })
-
-            describe('WidgetManager', function(){
-                var app;
-                var target;
-                var noop = function(){};
-
-                beforeEach(function () {
-                    app = veronica.createApp();
-                    target = new veronica.WidgetManager({
-                        app: app
-                    })
-                });
-
-                it('register')
-            })
         })
     });
