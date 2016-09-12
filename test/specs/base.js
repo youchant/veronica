@@ -5,6 +5,33 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
 
     describe('BaseLib', function () {
 
+        describe('Klass', function(){
+            it('#bug: deep combine null props throw exception', function(){
+               var base = veronica.klass({
+                    options: {
+                        a: null,
+                        b: {}
+                    }
+                })
+                var sub = base.extend({
+                    options:  {
+                        c: 1,
+                        a: '1'
+                    }
+                })
+
+                var actual = new sub();
+
+                expect(actual.options).to.eql({
+                    a: '1',
+                    b: {},
+                    c: 1
+                })
+            })
+
+
+        })
+
         describe('ClassBase', function () {
             var target;
             beforeEach(function () {
