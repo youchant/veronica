@@ -5,6 +5,10 @@ define([
     chai.use(sinonChai);
     var _ = veronica._;
     var $ = veronica.$;
+    
+    describe('App - Widget', function(){
+        
+    })
 
     describe('App - WidgetManager', function () {
         var app;
@@ -87,7 +91,7 @@ define([
             }])
         });
 
-        it('_isCurrBatch', function(){
+        it('_isCurrBatch', function () {
             var stub = app.page.isCurrent = sinon.stub().returns(false);
 
             var actual = target._isCurrBatch('xx');
@@ -98,6 +102,77 @@ define([
 
         });
 
+        it('start', function () {
 
+        });
+
+        it('clearDom', function () {
+
+        });
+
+        it('_updateCurrConfigList', function () {
+            target._updateCurrConfigList(['xxx']);
+            expect(target._currBatchConfigList).to.eql(['xxx']);
+
+            target._updateCurrConfigList(['xxx2'], 'tt');
+            expect(target._lastBatchConfigList).to.eql(['xxx']);
+            expect(target._currBatchName).to.eql('tt');
+            expect(target._currBatchConfigList).to.eql(['xxx2']);
+        });
+
+        it('_allowStart', function () {
+            target._lastBatchConfigList = [{
+                name: 'xx',
+                xtype: 'yy',
+                options: {
+                    _hostNode: 'zz'
+                }
+            }];
+
+            var actual1 = target._allowStart({
+                name: 'z'
+            });
+            expect(actual1).to.be.true;
+
+            var actual2 = target._allowStart({
+                name: 'xx',
+                xtype: 'yy'
+            });
+            expect(actual2).to.be.true;
+
+            var actual3 = target._allowStart({
+                name: 'xx',
+                xtype: 'yy',
+                options: {
+                    _hostNode: 'zz'
+                }
+            });
+            expect(actual3).to.be.false;
+
+        });
+
+        it('getByDom', function () {
+
+        });
+
+        it('findDom', function () {
+
+        });
+
+        it('stop', function () {
+
+        });
+
+        it('stopAll', function () {
+
+        });
+
+        it('stopByDom', function () {
+
+        });
+
+        it('recycle', function () {
+
+        });
     })
 });
