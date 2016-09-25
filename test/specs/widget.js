@@ -5,9 +5,26 @@ define([
     chai.use(sinonChai);
     var _ = veronica._;
     var $ = veronica.$;
-    
+
     describe('App - Widget', function(){
-        
+        var app;
+        var target;
+
+        beforeEach(function () {
+            app = new veronica.createApp();
+            target = new veronica.Widget.create(null, {
+                app: app
+            });
+        });
+
+        it('has props', function () {
+            expect(target._id).to.not.be.undefined;
+            expect(target._name).to.not.be.undefined;
+        });
+
+        it('has props', function () {
+        });
+
     })
 
     describe('App - WidgetManager', function () {
@@ -26,11 +43,6 @@ define([
             expect(target._currBatchName).to.be.null;
             expect(target._currBatchConfigList).to.eql([]);
             expect(target._lastBatchConfigList).to.eql([]);
-            expect(target._isLoading).to.be.false;
-        });
-
-        it('isLoading', function () {
-            expect(target.isLoading()).to.be.false;
         });
 
         it('normalizeConfig', function () {

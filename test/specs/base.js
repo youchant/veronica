@@ -29,6 +29,28 @@ define(['chai', 'sinon', 'veronica'], function (chai, sinon, veronica) {
                 })
             })
 
+            it('#bug: deep null props', function(){
+                var base = veronica.klass({
+                    options: {
+                        a: {},
+                        b: {}
+                    }
+                })
+                var sub = base.extend({
+                    options:  {
+                        c: 1,
+                        a: null
+                    }
+                })
+
+                var actual = new sub();
+
+                expect(actual.options).to.eql({
+                    a: null,
+                    b: {},
+                    c: 1
+                })
+            })
 
         })
 

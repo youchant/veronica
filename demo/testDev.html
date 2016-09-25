@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dev Visual Test Page</title>
+</head>
+<body>
+<div class="root"></div>
+<script src="../bower_components/requirejs/require.js"></script>
+<script>
+    require.config({
+        baseUrl: './',
+        paths: {
+            'lodash': '../bower_components/lodash/dist/lodash',
+            'jquery': '../bower_components/jquery/dist/jquery',
+            'eventemitter': '../bower_components/eventemitter2/lib/eventemitter2',
+            'text': '../bower_components/requirejs-text/text',
+            'css': '../bower_components/require-css/css',
+            // 'veronica': '../dist/veronica'
+        },
+        shim: {
+            'jquery': { 'exports': 'jquery' }
+        },
+        packages: [{
+            name: 'veronica',
+            location: '../lib',
+            main: 'main'
+        }]
+    });
+
+    require(['veronica'], function(veronica){
+        var app = veronica.createApp();
+
+        app.widget.register('test', {
+            template: 'hello world'
+        });
+
+        app.widget.start({
+            name: '(test)=>.root'
+        });
+    })
+</script>
+</body>
+</html>
