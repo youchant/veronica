@@ -31,11 +31,15 @@
     require(['veronica'], function(veronica){
         var app = veronica.createApp();
 
-        app.widget.register('test', {
-            template: 'hello world'
+        app.component.register('test', {
+            template: '<div>hello world</div><div data-ver-role="sub" data-ref="s"></div>'
         });
 
-        app.widget.start({
+        app.component.register('sub', {
+            template: '<h2>this is a sub component</h2>'
+        });
+
+        app.component.start({
             name: '(test)=>.root'
         });
     })
