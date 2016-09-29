@@ -19,7 +19,7 @@
             // 'veronica': '../dist/veronica'
         },
         shim: {
-            'jquery': { 'exports': 'jquery' }
+            'jquery': {'exports': 'jquery'}
         },
         packages: [{
             name: 'veronica',
@@ -28,20 +28,73 @@
         }]
     });
 
-    require(['veronica'], function(veronica){
+    require(['veronica'], function (veronica) {
         var app = veronica.createApp();
 
         app.component.register('test', {
-            template: '<div>hello world</div><div data-ver-role="sub" data-ref="s"></div>'
+            template: '<div>hello world</div>' +
+            '<button class="js-btn">点击</button>' +
+            '<div data-ver-role="sub" data-name="s"></div>',
+            events: {
+                dom: {
+                    'click .js-btn': function (e) {
+                        alert(e);
+                    }
+                },
+                bus: {
+                    'zoneChange': function (e) {
+                        console.log(e);
+                    }
+                },
+                cmp: {
+                    's haha': function (d) {
+                        console.log(d);
+                    }
+                }
+            },
+            defaultModel: function () {
+
+            },
+            setup: function () {
+                //  var data = this.get('vm:data').toJSON();
+                //  var sel = this.get('ui:user-list').select();
+            },
+            modelBound: function () {
+
+            },
+            rendered: function () {
+
+            },
+            destroyed: function () {
+
+            }
         });
 
         app.component.register('sub', {
-            template: '<h2>this is a sub component</h2>'
+            template: '<h2>this is a sub component <a href="#" class="js-xx">Send Msg</a> </h2>',
+            events: {
+                dom: {
+                    'click .js-xx': function (e) {
+                        e.preventDefault();
+                        this.trigger('haha', 'hhh');
+                    }
+                }
+            },
+            ready: function () {
+
+            }
         });
+
 
         app.component.start({
             name: '(test)=>.root'
         });
+
+        app.pub('zoneChange', {
+            msg: 'hehe'
+        });
+
+        // app.component.stopByDom('.root');
     })
 </script>
 </body>
