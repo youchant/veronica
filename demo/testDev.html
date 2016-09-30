@@ -30,15 +30,19 @@
 
     require(['veronica'], function (veronica) {
         var app = veronica.createApp();
+        var component = app.get('part:component');
 
-        app.component.register('test', {
+        component.register('test', {
+            options: {
+                autoStart: false
+            },
             template: '<div>hello world</div>' +
             '<button class="js-btn">点击</button>' +
             '<div data-ver-role="sub" data-name="s"></div>',
             events: {
                 dom: {
                     'click .js-btn': function (e) {
-                        alert(e);
+                        console.log(e);
                     }
                 },
                 bus: {
@@ -53,24 +57,24 @@
                 }
             },
             defaultModel: function () {
-
+                return {}
             },
             setup: function () {
                 //  var data = this.get('vm:data').toJSON();
                 //  var sel = this.get('ui:user-list').select();
             },
-            modelBound: function () {
+            ready: function () {
 
             },
-            rendered: function () {
-
+            bound: function () {
+                //this.get('part:app:component').start()
             },
             destroyed: function () {
 
             }
         });
 
-        app.component.register('sub', {
+        component.register('sub', {
             template: '<h2>this is a sub component <a href="#" class="js-xx">Send Msg</a> </h2>',
             events: {
                 dom: {
@@ -85,8 +89,7 @@
             }
         });
 
-
-        app.component.start({
+        component.start({
             name: '(test)=>.root'
         });
 
