@@ -39,8 +39,8 @@ module.exports = function (grunt) {
                     "exclude": ["jquery", "lodash", "text"],
                     "out": "dist/veronica.js",
                     "wrap": {
-                        "startFile": "tools/wrap.start",
-                        "endFile": "tools/wrap.end"
+                        "startFile": "build/wrap.start",
+                        "endFile": "build/wrap.end"
                     },
                     "optimize": "none"
                 }
@@ -68,11 +68,11 @@ module.exports = function (grunt) {
                 src: ['lib/**/*.js', 'README.md', '!lib/assets/**/*'],
                 options: {
                     verbose: true,
-                    destination: './site/api',
+                    destination: './docs/api',
                     configure: 'jsdoc-conf.json',
                     // template: 'node_modules/ink-docstrap/template',
-                    template: 'node_modules/jaguarjs-jsdoc-patched',
-                    'private': false
+                    template: 'node_modules/docdash',
+                    private: false
                 }
             }
         },
@@ -103,7 +103,7 @@ module.exports = function (grunt) {
         },
         mkdocs: {
             dist: {
-                src: './docs',
+                src: './lib/docs',
                 options: {
                     clean: true
                 }

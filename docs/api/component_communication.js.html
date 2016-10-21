@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>component/communication.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Application.html">Application</a><ul class='methods'><li data-type='method'><a href="Application.html#_descendant">_descendant</a></li><li data-type='method'><a href="Application.html#_initProps">_initProps</a></li><li data-type='method'><a href="Application.html#active">active</a></li><li data-type='method'><a href="Application.html#app">app</a></li><li data-type='method'><a href="Application.html#busy">busy</a></li><li data-type='method'><a href="Application.html#children">children</a></li><li data-type='method'><a href="Application.html#create">create</a></li><li data-type='method'><a href="Application.html#createPart">createPart</a></li><li data-type='method'><a href="Application.html#createProvider">createProvider</a></li><li data-type='method'><a href="Application.html#defaultModel">defaultModel</a></li><li data-type='method'><a href="Application.html#destroy">destroy</a></li><li data-type='method'><a href="Application.html#get">get</a></li><li data-type='method'><a href="Application.html#listen">listen</a></li><li data-type='method'><a href="Application.html#loader">loader</a></li><li data-type='method'><a href="Application.html#log">log</a></li><li data-type='method'><a href="Application.html#logger">logger</a></li><li data-type='method'><a href="Application.html#model">model</a></li><li data-type='method'><a href="Application.html#parent">parent</a></li><li data-type='method'><a href="Application.html#parents">parents</a></li><li data-type='method'><a href="Application.html#parseChildren">parseChildren</a></li><li data-type='method'><a href="Application.html#part">part</a></li><li data-type='method'><a href="Application.html#reset">reset</a></li><li data-type='method'><a href="Application.html#start">start</a></li><li data-type='method'><a href="Application.html#startChildren">startChildren</a></li><li data-type='method'><a href="Application.html#stop">stop</a></li><li data-type='method'><a href="Application.html#stopChildren">stopChildren</a></li><li data-type='method'><a href="Application.html#url">url</a></li><li data-type='method'><a href="Application.html#use">use</a></li></ul></li><li><a href="AppPart.html">AppPart</a><ul class='methods'><li data-type='method'><a href="AppPart.html#app">app</a></li><li data-type='method'><a href="AppPart.html#loader">loader</a></li><li data-type='method'><a href="AppPart.html#logger">logger</a></li></ul></li><li><a href="AppProvider.html">AppProvider</a><ul class='methods'><li data-type='method'><a href="AppProvider.html#add">add</a></li><li data-type='method'><a href="AppProvider.html#app">app</a></li><li data-type='method'><a href="AppProvider.html#get">get</a></li><li data-type='method'><a href="AppProvider.html#has">has</a></li><li data-type='method'><a href="AppProvider.html#loader">loader</a></li><li data-type='method'><a href="AppProvider.html#logger">logger</a></li><li data-type='method'><a href="AppProvider.html#remove">remove</a></li><li data-type='method'><a href="AppProvider.html#setDefault">setDefault</a></li></ul></li><li><a href="Component.html">Component</a><ul class='methods'><li data-type='method'><a href="Component.html#_descendant">_descendant</a></li><li data-type='method'><a href="Component.html#_initProps">_initProps</a></li><li data-type='method'><a href="Component.html#active">active</a></li><li data-type='method'><a href="Component.html#app">app</a></li><li data-type='method'><a href="Component.html#children">children</a></li><li data-type='method'><a href="Component.html#create">create</a></li><li data-type='method'><a href="Component.html#createPart">createPart</a></li><li data-type='method'><a href="Component.html#createProvider">createProvider</a></li><li data-type='method'><a href="Component.html#defaultModel">defaultModel</a></li><li data-type='method'><a href="Component.html#destroy">destroy</a></li><li data-type='method'><a href="Component.html#get">get</a></li><li data-type='method'><a href="Component.html#listen">listen</a></li><li data-type='method'><a href="Component.html#loader">loader</a></li><li data-type='method'><a href="Component.html#log">log</a></li><li data-type='method'><a href="Component.html#logger">logger</a></li><li data-type='method'><a href="Component.html#model">model</a></li><li data-type='method'><a href="Component.html#parent">parent</a></li><li data-type='method'><a href="Component.html#parents">parents</a></li><li data-type='method'><a href="Component.html#parseChildren">parseChildren</a></li><li data-type='method'><a href="Component.html#part">part</a></li><li data-type='method'><a href="Component.html#reset">reset</a></li><li data-type='method'><a href="Component.html#startChildren">startChildren</a></li><li data-type='method'><a href="Component.html#stop">stop</a></li><li data-type='method'><a href="Component.html#stopChildren">stopChildren</a></li><li data-type='method'><a href="Component.html#url">url</a></li></ul></li><li><a href="ComponentManager.html">ComponentManager</a><ul class='methods'><li data-type='method'><a href="ComponentManager.html#_updateCurrConfigList">_updateCurrConfigList</a></li><li data-type='method'><a href="ComponentManager.html#clearDom">clearDom</a></li><li data-type='method'><a href="ComponentManager.html#findDom">findDom</a></li><li data-type='method'><a href="ComponentManager.html#getByDom">getByDom</a></li><li data-type='method'><a href="ComponentManager.html#normalizeBatchConfig">normalizeBatchConfig</a></li><li data-type='method'><a href="ComponentManager.html#normalizeConfig">normalizeConfig</a></li><li data-type='method'><a href="ComponentManager.html#register">register</a></li><li data-type='method'><a href="ComponentManager.html#start">start</a></li><li data-type='method'><a href="ComponentManager.html#stop">stop</a></li></ul></li><li><a href="LayoutManager.html">LayoutManager</a><ul class='methods'><li data-type='method'><a href="LayoutManager.html#add">add</a></li><li data-type='method'><a href="LayoutManager.html#app">app</a></li><li data-type='method'><a href="LayoutManager.html#change">change</a></li><li data-type='method'><a href="LayoutManager.html#get">get</a></li><li data-type='method'><a href="LayoutManager.html#has">has</a></li><li data-type='method'><a href="LayoutManager.html#init">init</a></li><li data-type='method'><a href="LayoutManager.html#loader">loader</a></li><li data-type='method'><a href="LayoutManager.html#logger">logger</a></li><li data-type='method'><a href="LayoutManager.html#remove">remove</a></li><li data-type='method'><a href="LayoutManager.html#setDefault">setDefault</a></li></ul></li><li><a href="Observable.html">Observable</a><ul class='methods'><li data-type='method'><a href="Observable.html#on">on</a></li></ul></li><li><a href="PageManager.html">PageManager</a><ul class='methods'><li data-type='method'><a href="PageManager.html#change">change</a></li><li data-type='method'><a href="PageManager.html#getCurrName">getCurrName</a></li></ul></li><li><a href="veronica.Logger.html">Logger</a><ul class='methods'><li data-type='method'><a href="veronica.Logger.html#_time">_time</a></li><li data-type='method'><a href="veronica.Logger.html#enable">enable</a></li><li data-type='method'><a href="veronica.Logger.html#error">error</a></li><li data-type='method'><a href="veronica.Logger.html#info">info</a></li><li data-type='method'><a href="veronica.Logger.html#log">log</a></li><li data-type='method'><a href="veronica.Logger.html#setName">setName</a></li><li data-type='method'><a href="veronica.Logger.html#warn">warn</a></li></ul></li><li><a href="veronica.Page.html">Page</a></li><li><a href="veronica.QueryString.html">QueryString</a></li></ul><h3>Events</h3><ul><li><a href="Application.html#event:appStarted">appStarted</a></li><li><a href="Application.html#event:pageLoaded">pageLoaded</a></li><li><a href="Application.html#event:pageLoading">pageLoading</a></li><li><a href="Application.html#event:pageNotFound">pageNotFound</a></li><li><a href="Application_layout.html#.event:layoutChanged">layoutChanged</a></li><li><a href="Application_layout.html#.event:layoutChanging">layoutChanging</a></li><li><a href="Component.html#.event:componentsLoaded">componentsLoaded</a></li></ul><h3>Interfaces</h3><ul><li><a href="UIKit.html">UIKit</a><ul class='methods'><li data-type='method'><a href="UIKit.html#create">create</a></li><li data-type='method'><a href="UIKit.html#getInstance">getInstance</a></li><li data-type='method'><a href="UIKit.html#init">init</a></li></ul></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">component/communication.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>define([
+    '../base/index'
+], function (baseLib) {
+
+    var $ = baseLib.$;
+    var _ = baseLib._;
+    var noop = function () {};
+    var Deferred = $.Deferred;
+    var eventSplitter = /^(\S+)\s*(.*)$/;
+    var delegateEventSplitter = /^(\S+)\s*(.*)$/;
+
+    function Message(options) {
+        this._stop = false;
+        this._result = [];
+
+        Object.assign(this, {
+            flow: 'down',
+            data: null,
+            sender: null
+        }, options);
+
+    }
+
+    Message.prototype = {
+        stop: function () {
+            this._stop = false;
+        },
+        isStop: function () {
+            return this._stop;
+        }
+    };
+
+    return {
+        props: {
+            _messages: [],
+            _delayEvents: []
+        },
+        configs: {
+            events: {}
+        },
+        methods: {
+            _getEvents: function (type) {
+                var events = _.result(this, 'events');
+                return events[type];
+            },
+            _listenEventBus: function () {
+                var events = this._getEvents('bus');
+                var me = this;
+                _.each(events, function (listener, name) {
+                    me.sub(name, listener);
+                });
+            },
+            _listenComponent: function () {
+                var me = this;
+                var events = this._getEvents('cmp');
+                _.each(events, function (listener, name) {
+                    me.listenTo(name, listener);
+                });
+            },
+            delegateDOMEvents: function (domEvents) {
+                domEvents || (domEvents = this._getEvents('dom'));
+                if (!domEvents) {
+                    return this;
+                }
+
+                this.undelegateDOMEvents();
+                for (var key in domEvents) {
+                    var method = domEvents[key];
+                    if (!_.isFunction(method)) method = this[domEvents[key]];
+                    if (!method) continue;
+
+                    var match = key.match(delegateEventSplitter);
+                    var eventName = match[1], selector = match[2];
+                    method = _.bind(method, this);
+                    eventName += '.delegateEvents' + this._id;
+                    if (selector === '') {
+                        this.$el.on(eventName, method);
+                    } else {
+                        this.$el.on(eventName, selector, method);
+                    }
+                }
+                return this;
+            },
+            undelegateDOMEvents: function () {
+                this.$el.off('.delegateEvents' + this._id);
+                return this;
+            },
+            _listenToParent: function (event, handler) {
+                var app = this.app();
+                var me = this;
+                if (this._parent != null) {
+                    var parent = app.part('component').get(this._parent);
+                    me.listenTo(parent, event, handler);
+                }
+            },
+            /**
+             * 延迟监听子视图
+             * @private
+             * @param {string} name - 子视图名称
+             * @param {string} event - 事件名称
+             * @param {eventCallback} callback - 回调
+             */
+            _listenToChild: function (name, event, callback) {
+
+                this._delayEvents.push({
+                    name: name,
+                    event: event,
+                    callback: callback
+                });
+
+                // 如果已存在，则直接监听
+                if (this._findChild(name)) {
+                    this.listenTo(this._findChild(name), event, callback);
+                }
+            },
+            _listenToDelay: function (name, obj) {
+                var me = this;
+                // 取出延迟监听的事件，并进行监听
+                var events = _.filter(me._delayEvents, function (obj) {
+                    return obj.name === name;
+                });
+                _.each(events, function (evt) {
+                    me.listenTo(obj, evt.event, evt.callback);
+                });
+            },
+            /**
+             * 监听事件
+             * @param {object|string|array} sender - 事件的发送者，如果是字符串，则为视图的名称
+             * @param {string} event - 事件名称
+             * @param {eventCallback} callback - 回调
+             * @example
+             *  listen: funciton () {
+             *       this.listenTo('view', 'saved', function () {})
+             *       this.listenTo(this, 'selected', function () {})
+             *
+             *       // 可一次性监听多个
+             *       this.listenTo([
+             *         [this, 'selected'],
+             *         ['view', 'saved']
+             *       ], function () {
+             *
+             *       })
+             *   }
+             *
+             */
+            listenTo: function (sender, event, handler) {
+                var me = this;
+                if (_.isString(sender)) {
+                    if (handler == null) {
+                        handler = event;
+                        var match = eventSplitter.exec(sender);
+                        sender = match[1];
+                        event = match[2];
+                    }
+
+                    if (sender === 'parent') {
+                        me._listenToParent(event, handler);
+                        return;
+                    }
+                    if (sender === 'this') {
+                        me.listenTo(this, event, handler);
+                        return;
+                    }
+
+                    me._listenToChild(sender, event, handler);
+
+                    return;
+                }
+
+                // 一次性监听多组
+                if (!_.isString(event)) {
+                    var objEvents = sender;
+                    handler = event;
+                    _.each(objEvents, function (objEvent) {
+                        me.listenTo(objEvent[0], objEvent[1], handler);
+                    });
+                    return;
+                }
+
+                // 使用基础的 listenTo
+                this.supr.call(this, sender, event, handler);
+            },
+            _attachObserver: function (name, listener, listenerType) {
+                var mediator = this._mediator();
+                var context = this;
+
+                var callback = function (e) {
+                    return listener.call(context, e);
+                };
+
+                this._messages = this._messages || [];
+                this._messages.push({
+                    name: name,  // 消息名
+                    listener: listener,  // 原始回调方法
+                    callback: callback  // 绑定了 context的回调
+                });
+
+                mediator[listenerType](name, callback);
+            },
+            /**
+             * 发布消息
+             * @param {string} name 消息名
+             * @param {...*} msgParam 消息传递的参数
+             */
+            _pub: function (name, data, dfd) {
+                var me = this;
+                var mediator = this._mediator();
+                var promises = [];
+                var msg = new Message({
+                    sender: this,
+                    data: data
+                });
+                this.log(['emitted', name, msg]);
+                promises.push(mediator.trigger(name, msg));
+
+                $.when.apply(null, promises).then(function () {
+                    var resp = _.flatten(arguments);
+                    dfd.resolve(resp);
+                }, function (resp) {
+                    dfd.reject(resp);
+                })
+
+            },
+            /**
+             * 订阅消息
+             * @param {string} name 消息名
+             * @param {messageCallback} listener 消息订阅处理函数
+             */
+            sub: function (name, listener) {
+                this._attachObserver(name, listener, 'on');
+            },
+            /**
+             * 订阅一次
+             * @function
+             * @param {string} name - 名称
+             * @param {function} listener - 监听器
+             * @param {object} context - 执行监听器的上下文
+             * @param {string} tag - 监听标记，在移除时，可根据该标记进行识别
+             */
+            subOnce: function (name, listener) {
+                this._attachObserver(name, listener, 'once');
+            },
+            pub: function (name, data) {
+                var me = this;
+                var app = this.app();
+                var dfd = Deferred();
+                var pubFunc = _.bind(function(name, data, dfd){
+                    this._pub(name, data, dfd);
+                }, me, name, data, dfd);
+
+                // 延迟任务
+                if (app.busy()) {
+                    app.addTask(pubFunc);
+                } else {
+                    pubFunc();
+                }
+
+                return dfd.promise();
+            },
+            /**
+             * 取消该视图的所有消息订阅
+             */
+            unsub: function () {
+                var mediator = this._mediator();
+                var messages = this._messages;
+
+                if (!this._messages) {
+                    return;
+                }
+
+                _.each(messages, function (evt) {
+                    mediator.off(evt.name, evt.callback);
+                });
+            },
+            unsubOne: function (name, listener) {
+                var mediator = this.get('part:app:mediator');
+                if (!this._messages) {
+                    return;
+                }
+                this._messages = _.reject(this._events, function (evt) {
+                    var ret = (evt.name === name &amp;&amp; evt.listener === listener);
+                    if (ret) {
+                        mediator.off(name, evt.callback);
+                    }
+                    return ret;
+                });
+            }
+        }
+    };
+
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Oct 21 2016 18:11:58 GMT+0800 (China Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

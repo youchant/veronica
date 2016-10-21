@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>理解视图（1）——概览 - Veronica</title>
+  
+
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+
+  
+  <!--<link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>-->
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "topics\view"
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+  <script src="../../js/theme.js"></script> 
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Veronica</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">首页</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../changelog/">更新日志</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>教程</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/quickstart/">快速开始</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/requirejs/">使用RequireJS</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>主题</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../concept/">深入理解一些概念</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">理解视图（1）——概览</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#view">视图 View</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-render/">理解视图（2）——渲染</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-data/">理解视图（3）——数据</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-event/">理解视图（4）——事件</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-children/">理解视图（5）——子视图</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-dlg/">理解视图（6）——对话框</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Veronica</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">文档</a> &raquo;</li>
+    
+      
+        
+          <li>主题 &raquo;</li>
+        
+      
+    
+    <li>理解视图（1）——概览</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="view">视图 View</h1>
+<p>视图是界面呈现的基本单元，它包括构成某块区域界面的界面模板（html）、界面逻辑（js）、界面样式（css）。
+在 Veronica 中，视图是一个核心概念，以 Backbone.View 为基础，在这之上封装并加入自己的方法，可以说它是一个<strong>扩展的 Backbone View</strong>。</p>
+<blockquote>
+<p><strong>注意</strong></p>
+<p>在经典的MVC模式中（如Spine.js、ASP.NET MVC、yii 等），视图更多的表示界面模板，而界面逻辑一般称为控制器，我们采用的是 Backbone 的设计理念，用视图指代控制器。</p>
+</blockquote>
+<p>回顾一下，Backbone 中的视图定义及实例化方式：</p>
+<pre><code class="js"> var SearchView = Backbone.View.extend({
+    initialize: function(){
+        this.render();
+    },
+    render: function(){
+        var variables = { search_label: &quot;My Search&quot; };
+        var template = _.template( $(&quot;#search_template&quot;).html(), variables );
+        this.$el.html( template );
+    },
+    events: {
+        &quot;click input[type=button]&quot;: &quot;doSearch&quot;
+    },
+    doSearch: function( event ){
+        alert( &quot;Search for &quot; + $(&quot;#search_input&quot;).val() );
+    }
+});
+
+var search_view = new SearchView({
+    el: $(&quot;#search_container&quot;)
+});
+</code></pre>
+
+<p>它具有如下特性：</p>
+<ul>
+<li>有一个主元素（el）</li>
+<li>生命周期主要包括：初始化（initialize）、渲染（render）、移除（remove）三个动作</li>
+<li>使用事件代理管理子DOM元素事件</li>
+<li>使用模板构造html</li>
+</ul>
+<p>下面看看 Veronica 的视图定义方式：</p>
+<pre><code class="js">var FamilyView = app.view.define({
+    template: tpl,
+    defaults: {
+        autoRender: false,
+        autoAction: true
+    },
+    views: {
+        'active': 'view-detail',
+        'view-detail': {
+            initializer: detailView
+        },
+        'view-members': {
+            initializer: membersView
+        }
+    },
+    initAttr: function(){
+        this.model({
+            text: 'Hello World'
+        }, false);
+    }
+});
+
+var view = new FamilyView({
+    host: '#main'
+});
+</code></pre>
+
+<p>它的特点有：</p>
+<ul>
+<li>内置了渲染的逻辑</li>
+<li>支持属性、数据模型与数据绑定（MVVM）</li>
+<li>扩展了事件与消息</li>
+<li>子视图管理</li>
+<li>对话框支持</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../view-render/" class="btn btn-neutral float-right" title="理解视图（2）——渲染"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../concept/" class="btn btn-neutral" title="深入理解一些概念"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <!-- Copyright etc -->
+    </p>
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../concept/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../view-render/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>

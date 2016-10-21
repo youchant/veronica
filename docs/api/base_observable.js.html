@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>base/observable.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Application.html">Application</a><ul class='methods'><li data-type='method'><a href="Application.html#_descendant">_descendant</a></li><li data-type='method'><a href="Application.html#_initProps">_initProps</a></li><li data-type='method'><a href="Application.html#active">active</a></li><li data-type='method'><a href="Application.html#app">app</a></li><li data-type='method'><a href="Application.html#busy">busy</a></li><li data-type='method'><a href="Application.html#children">children</a></li><li data-type='method'><a href="Application.html#create">create</a></li><li data-type='method'><a href="Application.html#createPart">createPart</a></li><li data-type='method'><a href="Application.html#createProvider">createProvider</a></li><li data-type='method'><a href="Application.html#defaultModel">defaultModel</a></li><li data-type='method'><a href="Application.html#destroy">destroy</a></li><li data-type='method'><a href="Application.html#get">get</a></li><li data-type='method'><a href="Application.html#listen">listen</a></li><li data-type='method'><a href="Application.html#loader">loader</a></li><li data-type='method'><a href="Application.html#log">log</a></li><li data-type='method'><a href="Application.html#logger">logger</a></li><li data-type='method'><a href="Application.html#model">model</a></li><li data-type='method'><a href="Application.html#parent">parent</a></li><li data-type='method'><a href="Application.html#parents">parents</a></li><li data-type='method'><a href="Application.html#parseChildren">parseChildren</a></li><li data-type='method'><a href="Application.html#part">part</a></li><li data-type='method'><a href="Application.html#reset">reset</a></li><li data-type='method'><a href="Application.html#start">start</a></li><li data-type='method'><a href="Application.html#startChildren">startChildren</a></li><li data-type='method'><a href="Application.html#stop">stop</a></li><li data-type='method'><a href="Application.html#stopChildren">stopChildren</a></li><li data-type='method'><a href="Application.html#url">url</a></li><li data-type='method'><a href="Application.html#use">use</a></li></ul></li><li><a href="AppPart.html">AppPart</a><ul class='methods'><li data-type='method'><a href="AppPart.html#app">app</a></li><li data-type='method'><a href="AppPart.html#loader">loader</a></li><li data-type='method'><a href="AppPart.html#logger">logger</a></li></ul></li><li><a href="AppProvider.html">AppProvider</a><ul class='methods'><li data-type='method'><a href="AppProvider.html#add">add</a></li><li data-type='method'><a href="AppProvider.html#app">app</a></li><li data-type='method'><a href="AppProvider.html#get">get</a></li><li data-type='method'><a href="AppProvider.html#has">has</a></li><li data-type='method'><a href="AppProvider.html#loader">loader</a></li><li data-type='method'><a href="AppProvider.html#logger">logger</a></li><li data-type='method'><a href="AppProvider.html#remove">remove</a></li><li data-type='method'><a href="AppProvider.html#setDefault">setDefault</a></li></ul></li><li><a href="Component.html">Component</a><ul class='methods'><li data-type='method'><a href="Component.html#_descendant">_descendant</a></li><li data-type='method'><a href="Component.html#_initProps">_initProps</a></li><li data-type='method'><a href="Component.html#active">active</a></li><li data-type='method'><a href="Component.html#app">app</a></li><li data-type='method'><a href="Component.html#children">children</a></li><li data-type='method'><a href="Component.html#create">create</a></li><li data-type='method'><a href="Component.html#createPart">createPart</a></li><li data-type='method'><a href="Component.html#createProvider">createProvider</a></li><li data-type='method'><a href="Component.html#defaultModel">defaultModel</a></li><li data-type='method'><a href="Component.html#destroy">destroy</a></li><li data-type='method'><a href="Component.html#get">get</a></li><li data-type='method'><a href="Component.html#listen">listen</a></li><li data-type='method'><a href="Component.html#loader">loader</a></li><li data-type='method'><a href="Component.html#log">log</a></li><li data-type='method'><a href="Component.html#logger">logger</a></li><li data-type='method'><a href="Component.html#model">model</a></li><li data-type='method'><a href="Component.html#parent">parent</a></li><li data-type='method'><a href="Component.html#parents">parents</a></li><li data-type='method'><a href="Component.html#parseChildren">parseChildren</a></li><li data-type='method'><a href="Component.html#part">part</a></li><li data-type='method'><a href="Component.html#reset">reset</a></li><li data-type='method'><a href="Component.html#startChildren">startChildren</a></li><li data-type='method'><a href="Component.html#stop">stop</a></li><li data-type='method'><a href="Component.html#stopChildren">stopChildren</a></li><li data-type='method'><a href="Component.html#url">url</a></li></ul></li><li><a href="ComponentManager.html">ComponentManager</a><ul class='methods'><li data-type='method'><a href="ComponentManager.html#_updateCurrConfigList">_updateCurrConfigList</a></li><li data-type='method'><a href="ComponentManager.html#clearDom">clearDom</a></li><li data-type='method'><a href="ComponentManager.html#findDom">findDom</a></li><li data-type='method'><a href="ComponentManager.html#getByDom">getByDom</a></li><li data-type='method'><a href="ComponentManager.html#normalizeBatchConfig">normalizeBatchConfig</a></li><li data-type='method'><a href="ComponentManager.html#normalizeConfig">normalizeConfig</a></li><li data-type='method'><a href="ComponentManager.html#register">register</a></li><li data-type='method'><a href="ComponentManager.html#start">start</a></li><li data-type='method'><a href="ComponentManager.html#stop">stop</a></li></ul></li><li><a href="LayoutManager.html">LayoutManager</a><ul class='methods'><li data-type='method'><a href="LayoutManager.html#add">add</a></li><li data-type='method'><a href="LayoutManager.html#app">app</a></li><li data-type='method'><a href="LayoutManager.html#change">change</a></li><li data-type='method'><a href="LayoutManager.html#get">get</a></li><li data-type='method'><a href="LayoutManager.html#has">has</a></li><li data-type='method'><a href="LayoutManager.html#init">init</a></li><li data-type='method'><a href="LayoutManager.html#loader">loader</a></li><li data-type='method'><a href="LayoutManager.html#logger">logger</a></li><li data-type='method'><a href="LayoutManager.html#remove">remove</a></li><li data-type='method'><a href="LayoutManager.html#setDefault">setDefault</a></li></ul></li><li><a href="Observable.html">Observable</a><ul class='methods'><li data-type='method'><a href="Observable.html#on">on</a></li></ul></li><li><a href="PageManager.html">PageManager</a><ul class='methods'><li data-type='method'><a href="PageManager.html#change">change</a></li><li data-type='method'><a href="PageManager.html#getCurrName">getCurrName</a></li></ul></li><li><a href="veronica.Logger.html">Logger</a><ul class='methods'><li data-type='method'><a href="veronica.Logger.html#_time">_time</a></li><li data-type='method'><a href="veronica.Logger.html#enable">enable</a></li><li data-type='method'><a href="veronica.Logger.html#error">error</a></li><li data-type='method'><a href="veronica.Logger.html#info">info</a></li><li data-type='method'><a href="veronica.Logger.html#log">log</a></li><li data-type='method'><a href="veronica.Logger.html#setName">setName</a></li><li data-type='method'><a href="veronica.Logger.html#warn">warn</a></li></ul></li><li><a href="veronica.Page.html">Page</a></li><li><a href="veronica.QueryString.html">QueryString</a></li></ul><h3>Events</h3><ul><li><a href="Application.html#event:appStarted">appStarted</a></li><li><a href="Application.html#event:pageLoaded">pageLoaded</a></li><li><a href="Application.html#event:pageLoading">pageLoading</a></li><li><a href="Application.html#event:pageNotFound">pageNotFound</a></li><li><a href="Application_layout.html#.event:layoutChanged">layoutChanged</a></li><li><a href="Application_layout.html#.event:layoutChanging">layoutChanging</a></li><li><a href="Component.html#.event:componentsLoaded">componentsLoaded</a></li></ul><h3>Interfaces</h3><ul><li><a href="UIKit.html">UIKit</a><ul class='methods'><li data-type='method'><a href="UIKit.html#create">create</a></li><li data-type='method'><a href="UIKit.html#getInstance">getInstance</a></li><li data-type='method'><a href="UIKit.html#init">init</a></li></ul></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">base/observable.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>define([
+    'lodash',
+    './klass'
+], function (_, klass) {
+
+    'use strict';
+
+    var eventSplitter = /\s+/;
+
+    function weaveAspect(when, methodName, callback, context) {
+        var names = methodName.split(eventSplitter);
+        var name, method;
+
+        while (name = names.shift()) {
+            method = this[name];
+            if (!method) {
+                throw new Error('Invalid method name: ' + methodName);
+            }
+
+            if (!method.__isAspected) {
+                wrapAspectMethod.call(this, name);
+            }
+            this.on(when + ':' + name, callback, context);
+        }
+
+        return this;
+    }
+
+    function wrapAspectMethod(methodName) {
+        var old = this[methodName];
+
+        this[methodName] = function () {
+            var args = Array.prototype.slice.call(arguments);
+            var beforeArgs = ['before:' + methodName].concat(args);
+            var beforeRet = this.trigger.apply(this, beforeArgs);
+            if (beforeRet === false) return;
+
+            var ret = old.apply(this, arguments);
+            var afterArgs = ['after:' + methodName, ret].concat(args);
+            this.trigger.apply(this, afterArgs);
+            return ret;
+        };
+
+        this[methodName].__isAspected = true;
+    }
+
+    function preventDefault() {
+        this._defaultPrevented = true;
+    }
+
+    function isDefaultPrevented() {
+        return this._defaultPrevented === true;
+    }
+
+    var Observable = klass(/** @lends Observable# */{
+        /**
+         * 可观察对象，是所有类型的基类，具有事件和 Aspect 特性
+         * @constructs Observable
+         */
+        initialize: function () {
+            this._events = {};
+            this._listenId = _.uniqueId('l');
+            this._listeningTo = {};
+            this._delayEvents = [];
+        },
+        /**
+         * 监听
+         * @param {string} name - 事件名
+         * @param {function} callbacks - 回调处理程序
+         * @param {boolean} [one=false] - 是否只监听一次
+         * @param {Object} [context=this] - 回调上下文
+         * @param {string} [insertMethod=push] - 插入事件队列的方法
+         * @returns {ClassBase}
+         */
+        on: function (name, callbacks, one, context, insertMethod) {
+
+            var me = this;
+            var names = typeof name === 'string' ? [name] : name;
+            context || (context = me);
+            if (insertMethod == null) {
+                insertMethod = 'push';
+            }
+
+            var callbacksIsFunction = typeof callbacks === 'function';
+            var callback;
+
+            if (callbacks === undefined) {
+                for (var key in name) {
+                    callback = name[key];
+                    me.on(key, callback);
+                }
+                return this;
+            }
+
+            for (var i = 0, len = names.length; i &lt; len; i++) {
+                name = names[i];
+                callback = callbacksIsFunction ? callbacks : callbacks[name];
+                if (!callback) continue;
+
+                if (one) {
+                    var original = callback;
+                    callback = function () {
+                        me.off(name, callback);
+                        original.apply(context, arguments);
+                    };
+                    callback.original = original;
+                }
+
+                // 添加到事件池
+                me._events[name] = me._events[name] || [];
+                var events = me._events[name];
+                var handler = {
+                    context: context,
+                    callback: callback
+                };
+                events[insertMethod](handler);
+            }
+
+            return this;
+        },
+        one: function (name, callbacks, context) {
+            return this.on(name, callbacks, true, context);
+        },
+        onFirst: function (name, callbacks, one, context) {
+            return this.on(name, callbacks, one, context, 'unshift');
+        },
+        listenToOnce: function (obj, name, callback) {
+            return this.listenTo(obj, name, callback, true);
+        },
+        listenTo: function (obj, name, callback, one) {
+            if (one == null) {
+                one = false;
+            }
+
+            if (typeof obj === 'string') {
+                this._delayEvents.push({
+                    name: obj,
+                    event: name,
+                    callback: callback
+                });
+                return this;
+            }
+
+            var thisId = this._listenId;
+            var objId = obj._listenId;
+            var listeningTo = this._listeningTo;
+
+            if (!listeningTo[objId]) {
+                listeningTo[objId] = {
+                    obj: obj,
+                    objId: objId,
+                    id: thisId,
+                    count: 0
+                };
+            }
+
+            var listening = listeningTo[objId];
+
+            obj.on(name, callback, one, this);
+
+            listening.count++;
+
+            return this;
+        },
+        off: function (name, callback, context) {
+            var me = this;
+            var allEvents = this._events;
+            var events = allEvents[name];
+
+            if (name === undefined) {
+                // 移除所有 hanlder
+                me._events = {};
+            } else if (events) {
+                if (!callback &amp;&amp; !context) {
+                    // 移除某个事件所有 handler
+                    me._events[name] = [];
+                } else {
+                    // 移除单个 handler
+                    for (var i = events.length - 1; i >= 0; i--) {
+                        var handler = events[i];
+                        if (callback &amp;&amp; (callback === handler.callback || callback === handler.original ) ||
+                            context &amp;&amp; handler.context === context) {
+                            events.splice(i, 1);
+                        }
+                    }
+                }
+            }
+
+            return me;
+        },
+        stopListen: function (obj, name, callback) {
+            var listeningTo = this._listeningTo;
+            var ids = obj ? [obj._listenId] : _.keys(listeningTo);
+
+            for (var i = 0; i &lt; ids.length; i++) {
+                var listening = listeningTo[ids[i]];
+
+                if (!listening) break;
+
+                listening.obj.off(name, callback, this);
+            }
+        },
+        trigger: function (name, e, second) {
+            if (!this._events) return this;
+
+            var events = this._events[name];
+            var me = this;
+            if (!events) return;
+
+            var retVal;
+            var args;
+            if (e == null || second == null &amp;&amp; typeof e === 'object') {
+                e = e || {};
+                e.sender = me;
+                e._defaultPrevented = false;
+                e.preventDefault = preventDefault;
+                e.isDefaultPrevented = isDefaultPrevented;
+                args = [e]
+            } else {
+                args = Array.prototype.slice.call(arguments, 1);
+            }
+
+            events = events.slice();
+            for (var idx = 0, length = events.length; idx &lt; length; idx++) {
+                var evt = events[idx];
+                var context = evt.context || me;
+                var rt = evt.callback.apply(context, args);
+                if (rt !== undefined) {
+                    retVal = rt;
+                }
+            }
+
+            return retVal;
+        },
+        before: function (methodName, callback, context) {
+            return weaveAspect.call(this, 'before', methodName, callback, context);
+        },
+        after: function (methodName, callback, context) {
+            return weaveAspect.call(this, 'after', methodName, callback, context);
+        },
+        _initProps: function () {
+        },
+        _call: function (func, args) {
+            func.apply(this, Array.prototype.slice.call(args));
+        }
+    });
+
+    return Observable;
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Oct 21 2016 18:11:58 GMT+0800 (China Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

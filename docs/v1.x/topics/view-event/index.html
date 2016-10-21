@@ -1,0 +1,313 @@
+﻿<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>理解视图（4）——事件 - Veronica</title>
+  
+
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+
+  
+  <!--<link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>-->
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "topics\view-event"
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+  <script src="../../js/theme.js"></script> 
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Veronica</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">首页</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../changelog/">更新日志</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>教程</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/quickstart/">快速开始</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/requirejs/">使用RequireJS</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>主题</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../concept/">深入理解一些概念</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view/">理解视图（1）——概览</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-render/">理解视图（2）——渲染</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-data/">理解视图（3）——数据</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">理解视图（4）——事件</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#_1">事件驱动的视图</a></li>
+                
+                    <li><a class="toctree-l4" href="#dom">DOM 事件</a></li>
+                
+                    <li><a class="toctree-l4" href="#triggeron">trigger/on</a></li>
+                
+                    <li><a class="toctree-l4" href="#pubsub">pub/sub</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-children/">理解视图（5）——子视图</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-dlg/">理解视图（6）——对话框</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Veronica</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">文档</a> &raquo;</li>
+    
+      
+        
+          <li>主题 &raquo;</li>
+        
+      
+    
+    <li>理解视图（4）——事件</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="_1">事件驱动的视图</h1>
+<p>与用户交互的界面编程天然是一个事件驱动模型，并且利用事件可较好的组织异步代码</p>
+<p>在视图中，有几种方式的事件（或与之相似）模型</p>
+<h2 id="dom">DOM 事件</h2>
+<p>处理 DOM 事件，由于继承于 Backbone.View，因此也能使用它所使用的事件代理模式</p>
+<pre><code class="js">var View = app.view.define({
+    events: {
+        'mousedown .item': 'itemPressHandler' 
+    },
+    itemPressHandler: function(e) {
+
+    }
+});
+</code></pre>
+
+<p>在此基础上，视图提供了一些语法糖，能够快捷的监听 DOM 事件</p>
+<p><strong>action</strong></p>
+<p>将 <code>autoAction</code> 参数设为 <code>true</code>, 在DOM元素上添加 <code>data-action</code> 属性可声明点击该元素应执行的行为</p>
+<pre><code class="html">&lt;button data-action=&quot;save&quot;&gt;Save&lt;/button&gt;
+</code></pre>
+
+<pre><code class="js">var View = {
+    saveHandler: function (e) {
+        // 点击后执行
+    }
+};
+</code></pre>
+
+<h2 id="triggeron">trigger/on</h2>
+<p>自定义事件通信采用 Backbone.View 自带的<a href="http://backbonejs.org/#Events">事件机制</a></p>
+<pre><code class="js">// 触发事件
+this.trigger('rendered', data, msg);
+</code></pre>
+
+<p><strong>监听事件</strong></p>
+<p>所有的事件监听的代码统一写到方法 <code>listen</code> 中，方便进行管理：</p>
+<pre><code class="js">listen: function(){
+    this.listenTo(this, 'modelBound', function(){
+        // 这里面的 this 是本视图
+        console.log(this.model());
+    });
+
+    this.listenToDelay('view-detail', 'rendered', function(){
+        console.log(this.$el);
+    });
+}
+</code></pre>
+
+<p>有两个监听事件的方法：<code>listenTo</code> 和 <code>listenToDelay</code>，
+listenToDelay 用来监听子视图，因为当消息监听执行时，子视图可能还未实例化，使用该方法能够将监听延迟到子视图实例化之后执行。</p>
+<h2 id="pubsub">pub/sub</h2>
+<p>发布者订阅者模式适用于部件间数据传递，它与自定义事件的一个较大不同点则是订阅者不需要知道发布者的任何信息，因此是低耦合的，
+而事件监听者则需要在视图中引用事件触发者的实例对象</p>
+<pre><code>// 发布消息
+this.pub('custom-msg', 'helloworld');
+
+// 订阅消息
+this.sub('custom-msg', function(msg){
+    console.log(msg);
+});
+</code></pre>
+
+<p>所有的消息订阅的代码统一写到方法 <code>subscribe</code> 中，方便进行管理：</p>
+<pre><code class="js">subscribe: function(){
+    this.sub('custom-msg', function(msg){
+        console.log(msg);
+    });
+
+    this.sub('msg2', function(){
+
+    });
+}
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../view-children/" class="btn btn-neutral float-right" title="理解视图（5）——子视图"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../view-data/" class="btn btn-neutral" title="理解视图（3）——数据"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <!-- Copyright etc -->
+    </p>
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../view-data/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../view-children/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>

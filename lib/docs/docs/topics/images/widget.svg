@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- 由 Microsoft Visio, SVG Export 生成 widget.svg 页-1 -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		width="7.17924in" height="4.32885in" viewBox="0 0 516.906 311.677" xml:space="preserve" color-interpolation-filters="sRGB"
+		class="st19">
+	<style type="text/css">
+	<![CDATA[
+		.st1 {fill:#f2f2f2;stroke:#7f7f7f;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.6;stroke-width:1}
+		.st2 {fill:#d8d8d8;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:1}
+		.st3 {fill:#bfbfbf;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:1}
+		.st4 {fill:#7f7f7f;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:1}
+		.st5 {fill:none;stroke:#ffc000;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.6;stroke-width:3}
+		.st6 {fill:#000000;font-family:Calibri;font-size:1.99999em;font-weight:bold}
+		.st7 {fill:#595959;font-size:1em;font-weight:normal}
+		.st8 {fill:none;stroke:#16b0e3;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.6;stroke-width:3}
+		.st9 {fill:#000000;font-family:Calibri;font-size:1.5em;font-weight:bold}
+		.st10 {visibility:visible}
+		.st11 {fill:#000000;fill-opacity:0.4;filter:url(#filter_2.6666667461395);stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.4}
+		.st12 {fill:#000000;fill-opacity:0.4;filter:url(#filter_2.6666667461395);stroke:none;stroke-linecap:round;stroke-linejoin:round}
+		.st13 {fill:#595959;font-family:Calibri;font-size:1.5em;font-weight:bold}
+		.st14 {font-size:1em;font-weight:normal}
+		.st15 {fill:none;filter:url(#filter_2.6666667461395);stroke:none;stroke-linecap:round;stroke-linejoin:round}
+		.st16 {fill:#000000;filter:url(#filter_2.6666667461395);font-family:Calibri;font-size:1.00001em;opacity:0.4}
+		.st17 {fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:1}
+		.st18 {fill:#7f7f7f;font-family:Calibri;font-size:1.00001em}
+		.st19 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<defs id="Filters">
+		<filter id="filter_2.6666667461395">
+			<feGaussianBlur stdDeviation="2.6666667461395"/>
+		</filter>
+	</defs>
+	<g>
+		<title>页-1</title>
+		<g id="shape1-1" transform="translate(0.5,-0.5)">
+			<title>矩形</title>
+			<rect x="0" y="0.999989" width="515.906" height="310.677" class="st1"/>
+		</g>
+		<g id="shape2-3" transform="translate(13.2559,-269.791)">
+			<title>矩形.2</title>
+			<rect x="0" y="283.331" width="488.976" height="28.3465" class="st2"/>
+		</g>
+		<g id="shape3-5" transform="translate(13.2559,-14.6732)">
+			<title>矩形.3</title>
+			<rect x="0" y="66.2565" width="113.386" height="245.421" class="st2"/>
+		</g>
+		<g id="shape4-7" transform="translate(147.902,-231.747)">
+			<title>矩形.4</title>
+			<rect x="0" y="283.331" width="354.331" height="28.3465" class="st3"/>
+		</g>
+		<g id="shape5-9" transform="translate(147.902,-14.6732)">
+			<title>矩形.5</title>
+			<rect x="0" y="104.3" width="113.386" height="207.377" class="st3"/>
+		</g>
+		<g id="shape6-11" transform="translate(282.547,-14.6732)">
+			<title>矩形.6</title>
+			<rect x="0" y="104.3" width="219.685" height="207.377" class="st2"/>
+		</g>
+		<g id="shape7-13" transform="translate(24.8183,-28.8465)">
+			<title>矩形.8</title>
+			<rect x="0" y="137.123" width="90.7087" height="174.554" class="st3"/>
+		</g>
+		<g id="shape8-15" transform="translate(24.8183,-218.32)">
+			<title>圆形</title>
+			<path d="M0 297.5 A14.1732 14.1732 0 0 1 28.35 297.5 A14.1732 14.1732 0 1 1 0 297.5 Z" class="st4"/>
+		</g>
+		<g id="shape9-17" transform="translate(59.3189,-227.272)">
+			<title>矩形.9</title>
+			<rect x="0" y="299.182" width="53.1496" height="12.4948" class="st4"/>
+		</g>
+		<g id="shape10-19" transform="translate(162.075,-238.414)">
+			<title>矩形.10</title>
+			<rect x="0" y="296.665" width="150.236" height="15.0124" class="st4"/>
+		</g>
+		<g id="shape11-21" transform="translate(449.083,-238.414)">
+			<title>矩形.11</title>
+			<rect x="0" y="296.665" width="38.9764" height="15.0124" class="st4"/>
+		</g>
+		<g id="shape12-23" transform="translate(162.075,-195.056)">
+			<title>矩形.12</title>
+			<rect x="0" y="296.665" width="90.7087" height="15.0124" class="st4"/>
+		</g>
+		<g id="shape13-25" transform="translate(171.026,-169.74)">
+			<title>矩形.13</title>
+			<rect x="0" y="296.665" width="81.7571" height="15.0124" class="st4"/>
+		</g>
+		<g id="shape14-27" transform="translate(171.026,-143.258)">
+			<title>矩形.14</title>
+			<rect x="0" y="296.665" width="81.7571" height="15.0124" class="st4"/>
+		</g>
+		<g id="shape15-29" transform="translate(294.856,-28.8465)">
+			<title>矩形.15</title>
+			<rect x="0" y="147.24" width="193.203" height="164.437" class="st3"/>
+		</g>
+		<g id="shape16-31" transform="translate(282.547,-200.79)">
+			<title>矩形.16</title>
+			<rect x="0" y="290.417" width="219.685" height="21.2598" class="st3"/>
+		</g>
+		<g id="shape17-33" transform="translate(20.3425,-277.717)">
+			<title>矩形.19</title>
+			<rect x="0" y="299.182" width="150.236" height="12.4948" class="st4"/>
+		</g>
+		<g id="shape18-35" transform="translate(424.28,-277.717)">
+			<title>矩形.20</title>
+			<rect x="0" y="299.182" width="63.7795" height="12.4948" class="st4"/>
+		</g>
+		<g id="shape21-37" transform="translate(139.398,-6.16929)">
+			<title>矩形.21</title>
+			<desc>Widget</desc>
+			<rect x="0" y="50.8898" width="369.921" height="260.787" class="st5"/>
+			<text x="149.39" y="188.48" class="st6">W<tspan class="st7">idget</tspan></text>		</g>
+		<g id="shape23-41" transform="translate(145.067,-10.4213)">
+			<title>矩形.23</title>
+			<desc>View</desc>
+			<rect x="0" y="96.2441" width="119.622" height="215.433" class="st8"/>
+			<text x="41.51" y="209.36" class="st9">V<tspan class="st7">iew</tspan></text>		</g>
+		<g id="group30-45" transform="translate(184.752,-157.918)">
+			<title>工作表.30</title>
+			<g id="shape24-46">
+				<title>矩形.24</title>
+				<g id="shadow24-47" transform="matrix(1,0,0,1,2.12132,2.12132)" class="st10">
+					<rect x="0" y="179.383" width="219.685" height="132.294" class="st11"/>
+				</g>
+				<rect x="0" y="179.383" width="219.685" height="132.294" class="st1"/>
+			</g>
+			<g id="shape25-51" transform="translate(5.66929,-7.50622)">
+				<title>矩形.25</title>
+				<desc>Window</desc>
+				<g id="shadow25-52" transform="matrix(1,0,0,1,2.12132,2.12132)" class="st10">
+					<rect x="0" y="221.966" width="209.764" height="89.7109" class="st12"/>
+				</g>
+				<rect x="0" y="221.966" width="209.764" height="89.7109" class="st2"/>
+				<text x="74.02" y="272.22" class="st13">W<tspan class="st14">indow</tspan></text>			</g>
+			<g id="shape28-58" transform="translate(5.66929,-103.595)">
+				<title>矩形.28</title>
+				<g id="shadow28-59" transform="matrix(1,0,0,1,2.12132,2.12132)" class="st10">
+					<rect x="0" y="290.417" width="209.764" height="21.2598" class="st12"/>
+				</g>
+				<rect x="0" y="290.417" width="209.764" height="21.2598" class="st3"/>
+			</g>
+			<g id="shape26-63" transform="translate(201.26,-110.234)">
+				<title>工作表.26</title>
+				<desc>x</desc>
+				<g id="shadow26-64" transform="matrix(1,0,0,1,2.12132,2.12132)" class="st10">
+					<rect x="0" y="299.182" width="17.0079" height="12.4948" class="st15"/>
+					<text x="5.91" y="309.03" class="st16">x</text>				</g>
+				<rect x="0" y="299.182" width="17.0079" height="12.4948" class="st17"/>
+				<text x="5.91" y="309.03" class="st18">x</text>			</g>
+		</g>
+	</g>
+</svg>

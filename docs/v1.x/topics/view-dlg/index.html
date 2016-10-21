@@ -1,0 +1,359 @@
+﻿<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>理解视图（6）——对话框 - Veronica</title>
+  
+
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+
+  
+  <!--<link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>-->
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "topics\view-dlg"
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+  <script src="../../js/theme.js"></script> 
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Veronica</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">首页</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../changelog/">更新日志</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>教程</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/quickstart/">快速开始</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/requirejs/">使用RequireJS</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>主题</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../concept/">深入理解一些概念</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view/">理解视图（1）——概览</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-render/">理解视图（2）——渲染</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-data/">理解视图（3）——数据</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-event/">理解视图（4）——事件</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../view-children/">理解视图（5）——子视图</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">理解视图（6）——对话框</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#_1">对话框的使用</a></li>
+                
+                    <li><a class="toctree-l4" href="#_2">创建对话框</a></li>
+                
+                    <li><a class="toctree-l4" href="#_5">对话框的生命周期</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Veronica</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">文档</a> &raquo;</li>
+    
+      
+        
+          <li>主题 &raquo;</li>
+        
+      
+    
+    <li>理解视图（6）——对话框</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="_1">对话框的使用</h1>
+<p>每个视图都可以通过调用 <code>this.window</code> 创建或获取特定的窗口，默认情况下，调用该方法可弹出一个非模态窗口，并居中显示。</p>
+<pre><code>var wnd = this.window(options, isShow);
+</code></pre>
+
+<p>第一个参数传入一个配置对象，第二个参数是Boolean，指明该窗口是否显示。</p>
+<p>当你明确是要获取一个窗口时，可使用：</p>
+<pre><code>var wnd = this.window(windowName);
+</code></pre>
+
+<p>传入窗口名称获取该窗口，如果未创建窗口，则返回undefined。</p>
+<h2 id="_2">创建对话框</h2>
+<p>基本语法：</p>
+<pre><code class="js">// 在 view 的成员方法内
+this.window({
+    name: 'wnd_test',
+    children: [{
+        type: 'view',
+        name: 'editview',
+        initializer: EditView,
+        options: {
+            host: '.dlg-body'
+        }
+    }]
+})
+</code></pre>
+
+<p>从已有元素创建窗口：</p>
+<pre><code>this.window({
+    name: 'wnd-test',
+    el: '.dlg-test',
+    options: {
+        title: 'test',
+        width: 200,
+        height: 100
+    }
+})
+</code></pre>
+
+<blockquote>
+<p>使用方法 this.window 创建窗口，多次调用不会产生副作用。如果该窗口存在，则返回窗口对象；如果该窗口不存在，则创建后返回。</p>
+</blockquote>
+<h3 id="_3">对话框的内容</h3>
+<p>对话框的内容可能包括：普通HTML、视图、widget、iframe 内嵌网页等。view 和 widget 作为内容都应把创建所需的配置传入 <code>children</code> 参数，
+该参数配置对话框的所有子集</p>
+<ul>
+<li>使用 widget</li>
+</ul>
+<pre><code>this.window({
+    name: 'wnd-test',
+    children: [{
+        type: 'widget',
+        name: 'widgetA',
+        options: {
+            _source: 'source1'
+        }
+    }]
+})
+</code></pre>
+
+<ul>
+<li>使用 view</li>
+</ul>
+<pre><code>this.window({
+    name: 'wnd-test',
+    children: [{
+        type: 'view',
+        initializer: EditView
+    }]
+})
+</code></pre>
+
+<p><strong>在view或widget内更改窗口属性</strong></p>
+<p>在窗口的widget或view中，可通过 options.parentWnd 访问窗口对象，利用这点，可完成一些常见的需求，例如根据子对象自身的尺寸，动态设置父级对话框尺寸。如下：</p>
+<pre><code class="js">// 我们不指定窗口的尺寸和标题，在窗口内部的视图中设置它的这些属性
+initAttr: function(){
+
+    // 以下代码可写在任意初始化方法中
+    if(this.options.parentWnd){
+
+        // 设置窗口的标题、宽、高
+        this.options.parentWnd.setOptions({
+            title: 'Hello',
+            width: 500,
+            height: 400
+        });
+
+        // 在新的窗口尺寸下使窗口居中
+        this.options.parentWnd.center(); 
+    }
+}
+</code></pre>
+
+<p>对于完成以上任务，还提供了更简便的方法，配置视图的 <code>windowOptions</code> 配置项，这样则会在视图创建之后自动设置该视图所在窗口的大小、标题属性。</p>
+<pre><code class="js">defaults: {
+    windowOptions: {
+        width: 200,
+        height: 150
+    }
+}
+</code></pre>
+
+<h3 id="_4">创建对话框的快捷方法</h3>
+<p>提供了一些快捷方法用于特定类型的对话框创建</p>
+<ul>
+<li>包含单个视图的对话框 <code>viewWindow</code></li>
+</ul>
+<pre><code class="js">this.viewWindow('viewName', EditView, { host: '.dlg-content' }, { modal: true });
+</code></pre>
+
+<ul>
+<li>包含单个 widget 的对话框 <code>widgetWindow</code></li>
+</ul>
+<pre><code class="js">this.widgetWindow('widgetName', { host: '.dlg-content' });
+</code></pre>
+
+<ul>
+<li>普通 HTML 的对话框 <code>htmlWindow</code></li>
+</ul>
+<pre><code class="js">this.htmlWindow('&lt;b&gt;Hello!&lt;/b&gt;');
+</code></pre>
+
+<h2 id="_5">对话框的生命周期</h2>
+<p>对话框的存在受制于创建它的视图，视图被销毁，对话框也被销毁</p>
+<p>对话框关闭后即被销毁，同时对话框的 children 内的内容也会被销毁，当再次打开对话框时，会重新创建对话框</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../view-children/" class="btn btn-neutral" title="理解视图（5）——子视图"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <!-- Copyright etc -->
+    </p>
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../view-children/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+
+</body>
+</html>
