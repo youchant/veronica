@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Logger - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="-_anonymous_-extend-SubClass.html">SubClass</a><ul class='methods'><li data-type='method'><a href="-_anonymous_-extend-SubClass.html#.members">members</a></li><li data-type='method'><a href="-_anonymous_-extend-SubClass.html#.methods">methods</a></li><li data-type='method'><a href="-_anonymous_-extend-SubClass.html#.statics">statics</a></li><li data-type='method'><a href="-_anonymous_-extend-SubClass.html#implement">implement</a></li></ul></li><li><a href="Application.html">Application</a><ul class='methods'><li data-type='method'><a href="Application.html#_descendant">_descendant</a></li><li data-type='method'><a href="Application.html#_initProps">_initProps</a></li><li data-type='method'><a href="Application.html#active">active</a></li><li data-type='method'><a href="Application.html#app">app</a></li><li data-type='method'><a href="Application.html#busy">busy</a></li><li data-type='method'><a href="Application.html#children">children</a></li><li data-type='method'><a href="Application.html#create">create</a></li><li data-type='method'><a href="Application.html#createPart">createPart</a></li><li data-type='method'><a href="Application.html#createProvider">createProvider</a></li><li data-type='method'><a href="Application.html#defaultModel">defaultModel</a></li><li data-type='method'><a href="Application.html#destroy">destroy</a></li><li data-type='method'><a href="Application.html#get">get</a></li><li data-type='method'><a href="Application.html#listen">listen</a></li><li data-type='method'><a href="Application.html#loader">loader</a></li><li data-type='method'><a href="Application.html#log">log</a></li><li data-type='method'><a href="Application.html#logger">logger</a></li><li data-type='method'><a href="Application.html#model">model</a></li><li data-type='method'><a href="Application.html#parent">parent</a></li><li data-type='method'><a href="Application.html#parents">parents</a></li><li data-type='method'><a href="Application.html#parseChildren">parseChildren</a></li><li data-type='method'><a href="Application.html#part">part</a></li><li data-type='method'><a href="Application.html#reset">reset</a></li><li data-type='method'><a href="Application.html#start">start</a></li><li data-type='method'><a href="Application.html#startChildren">startChildren</a></li><li data-type='method'><a href="Application.html#stop">stop</a></li><li data-type='method'><a href="Application.html#stopChildren">stopChildren</a></li><li data-type='method'><a href="Application.html#url">url</a></li><li data-type='method'><a href="Application.html#use">use</a></li></ul></li><li><a href="AppPart.html">AppPart</a><ul class='methods'><li data-type='method'><a href="AppPart.html#app">app</a></li><li data-type='method'><a href="AppPart.html#loader">loader</a></li><li data-type='method'><a href="AppPart.html#logger">logger</a></li></ul></li><li><a href="AppProvider.html">AppProvider</a><ul class='methods'><li data-type='method'><a href="AppProvider.html#add">add</a></li><li data-type='method'><a href="AppProvider.html#app">app</a></li><li data-type='method'><a href="AppProvider.html#get">get</a></li><li data-type='method'><a href="AppProvider.html#has">has</a></li><li data-type='method'><a href="AppProvider.html#loader">loader</a></li><li data-type='method'><a href="AppProvider.html#logger">logger</a></li><li data-type='method'><a href="AppProvider.html#remove">remove</a></li><li data-type='method'><a href="AppProvider.html#setDefault">setDefault</a></li></ul></li><li><a href="Component.html">Component</a><ul class='methods'><li data-type='method'><a href="Component.html#_descendant">_descendant</a></li><li data-type='method'><a href="Component.html#_initProps">_initProps</a></li><li data-type='method'><a href="Component.html#active">active</a></li><li data-type='method'><a href="Component.html#app">app</a></li><li data-type='method'><a href="Component.html#children">children</a></li><li data-type='method'><a href="Component.html#create">create</a></li><li data-type='method'><a href="Component.html#createPart">createPart</a></li><li data-type='method'><a href="Component.html#createProvider">createProvider</a></li><li data-type='method'><a href="Component.html#defaultModel">defaultModel</a></li><li data-type='method'><a href="Component.html#destroy">destroy</a></li><li data-type='method'><a href="Component.html#get">get</a></li><li data-type='method'><a href="Component.html#listen">listen</a></li><li data-type='method'><a href="Component.html#loader">loader</a></li><li data-type='method'><a href="Component.html#log">log</a></li><li data-type='method'><a href="Component.html#logger">logger</a></li><li data-type='method'><a href="Component.html#model">model</a></li><li data-type='method'><a href="Component.html#parent">parent</a></li><li data-type='method'><a href="Component.html#parents">parents</a></li><li data-type='method'><a href="Component.html#parseChildren">parseChildren</a></li><li data-type='method'><a href="Component.html#part">part</a></li><li data-type='method'><a href="Component.html#reset">reset</a></li><li data-type='method'><a href="Component.html#startChildren">startChildren</a></li><li data-type='method'><a href="Component.html#stop">stop</a></li><li data-type='method'><a href="Component.html#stopChildren">stopChildren</a></li><li data-type='method'><a href="Component.html#url">url</a></li></ul></li><li><a href="ComponentManager.html">ComponentManager</a><ul class='methods'><li data-type='method'><a href="ComponentManager.html#_updateCurrConfigList">_updateCurrConfigList</a></li><li data-type='method'><a href="ComponentManager.html#clearDom">clearDom</a></li><li data-type='method'><a href="ComponentManager.html#findDom">findDom</a></li><li data-type='method'><a href="ComponentManager.html#getByDom">getByDom</a></li><li data-type='method'><a href="ComponentManager.html#normalizeBatchConfig">normalizeBatchConfig</a></li><li data-type='method'><a href="ComponentManager.html#normalizeConfig">normalizeConfig</a></li><li data-type='method'><a href="ComponentManager.html#register">register</a></li><li data-type='method'><a href="ComponentManager.html#start">start</a></li><li data-type='method'><a href="ComponentManager.html#stop">stop</a></li></ul></li><li><a href="LayoutManager.html">LayoutManager</a><ul class='methods'><li data-type='method'><a href="LayoutManager.html#add">add</a></li><li data-type='method'><a href="LayoutManager.html#app">app</a></li><li data-type='method'><a href="LayoutManager.html#change">change</a></li><li data-type='method'><a href="LayoutManager.html#get">get</a></li><li data-type='method'><a href="LayoutManager.html#has">has</a></li><li data-type='method'><a href="LayoutManager.html#init">init</a></li><li data-type='method'><a href="LayoutManager.html#loader">loader</a></li><li data-type='method'><a href="LayoutManager.html#logger">logger</a></li><li data-type='method'><a href="LayoutManager.html#remove">remove</a></li><li data-type='method'><a href="LayoutManager.html#setDefault">setDefault</a></li></ul></li><li><a href="Logger.html">Logger</a><ul class='methods'><li data-type='method'><a href="Logger.html#enable">enable</a></li><li data-type='method'><a href="Logger.html#error">error</a></li><li data-type='method'><a href="Logger.html#info">info</a></li><li data-type='method'><a href="Logger.html#log">log</a></li><li data-type='method'><a href="Logger.html#setName">setName</a></li><li data-type='method'><a href="Logger.html#time">time</a></li><li data-type='method'><a href="Logger.html#warn">warn</a></li></ul></li><li><a href="Observable.html">Observable</a><ul class='methods'><li data-type='method'><a href="Observable.html#on">on</a></li></ul></li><li><a href="PageManager.html">PageManager</a><ul class='methods'><li data-type='method'><a href="PageManager.html#change">change</a></li><li data-type='method'><a href="PageManager.html#getCurrName">getCurrName</a></li></ul></li><li><a href="veronica.Page.html">Page</a></li><li><a href="veronica.QueryString.html">QueryString</a></li></ul><h3>Events</h3><ul><li><a href="Application.html#event:appStarted">appStarted</a></li><li><a href="Application.html#event:pageLoaded">pageLoaded</a></li><li><a href="Application.html#event:pageLoading">pageLoading</a></li><li><a href="Application.html#event:pageNotFound">pageNotFound</a></li><li><a href="Application_layout.html#.event:layoutChanged">layoutChanged</a></li><li><a href="Application_layout.html#.event:layoutChanging">layoutChanging</a></li><li><a href="Component.html#.event:componentsLoaded">componentsLoaded</a></li></ul><h3>Namespaces</h3><ul><li><a href="veronica.html">veronica</a><ul class='methods'><li data-type='method'><a href="veronica.html#.createClass">createClass</a></li></ul></li></ul><h3>Interfaces</h3><ul><li><a href="UIKit.html">UIKit</a><ul class='methods'><li data-type='method'><a href="UIKit.html#create">create</a></li><li data-type='method'><a href="UIKit.html#getInstance">getInstance</a></li><li data-type='method'><a href="UIKit.html#init">init</a></li></ul></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Logger</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        Logger
+        </h2>
+        
+            <div class="class-description"><p>浏览器控制台日志对象</p></div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="Logger"><span class="type-signature"></span>new Logger<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_logger.js.html">base/logger.js</a>, <a href="base_logger.js.html#line40">line 40</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="enable"><span class="type-signature"></span>enable<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Logger.html">Logger</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_logger.js.html">base/logger.js</a>, <a href="base_logger.js.html#line70">line 70</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>启用</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="Logger.html">Logger</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="error"><span class="type-signature"></span>error<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_logger.js.html">base/logger.js</a>, <a href="base_logger.js.html#line109">line 109</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>记录错误信息</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="info"><span class="type-signature"></span>info<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_logger.js.html">base/logger.js</a>, <a href="base_logger.js.html#line115">line 115</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>记录普通消息</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="log"><span class="type-signature"></span>log<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_logger.js.html">base/logger.js</a>, <a href="base_logger.js.html#line97">line 97</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>记录日志信息</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setName"><span class="type-signature"></span>setName<span class="signature">(name)</span><span class="type-signature"> &rarr; {<a href="Logger.html">Logger</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_logger.js.html">base/logger.js</a>, <a href="base_logger.js.html#line61">line 61</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>设置名称</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>名称</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="Logger.html">Logger</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="time"><span class="type-signature"></span>time<span class="signature">(name, tag)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_logger.js.html">base/logger.js</a>, <a href="base_logger.js.html#line123">line 123</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>记录时间</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>时间</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>tag</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>开始计时时不传，结束计时时传 'End'</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="warn"><span class="type-signature"></span>warn<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_logger.js.html">base/logger.js</a>, <a href="base_logger.js.html#line103">line 103</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>记录警告信息</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Oct 22 2016 21:57:51 GMT+0800 (China Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

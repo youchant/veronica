@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>BaseClass - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Application.html">Application</a><ul class='methods'><li data-type='method'><a href="Application.html#busy">busy</a></li><li data-type='method'><a href="Application.html#start">start</a></li><li data-type='method'><a href="Application.html#stop">stop</a></li><li data-type='method'><a href="Application.html#use">use</a></li></ul></li><li><a href="Component.html">Component</a><ul class='methods'><li data-type='method'><a href="Component.html#_descendant">_descendant</a></li><li data-type='method'><a href="Component.html#active">active</a></li><li data-type='method'><a href="Component.html#children">children</a></li><li data-type='method'><a href="Component.html#create">create</a></li><li data-type='method'><a href="Component.html#createPart">createPart</a></li><li data-type='method'><a href="Component.html#createProvider">createProvider</a></li><li data-type='method'><a href="Component.html#defaultModel">defaultModel</a></li><li data-type='method'><a href="Component.html#destroy">destroy</a></li><li data-type='method'><a href="Component.html#get">get</a></li><li data-type='method'><a href="Component.html#listen">listen</a></li><li data-type='method'><a href="Component.html#log">log</a></li><li data-type='method'><a href="Component.html#model">model</a></li><li data-type='method'><a href="Component.html#parent">parent</a></li><li data-type='method'><a href="Component.html#parents">parents</a></li><li data-type='method'><a href="Component.html#parse">parse</a></li><li data-type='method'><a href="Component.html#part">part</a></li><li data-type='method'><a href="Component.html#reset">reset</a></li><li data-type='method'><a href="Component.html#startChildren">startChildren</a></li><li data-type='method'><a href="Component.html#stop">stop</a></li><li data-type='method'><a href="Component.html#stopChildren">stopChildren</a></li></ul></li><li><a href="QueryString.html">QueryString</a><ul class='methods'><li data-type='method'><a href="QueryString.html#get">get</a></li><li data-type='method'><a href="QueryString.html#set">set</a></li><li data-type='method'><a href="QueryString.html#toJSON">toJSON</a></li></ul></li><li><a href="Router.html">Router</a><ul class='methods'></ul></li><li><a href="veronica.AppPart.html">AppPart</a><ul class='methods'><li data-type='method'><a href="veronica.AppPart.html#app">app</a></li><li data-type='method'><a href="veronica.AppPart.html#loader">loader</a></li><li data-type='method'><a href="veronica.AppPart.html#logger">logger</a></li></ul></li><li><a href="veronica.AppProvider.html">AppProvider</a><ul class='methods'><li data-type='method'><a href="veronica.AppProvider.html#add">add</a></li><li data-type='method'><a href="veronica.AppProvider.html#get">get</a></li><li data-type='method'><a href="veronica.AppProvider.html#has">has</a></li><li data-type='method'><a href="veronica.AppProvider.html#remove">remove</a></li><li data-type='method'><a href="veronica.AppProvider.html#setDefault">setDefault</a></li></ul></li><li><a href="veronica.AppRouter.html">AppRouter</a><ul class='methods'></ul></li><li><a href="veronica.BaseClass.html">BaseClass</a><ul class='methods'><li data-type='method'><a href="veronica.BaseClass.html#.members">members</a></li><li data-type='method'><a href="veronica.BaseClass.html#.methods">methods</a></li><li data-type='method'><a href="veronica.BaseClass.html#.statics">statics</a></li><li data-type='method'><a href="veronica.BaseClass.html#implement">implement</a></li></ul></li><li><a href="veronica.ComponentDefManager.html">ComponentDefManager</a><ul class='methods'><li data-type='method'><a href="veronica.ComponentDefManager.html#resolve">resolve</a></li></ul></li><li><a href="veronica.ComponentManager.html">ComponentManager</a><ul class='methods'><li data-type='method'><a href="veronica.ComponentManager.html#_updateCurrConfigList">_updateCurrConfigList</a></li><li data-type='method'><a href="veronica.ComponentManager.html#clearDom">clearDom</a></li><li data-type='method'><a href="veronica.ComponentManager.html#findDom">findDom</a></li><li data-type='method'><a href="veronica.ComponentManager.html#getByDom">getByDom</a></li><li data-type='method'><a href="veronica.ComponentManager.html#normalizeBatchConfig">normalizeBatchConfig</a></li><li data-type='method'><a href="veronica.ComponentManager.html#normalizeConfig">normalizeConfig</a></li><li data-type='method'><a href="veronica.ComponentManager.html#register">register</a></li><li data-type='method'><a href="veronica.ComponentManager.html#start">start</a></li><li data-type='method'><a href="veronica.ComponentManager.html#stop">stop</a></li></ul></li><li><a href="veronica.History.html">History</a><ul class='methods'></ul></li><li><a href="veronica.LayoutManager.html">LayoutManager</a><ul class='methods'><li data-type='method'><a href="veronica.LayoutManager.html#change">change</a></li><li data-type='method'><a href="veronica.LayoutManager.html#init">init</a></li></ul></li><li><a href="veronica.Logger.html">Logger</a><ul class='methods'><li data-type='method'><a href="veronica.Logger.html#enable">enable</a></li><li data-type='method'><a href="veronica.Logger.html#error">error</a></li><li data-type='method'><a href="veronica.Logger.html#info">info</a></li><li data-type='method'><a href="veronica.Logger.html#log">log</a></li><li data-type='method'><a href="veronica.Logger.html#setName">setName</a></li><li data-type='method'><a href="veronica.Logger.html#time">time</a></li><li data-type='method'><a href="veronica.Logger.html#warn">warn</a></li></ul></li><li><a href="veronica.Observable.html">Observable</a><ul class='methods'><li data-type='method'><a href="veronica.Observable.html#after">after</a></li><li data-type='method'><a href="veronica.Observable.html#before">before</a></li><li data-type='method'><a href="veronica.Observable.html#listenTo">listenTo</a></li><li data-type='method'><a href="veronica.Observable.html#listenToOnce">listenToOnce</a></li><li data-type='method'><a href="veronica.Observable.html#off">off</a></li><li data-type='method'><a href="veronica.Observable.html#on">on</a></li><li data-type='method'><a href="veronica.Observable.html#one">one</a></li><li data-type='method'><a href="veronica.Observable.html#onFirst">onFirst</a></li><li data-type='method'><a href="veronica.Observable.html#stopListen">stopListen</a></li><li data-type='method'><a href="veronica.Observable.html#trigger">trigger</a></li></ul></li><li><a href="veronica.PageManager.html">PageManager</a><ul class='methods'><li data-type='method'><a href="veronica.PageManager.html#change">change</a></li><li data-type='method'><a href="veronica.PageManager.html#getCurrName">getCurrName</a></li><li data-type='method'><a href="veronica.PageManager.html#resolve">resolve</a></li></ul></li></ul><h3>Externals</h3><ul><li><a href="external-Lodash.html">Lodash</a><ul class='methods'><li data-type='method'><a href="external-Lodash.html#.decamelize">decamelize</a></li><li data-type='method'><a href="external-Lodash.html#.ensureArray">ensureArray</a></li><li data-type='method'><a href="external-Lodash.html#.getParameterNames">getParameterNames</a></li><li data-type='method'><a href="external-Lodash.html#.mapArrayOrSingle">mapArrayOrSingle</a></li><li data-type='method'><a href="external-Lodash.html#.normalizePath">normalizePath</a></li><li data-type='method'><a href="external-Lodash.html#.safeInvoke">safeInvoke</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="Application.html#event:appStarted">appStarted</a></li><li><a href="Application.html#event:layoutChanged">layoutChanged</a></li><li><a href="Application.html#event:layoutChanging">layoutChanging</a></li><li><a href="Application.html#event:pageLoaded">pageLoaded</a></li><li><a href="Application.html#event:pageLoading">pageLoading</a></li><li><a href="Application.html#event:pageNotFound">pageNotFound</a></li><li><a href="Component.html#.event:componentsLoaded">componentsLoaded</a></li></ul><h3>Namespaces</h3><ul><li><a href="veronica.html">veronica</a><ul class='methods'><li data-type='method'><a href="veronica.html#.createClass">createClass</a></li></ul></li></ul><h3>Interfaces</h3><ul><li><a href="Module.html">Module</a><ul class='methods'><li data-type='method'><a href="Module.html#resolveLocation">resolveLocation</a></li><li data-type='method'><a href="Module.html#resolvePath">resolvePath</a></li></ul></li><li><a href="TemplateEngine.html">TemplateEngine</a><ul class='methods'><li data-type='method'><a href="TemplateEngine.html#compile">compile</a></li><li data-type='method'><a href="TemplateEngine.html#options">options</a></li></ul></li><li><a href="UIKit.html">UIKit</a><ul class='methods'><li data-type='method'><a href="UIKit.html#create">create</a></li><li data-type='method'><a href="UIKit.html#getInstance">getInstance</a></li><li data-type='method'><a href="UIKit.html#init">init</a></li></ul></li><li><a href="ViewEngine.html">ViewEngine</a><ul class='methods'><li data-type='method'><a href="ViewEngine.html#bind">bind</a></li><li data-type='method'><a href="ViewEngine.html#bindEvents">bindEvents</a></li><li data-type='method'><a href="ViewEngine.html#create">create</a></li><li data-type='method'><a href="ViewEngine.html#get">get</a></li><li data-type='method'><a href="ViewEngine.html#set">set</a></li><li data-type='method'><a href="ViewEngine.html#unbind">unbind</a></li></ul></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">BaseClass</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="veronica.html">veronica</a>.</span>
+        
+        BaseClass
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+
+
+<h4 class="name" id="BaseClass"><span class="type-signature"></span>new BaseClass<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_class.js.html">base/class.js</a>, <a href="base_class.js.html#line253">line 253</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>子类构造函数</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id=".extend"><span class="type-signature">(static) </span>extend<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_class.js.html">base/class.js</a>, <a href="base_class.js.html#line295">line 295</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>扩展子类</p>
+</div>
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>var Sub = Parent.extend({   initialize: function(){     this.supr()   } })</code></pre>
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+
+            
+
+
+
+<h4 class="name" id=".members"><span class="type-signature">(static) </span>members<span class="signature">(o, options)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_class.js.html">base/class.js</a>, <a href="base_class.js.html#line341">line 341</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>添加成员</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>o</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>扩展对象</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>扩展参数</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">this</span>
+
+
+    </dd>
+</dl>
+
+
+
+
+        
+
+            
+
+
+
+<h4 class="name" id=".methods"><span class="type-signature">(static) </span>methods<span class="signature">(o, merge)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_class.js.html">base/class.js</a>, <a href="base_class.js.html#line275">line 275</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>扩展方法</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>o</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>方法对象</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>merge</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>需要进行合并的方法</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">this</span>
+
+
+    </dd>
+</dl>
+
+
+
+
+        
+
+            
+
+
+
+<h4 class="name" id=".statics"><span class="type-signature">(static) </span>statics<span class="signature">(o, optFn<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_class.js.html">base/class.js</a>, <a href="base_class.js.html#line308">line 308</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>添加静态属性/方法</p>
+</div>
+
+
+
+
+
+
+
+
+
+<h5>Example</h5>
+
+    <pre class="prettyprint"><code>Component.statics({     'test': function() { } }) Component.statics('test', function(){ })</code></pre>
+
+
+
+
+<h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>o</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>静态对象/属性名</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>optFn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>方法</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+            
+
+
+
+<h4 class="name" id="implement"><span class="type-signature"></span>implement<span class="signature">(o, optFn<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="base_class.js.html">base/class.js</a>, <a href="base_class.js.html#line332">line 332</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>为实例对象添加属性/方法</p>
+</div>
+
+
+
+
+
+
+
+
+
+<h5>Example</h5>
+
+    <pre class="prettyprint"><code>cmp.implement({     'test': function() { } }) cmp.implement('test', function(){ })</code></pre>
+
+
+
+
+<h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>o</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+|
+
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>对象/属性名</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>optFn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>方法</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.2</a> on Sun Oct 23 2016 22:58:46 GMT+0800 (China Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

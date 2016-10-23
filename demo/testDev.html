@@ -34,7 +34,8 @@
 
         component.register('test', {
             options: {
-                autoStart: true
+                autoRender: true,
+                autoChildren: true
             },
             template: '<div>hello world</div>' +
             '<button class="js-btn">点击</button>' +
@@ -59,15 +60,12 @@
             defaultModel: function () {
                 return {}
             },
-            setup: function () {
+            created: function () {
                 //  var data = this.get('vm:data').toJSON();
                 //  var sel = this.get('ui:user-list').select();
             },
             ready: function () {
 
-            },
-            bound: function () {
-                //this.get('part:app:component').start()
             },
             destroyed: function () {
 

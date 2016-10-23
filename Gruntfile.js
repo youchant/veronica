@@ -70,8 +70,9 @@ module.exports = function (grunt) {
                     verbose: true,
                     destination: './docs/api',
                     configure: 'jsdoc-conf.json',
-                    // template: 'node_modules/ink-docstrap/template',
+                    //template: 'node_modules/ink-docstrap/template',
                     template: 'node_modules/docdash',
+                    //template: 'node_modules/jaguarjs-jsdoc-patched ',
                     private: false
                 }
             }
