@@ -1,6 +1,6 @@
 site_name: Veronica
 theme_dir: readthedocs-cn
-site_dir: ../site
+site_dir: ../../docs
 pages:
 - 首页: 'index.md'
 - 教程:

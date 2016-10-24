@@ -32,7 +32,6 @@ module.exports = function (grunt) {
                         "veronica": "main",
                         'lodash': 'empty:',
                         'jquery': 'empty:',
-                        'eventemitter': '../node_modules/eventemitter2/lib/eventemitter2',
                         'text': '../node_modules/requirejs-text/text'
                     },
                     "include": ["../node_modules/almond/almond", "veronica"],
@@ -65,14 +64,12 @@ module.exports = function (grunt) {
         },
         jsdoc: {
             dist: {
-                src: ['lib/**/*.js', 'README.md', '!lib/assets/**/*'],
+                src: ['lib/**/*.js', 'lib/intro.md', '!lib/assets/**/*'],
                 options: {
                     verbose: true,
                     destination: './docs/api',
                     configure: 'jsdoc-conf.json',
-                    //template: 'node_modules/ink-docstrap/template',
                     template: 'node_modules/docdash',
-                    //template: 'node_modules/jaguarjs-jsdoc-patched ',
                     private: false
                 }
             }
@@ -104,7 +101,7 @@ module.exports = function (grunt) {
         },
         mkdocs: {
             dist: {
-                src: './lib/docs',
+                src: './lib/docs/1.x',
                 options: {
                     clean: true
                 }
@@ -122,6 +119,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-mkdocs');
 
 
-    grunt.registerTask('default', ['requirejs', 'concat', 'clean', 'uglify']);
-    grunt.registerTask('doc', ['mkdocs', 'jsdoc', 'connect', 'watch']);
+    grunt.registerTask('release', ['requirejs', 'concat', 'clean', 'uglify']);
+    // grunt.registerTask('doc', ['mkdocs', 'jsdoc', 'connect', 'watch']);
+    grunt.registerTask('default', ['release']);
 };

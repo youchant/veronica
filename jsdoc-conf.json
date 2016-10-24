@@ -10,6 +10,10 @@
     "cleverLinks": true,
     "outputSourceFiles": false,
     "outputSourcePath": false,
-    "monospaceLinks": true
+    "monospaceLinks": true,
+    "default": {
+      "includeDate": false
+    }
+
   }
 }
