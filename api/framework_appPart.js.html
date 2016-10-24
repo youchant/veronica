@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>framework/appPart.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Application.html">Application</a><ul class='methods'><li data-type='method'><a href="Application.html#busy">busy</a></li><li data-type='method'><a href="Application.html#start">start</a></li><li data-type='method'><a href="Application.html#stop">stop</a></li><li data-type='method'><a href="Application.html#use">use</a></li></ul></li><li><a href="QueryString.html">QueryString</a><ul class='methods'><li data-type='method'><a href="QueryString.html#get">get</a></li><li data-type='method'><a href="QueryString.html#set">set</a></li><li data-type='method'><a href="QueryString.html#toJSON">toJSON</a></li></ul></li><li><a href="Router.html">Router</a><ul class='methods'></ul></li><li><a href="veronica.AppPart.html">AppPart</a><ul class='methods'><li data-type='method'><a href="veronica.AppPart.html#app">app</a></li><li data-type='method'><a href="veronica.AppPart.html#loader">loader</a></li><li data-type='method'><a href="veronica.AppPart.html#logger">logger</a></li></ul></li><li><a href="veronica.AppProvider.html">AppProvider</a><ul class='methods'><li data-type='method'><a href="veronica.AppProvider.html#add">add</a></li><li data-type='method'><a href="veronica.AppProvider.html#get">get</a></li><li data-type='method'><a href="veronica.AppProvider.html#has">has</a></li><li data-type='method'><a href="veronica.AppProvider.html#remove">remove</a></li><li data-type='method'><a href="veronica.AppProvider.html#setDefault">setDefault</a></li></ul></li><li><a href="veronica.AppRouter.html">AppRouter</a><ul class='methods'></ul></li><li><a href="veronica.BaseClass.html">BaseClass</a><ul class='methods'><li data-type='method'><a href="veronica.BaseClass.html#.members">members</a></li><li data-type='method'><a href="veronica.BaseClass.html#.methods">methods</a></li><li data-type='method'><a href="veronica.BaseClass.html#.statics">statics</a></li><li data-type='method'><a href="veronica.BaseClass.html#implement">implement</a></li></ul></li><li><a href="veronica.Component.html">Component</a><ul class='methods'><li data-type='method'><a href="veronica.Component.html#$">$</a></li><li data-type='method'><a href="veronica.Component.html#active">active</a></li><li data-type='method'><a href="veronica.Component.html#children">children</a></li><li data-type='method'><a href="veronica.Component.html#destroy">destroy</a></li><li data-type='method'><a href="veronica.Component.html#hide">hide</a></li><li data-type='method'><a href="veronica.Component.html#parent">parent</a></li><li data-type='method'><a href="veronica.Component.html#parents">parents</a></li><li data-type='method'><a href="veronica.Component.html#parse">parse</a></li><li data-type='method'><a href="veronica.Component.html#render">render</a></li><li data-type='method'><a href="veronica.Component.html#reset">reset</a></li><li data-type='method'><a href="veronica.Component.html#show">show</a></li><li data-type='method'><a href="veronica.Component.html#startChildren">startChildren</a></li><li data-type='method'><a href="veronica.Component.html#stop">stop</a></li><li data-type='method'><a href="veronica.Component.html#stopChildren">stopChildren</a></li><li data-type='method'><a href="veronica.Component.html#ui">ui</a></li></ul></li><li><a href="veronica.ComponentDefManager.html">ComponentDefManager</a><ul class='methods'><li data-type='method'><a href="veronica.ComponentDefManager.html#resolve">resolve</a></li></ul></li><li><a href="veronica.ComponentManager.html">ComponentManager</a><ul class='methods'><li data-type='method'><a href="veronica.ComponentManager.html#findDom">findDom</a></li><li data-type='method'><a href="veronica.ComponentManager.html#getByDom">getByDom</a></li><li data-type='method'><a href="veronica.ComponentManager.html#isCurrBatch">isCurrBatch</a></li><li data-type='method'><a href="veronica.ComponentManager.html#register">register</a></li><li data-type='method'><a href="veronica.ComponentManager.html#start">start</a></li><li data-type='method'><a href="veronica.ComponentManager.html#stop">stop</a></li><li data-type='method'><a href="veronica.ComponentManager.html#stopAll">stopAll</a></li><li data-type='method'><a href="veronica.ComponentManager.html#stopByDom">stopByDom</a></li></ul></li><li><a href="veronica.History.html">History</a><ul class='methods'></ul></li><li><a href="veronica.LayoutManager.html">LayoutManager</a><ul class='methods'><li data-type='method'><a href="veronica.LayoutManager.html#change">change</a></li><li data-type='method'><a href="veronica.LayoutManager.html#init">init</a></li></ul></li><li><a href="veronica.Logger.html">Logger</a><ul class='methods'><li data-type='method'><a href="veronica.Logger.html#enable">enable</a></li><li data-type='method'><a href="veronica.Logger.html#error">error</a></li><li data-type='method'><a href="veronica.Logger.html#info">info</a></li><li data-type='method'><a href="veronica.Logger.html#log">log</a></li><li data-type='method'><a href="veronica.Logger.html#setName">setName</a></li><li data-type='method'><a href="veronica.Logger.html#time">time</a></li><li data-type='method'><a href="veronica.Logger.html#warn">warn</a></li></ul></li><li><a href="veronica.Observable.html">Observable</a><ul class='methods'><li data-type='method'><a href="veronica.Observable.html#after">after</a></li><li data-type='method'><a href="veronica.Observable.html#before">before</a></li><li data-type='method'><a href="veronica.Observable.html#listenTo">listenTo</a></li><li data-type='method'><a href="veronica.Observable.html#listenToOnce">listenToOnce</a></li><li data-type='method'><a href="veronica.Observable.html#off">off</a></li><li data-type='method'><a href="veronica.Observable.html#on">on</a></li><li data-type='method'><a href="veronica.Observable.html#once">once</a></li><li data-type='method'><a href="veronica.Observable.html#onFirst">onFirst</a></li><li data-type='method'><a href="veronica.Observable.html#stopListen">stopListen</a></li><li data-type='method'><a href="veronica.Observable.html#trigger">trigger</a></li></ul></li><li><a href="veronica.PageManager.html">PageManager</a><ul class='methods'><li data-type='method'><a href="veronica.PageManager.html#change">change</a></li><li data-type='method'><a href="veronica.PageManager.html#getCurrName">getCurrName</a></li><li data-type='method'><a href="veronica.PageManager.html#resolve">resolve</a></li></ul></li></ul><h3>Externals</h3><ul><li><a href="external-Lodash.html">Lodash</a><ul class='methods'><li data-type='method'><a href="external-Lodash.html#.decamelize">decamelize</a></li><li data-type='method'><a href="external-Lodash.html#.ensureArray">ensureArray</a></li><li data-type='method'><a href="external-Lodash.html#.getParameterNames">getParameterNames</a></li><li data-type='method'><a href="external-Lodash.html#.mapArrayOrSingle">mapArrayOrSingle</a></li><li data-type='method'><a href="external-Lodash.html#.normalizePath">normalizePath</a></li><li data-type='method'><a href="external-Lodash.html#.safeInvoke">safeInvoke</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="Application.html#event:appStarted">appStarted</a></li><li><a href="Application.html#event:componentsLoaded">componentsLoaded</a></li><li><a href="Application.html#event:layoutChanged">layoutChanged</a></li><li><a href="Application.html#event:layoutChanging">layoutChanging</a></li><li><a href="Application.html#event:pageLoaded">pageLoaded</a></li><li><a href="Application.html#event:pageLoading">pageLoading</a></li><li><a href="Application.html#event:pageNotFound">pageNotFound</a></li></ul><h3>Namespaces</h3><ul><li><a href="veronica.html">veronica</a><ul class='methods'><li data-type='method'><a href="veronica.html#.createClass">createClass</a></li></ul></li></ul><h3>Interfaces</h3><ul><li><a href="Module.html">Module</a><ul class='methods'><li data-type='method'><a href="Module.html#resolveLocation">resolveLocation</a></li><li data-type='method'><a href="Module.html#resolvePath">resolvePath</a></li></ul></li><li><a href="TemplateEngine.html">TemplateEngine</a><ul class='methods'><li data-type='method'><a href="TemplateEngine.html#compile">compile</a></li><li data-type='method'><a href="TemplateEngine.html#options">options</a></li></ul></li><li><a href="UIKit.html">UIKit</a><ul class='methods'><li data-type='method'><a href="UIKit.html#create">create</a></li><li data-type='method'><a href="UIKit.html#getInstance">getInstance</a></li><li data-type='method'><a href="UIKit.html#init">init</a></li></ul></li><li><a href="ViewEngine.html">ViewEngine</a><ul class='methods'><li data-type='method'><a href="ViewEngine.html#bind">bind</a></li><li data-type='method'><a href="ViewEngine.html#bindEvents">bindEvents</a></li><li data-type='method'><a href="ViewEngine.html#create">create</a></li><li data-type='method'><a href="ViewEngine.html#get">get</a></li><li data-type='method'><a href="ViewEngine.html#set">set</a></li><li data-type='method'><a href="ViewEngine.html#toJSON">toJSON</a></li><li data-type='method'><a href="ViewEngine.html#unbind">unbind</a></li></ul></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">framework/appPart.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>define([
+    '../base/index'
+], function (baseLib) {
+    var _ = baseLib._;
+    var $ = baseLib.$;
+    var Observable = baseLib.Observable;
+
+    var AppPart = Observable.extend(/** @lends veronica.AppPart# */{
+        /**
+         * 应用程序部件
+         * @constructs AppPart
+         * @augments veronica.Observable
+         * @param {Object} options - 配置参数
+         * @memberOf veronica
+         */
+        initialize: function (options) {
+            options || (options = {});
+            this.supr(options);
+            this.options = $.extend(true, {}, this.options, options);
+            this._app = options.app;
+        },
+        /**
+         * 获取应用程序
+         * @returns {Application} - 所属应用程序
+         */
+        app: function () {
+            return this._app || this;
+        },
+        /**
+         * 获取日志记录器
+         * @returns {Logger} - 日志记录器
+         */
+        logger: function () {
+            return this.get('part:app:logger');
+        },
+        /**
+         * 获取组件加载器
+         * @returns {Loader} - 加载器
+         */
+        loader: function () {
+            return this.get('part:app:loader').get();
+        }
+    });
+
+    return AppPart;
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

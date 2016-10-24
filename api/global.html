@@ -1,1152 +1,200 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Global</title>
-    
-    
+    <title>Global - Documentation</title>
+
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
-    <script src="scripts/jquery.min.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
-    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
-    
-    
-    <script>
-    var config = {"monospaceLinks":true,"cleverLinks":true,"applicationName":"Veronica.js","outputSourceFiles":false,"outputSourcePath":false,"default":{}};
-    </script>
-    
-
-    
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
 </head>
 <body>
-<div id="wrap" class="clearfix">
-    
-<div class="navigation">
-    <h3 class="applicationName"><a href="index.html">Veronica.js</a></h3>
 
-    <div class="search">
-        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
-    </div>
-    <ul class="list">
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Application.html">Application</a><ul class='methods'><li data-type='method'><a href="Application.html#busy">busy</a></li><li data-type='method'><a href="Application.html#start">start</a></li><li data-type='method'><a href="Application.html#stop">stop</a></li><li data-type='method'><a href="Application.html#use">use</a></li></ul></li><li><a href="QueryString.html">QueryString</a><ul class='methods'><li data-type='method'><a href="QueryString.html#get">get</a></li><li data-type='method'><a href="QueryString.html#set">set</a></li><li data-type='method'><a href="QueryString.html#toJSON">toJSON</a></li></ul></li><li><a href="Router.html">Router</a><ul class='methods'></ul></li><li><a href="veronica.AppPart.html">AppPart</a><ul class='methods'><li data-type='method'><a href="veronica.AppPart.html#app">app</a></li><li data-type='method'><a href="veronica.AppPart.html#loader">loader</a></li><li data-type='method'><a href="veronica.AppPart.html#logger">logger</a></li></ul></li><li><a href="veronica.AppProvider.html">AppProvider</a><ul class='methods'><li data-type='method'><a href="veronica.AppProvider.html#add">add</a></li><li data-type='method'><a href="veronica.AppProvider.html#get">get</a></li><li data-type='method'><a href="veronica.AppProvider.html#has">has</a></li><li data-type='method'><a href="veronica.AppProvider.html#remove">remove</a></li><li data-type='method'><a href="veronica.AppProvider.html#setDefault">setDefault</a></li></ul></li><li><a href="veronica.AppRouter.html">AppRouter</a><ul class='methods'></ul></li><li><a href="veronica.BaseClass.html">BaseClass</a><ul class='methods'><li data-type='method'><a href="veronica.BaseClass.html#.members">members</a></li><li data-type='method'><a href="veronica.BaseClass.html#.methods">methods</a></li><li data-type='method'><a href="veronica.BaseClass.html#.statics">statics</a></li><li data-type='method'><a href="veronica.BaseClass.html#implement">implement</a></li></ul></li><li><a href="veronica.Component.html">Component</a><ul class='methods'><li data-type='method'><a href="veronica.Component.html#$">$</a></li><li data-type='method'><a href="veronica.Component.html#active">active</a></li><li data-type='method'><a href="veronica.Component.html#children">children</a></li><li data-type='method'><a href="veronica.Component.html#destroy">destroy</a></li><li data-type='method'><a href="veronica.Component.html#hide">hide</a></li><li data-type='method'><a href="veronica.Component.html#parent">parent</a></li><li data-type='method'><a href="veronica.Component.html#parents">parents</a></li><li data-type='method'><a href="veronica.Component.html#parse">parse</a></li><li data-type='method'><a href="veronica.Component.html#render">render</a></li><li data-type='method'><a href="veronica.Component.html#reset">reset</a></li><li data-type='method'><a href="veronica.Component.html#show">show</a></li><li data-type='method'><a href="veronica.Component.html#startChildren">startChildren</a></li><li data-type='method'><a href="veronica.Component.html#stop">stop</a></li><li data-type='method'><a href="veronica.Component.html#stopChildren">stopChildren</a></li><li data-type='method'><a href="veronica.Component.html#ui">ui</a></li></ul></li><li><a href="veronica.ComponentDefManager.html">ComponentDefManager</a><ul class='methods'><li data-type='method'><a href="veronica.ComponentDefManager.html#resolve">resolve</a></li></ul></li><li><a href="veronica.ComponentManager.html">ComponentManager</a><ul class='methods'><li data-type='method'><a href="veronica.ComponentManager.html#findDom">findDom</a></li><li data-type='method'><a href="veronica.ComponentManager.html#getByDom">getByDom</a></li><li data-type='method'><a href="veronica.ComponentManager.html#isCurrBatch">isCurrBatch</a></li><li data-type='method'><a href="veronica.ComponentManager.html#register">register</a></li><li data-type='method'><a href="veronica.ComponentManager.html#start">start</a></li><li data-type='method'><a href="veronica.ComponentManager.html#stop">stop</a></li><li data-type='method'><a href="veronica.ComponentManager.html#stopAll">stopAll</a></li><li data-type='method'><a href="veronica.ComponentManager.html#stopByDom">stopByDom</a></li></ul></li><li><a href="veronica.History.html">History</a><ul class='methods'></ul></li><li><a href="veronica.LayoutManager.html">LayoutManager</a><ul class='methods'><li data-type='method'><a href="veronica.LayoutManager.html#change">change</a></li><li data-type='method'><a href="veronica.LayoutManager.html#init">init</a></li></ul></li><li><a href="veronica.Logger.html">Logger</a><ul class='methods'><li data-type='method'><a href="veronica.Logger.html#enable">enable</a></li><li data-type='method'><a href="veronica.Logger.html#error">error</a></li><li data-type='method'><a href="veronica.Logger.html#info">info</a></li><li data-type='method'><a href="veronica.Logger.html#log">log</a></li><li data-type='method'><a href="veronica.Logger.html#setName">setName</a></li><li data-type='method'><a href="veronica.Logger.html#time">time</a></li><li data-type='method'><a href="veronica.Logger.html#warn">warn</a></li></ul></li><li><a href="veronica.Observable.html">Observable</a><ul class='methods'><li data-type='method'><a href="veronica.Observable.html#after">after</a></li><li data-type='method'><a href="veronica.Observable.html#before">before</a></li><li data-type='method'><a href="veronica.Observable.html#listenTo">listenTo</a></li><li data-type='method'><a href="veronica.Observable.html#listenToOnce">listenToOnce</a></li><li data-type='method'><a href="veronica.Observable.html#off">off</a></li><li data-type='method'><a href="veronica.Observable.html#on">on</a></li><li data-type='method'><a href="veronica.Observable.html#once">once</a></li><li data-type='method'><a href="veronica.Observable.html#onFirst">onFirst</a></li><li data-type='method'><a href="veronica.Observable.html#stopListen">stopListen</a></li><li data-type='method'><a href="veronica.Observable.html#trigger">trigger</a></li></ul></li><li><a href="veronica.PageManager.html">PageManager</a><ul class='methods'><li data-type='method'><a href="veronica.PageManager.html#change">change</a></li><li data-type='method'><a href="veronica.PageManager.html#getCurrName">getCurrName</a></li><li data-type='method'><a href="veronica.PageManager.html#resolve">resolve</a></li></ul></li></ul><h3>Externals</h3><ul><li><a href="external-Lodash.html">Lodash</a><ul class='methods'><li data-type='method'><a href="external-Lodash.html#.decamelize">decamelize</a></li><li data-type='method'><a href="external-Lodash.html#.ensureArray">ensureArray</a></li><li data-type='method'><a href="external-Lodash.html#.getParameterNames">getParameterNames</a></li><li data-type='method'><a href="external-Lodash.html#.mapArrayOrSingle">mapArrayOrSingle</a></li><li data-type='method'><a href="external-Lodash.html#.normalizePath">normalizePath</a></li><li data-type='method'><a href="external-Lodash.html#.safeInvoke">safeInvoke</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="Application.html#event:appStarted">appStarted</a></li><li><a href="Application.html#event:componentsLoaded">componentsLoaded</a></li><li><a href="Application.html#event:layoutChanged">layoutChanged</a></li><li><a href="Application.html#event:layoutChanging">layoutChanging</a></li><li><a href="Application.html#event:pageLoaded">pageLoaded</a></li><li><a href="Application.html#event:pageLoading">pageLoading</a></li><li><a href="Application.html#event:pageNotFound">pageNotFound</a></li></ul><h3>Namespaces</h3><ul><li><a href="veronica.html">veronica</a><ul class='methods'><li data-type='method'><a href="veronica.html#.createClass">createClass</a></li></ul></li></ul><h3>Interfaces</h3><ul><li><a href="Module.html">Module</a><ul class='methods'><li data-type='method'><a href="Module.html#resolveLocation">resolveLocation</a></li><li data-type='method'><a href="Module.html#resolvePath">resolvePath</a></li></ul></li><li><a href="TemplateEngine.html">TemplateEngine</a><ul class='methods'><li data-type='method'><a href="TemplateEngine.html#compile">compile</a></li><li data-type='method'><a href="TemplateEngine.html#options">options</a></li></ul></li><li><a href="UIKit.html">UIKit</a><ul class='methods'><li data-type='method'><a href="UIKit.html#create">create</a></li><li data-type='method'><a href="UIKit.html#getInstance">getInstance</a></li><li data-type='method'><a href="UIKit.html#init">init</a></li></ul></li><li><a href="ViewEngine.html">ViewEngine</a><ul class='methods'><li data-type='method'><a href="ViewEngine.html#bind">bind</a></li><li data-type='method'><a href="ViewEngine.html#bindEvents">bindEvents</a></li><li data-type='method'><a href="ViewEngine.html#create">create</a></li><li data-type='method'><a href="ViewEngine.html#get">get</a></li><li data-type='method'><a href="ViewEngine.html#set">set</a></li><li data-type='method'><a href="ViewEngine.html#toJSON">toJSON</a></li><li data-type='method'><a href="ViewEngine.html#unbind">unbind</a></li></ul></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<div id="main">
     
-        <li class="item" data-name="veronica">
-            <span class="title">
-                <a href="veronica.html">veronica</a>
-                
-                <span class="static">静态类</span>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            <span class="subtitle">Members</span>
-            
-                <li data-name="veronica.app"><a href="veronica.html#.app">app</a></li>
-            
-                <li data-name="veronica#$"><a href="veronica.html#$">$</a></li>
-            
-                <li data-name="veronica#_"><a href="veronica.html#_">_</a></li>
-            
-                <li data-name="veronica#constant"><a href="veronica.html#constant">constant</a></li>
-            
-                <li data-name="veronica#ext"><a href="veronica.html#ext">ext</a></li>
-            
-                <li data-name="veronica#helper"><a href="veronica.html#helper">helper</a></li>
-            
-                <li data-name="veronica#logger"><a href="veronica.html#logger">logger</a></li>
-            
-                <li data-name="veronica#mediator"><a href="veronica.html#mediator">mediator</a></li>
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica#createApp"><a href="veronica.html#createApp">createApp</a></li>
-            
-                <li data-name="veronica#getConfig"><a href="veronica.html#getConfig">getConfig</a></li>
-            
-                <li data-name="veronica#qs"><a href="veronica.html#qs">qs</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
+    <h1 class="page-title">Global</h1>
     
-        <li class="item" data-name="veronica.enums">
-            <span class="title">
-                <a href="veronica.enums.html">veronica.enums</a>
-                
-                <span class="static">静态类</span>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            <span class="subtitle">Members</span>
-            
-                <li data-name="veronica.enums.hostType"><a href="veronica.enums.html#.hostType">hostType</a></li>
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
+
     
-        <li class="item" data-name="veronica.i18n">
-            <span class="title">
-                <a href="veronica.i18n.html">veronica.i18n</a>
-                
-                <span class="static">静态类</span>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            <span class="subtitle">Members</span>
-            
-                <li data-name="veronica.i18n.defaultDialogTitle"><a href="veronica.i18n.html#.defaultDialogTitle">defaultDialogTitle</a></li>
-            
-                <li data-name="veronica.i18n.loadingText"><a href="veronica.i18n.html#.loadingText">loadingText</a></li>
-            
-                <li data-name="veronica.i18n.windowCloseText"><a href="veronica.i18n.html#.windowCloseText">windowCloseText</a></li>
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.loader">
-            <span class="title">
-                <a href="veronica.loader.html">veronica.loader</a>
-                
-                <span class="static">静态类</span>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.loader.require"><a href="veronica.loader.html#.require">require</a></li>
-            
-                <li data-name="veronica.loader.useGlobalRequire"><a href="veronica.loader.html#.useGlobalRequire">useGlobalRequire</a></li>
-            
-                <li data-name="veronica.loader.useGlobalRequirejs"><a href="veronica.loader.html#.useGlobalRequirejs">useGlobalRequirejs</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.util">
-            <span class="title">
-                <a href="veronica.util.html">veronica.util</a>
-                
-                <span class="static">静态类</span>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.util.camelize"><a href="veronica.util.html#.camelize">camelize</a></li>
-            
-                <li data-name="veronica.util.decamelize"><a href="veronica.util.html#.decamelize">decamelize</a></li>
-            
-                <li data-name="veronica.util.qsToJSON"><a href="veronica.util.html#.qsToJSON">qsToJSON</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Application">
-            <span class="title">
-                <a href="veronica.Application.html">veronica.Application</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            <span class="subtitle">Members</span>
-            
-                <li data-name="veronica.Application#config"><a href="veronica.Application.html#config">config</a></li>
-            
-                <li data-name="veronica.Application#core"><a href="veronica.Application.html#core">core</a></li>
-            
-                <li data-name="veronica.Application#lang"><a href="veronica.Application.html#lang">lang</a></li>
-            
-                <li data-name="veronica.Application#layout"><a href="veronica.Application.html#layout">layout</a></li>
-            
-                <li data-name="veronica.Application#module"><a href="veronica.Application.html#module">module</a></li>
-            
-                <li data-name="veronica.Application#name"><a href="veronica.Application.html#name">name</a></li>
-            
-                <li data-name="veronica.Application#page"><a href="veronica.Application.html#page">page</a></li>
-            
-                <li data-name="veronica.Application#parser"><a href="veronica.Application.html#parser">parser</a></li>
-            
-                <li data-name="veronica.Application#request"><a href="veronica.Application.html#request">request</a></li>
-            
-                <li data-name="veronica.Application#router"><a href="veronica.Application.html#router">router</a></li>
-            
-                <li data-name="veronica.Application#sandboxes"><a href="veronica.Application.html#sandboxes">sandboxes</a></li>
-            
-                <li data-name="veronica.Application#view"><a href="veronica.Application.html#view">view</a></li>
-            
-                <li data-name="veronica.Application#widget"><a href="veronica.Application.html#widget">widget</a></li>
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Application#emit"><a href="veronica.Application.html#emit">emit</a></li>
-            
-                <li data-name="veronica.Application#launch"><a href="veronica.Application.html#launch">launch</a></li>
-            
-                <li data-name="veronica.Application#mixin"><a href="veronica.Application.html#mixin">mixin</a></li>
-            
-                <li data-name="veronica.Application#stop"><a href="veronica.Application.html#stop">stop</a></li>
-            
-                <li data-name="veronica.Application#use"><a href="veronica.Application.html#use">use</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Data">
-            <span class="title">
-                <a href="veronica.Data.html">veronica.Data</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Data#get"><a href="veronica.Data.html#get">get</a></li>
-            
-                <li data-name="veronica.Data#set"><a href="veronica.Data.html#set">set</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Dialog">
-            <span class="title">
-                <a href="veronica.Dialog.html">veronica.Dialog</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            <span class="subtitle">Members</span>
-            
-                <li data-name="veronica.Dialog#config"><a href="veronica.Dialog.html#config">config</a></li>
-            
-                <li data-name="veronica.Dialog#core"><a href="veronica.Dialog.html#core">core</a></li>
-            
-                <li data-name="veronica.Dialog#element"><a href="veronica.Dialog.html#element">element</a></li>
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Dialog#close"><a href="veronica.Dialog.html#close">close</a></li>
-            
-                <li data-name="veronica.Dialog#open"><a href="veronica.Dialog.html#open">open</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Layout">
-            <span class="title">
-                <a href="veronica.Layout.html">veronica.Layout</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Layout#add"><a href="veronica.Layout.html#add">add</a></li>
-            
-                <li data-name="veronica.Layout#change"><a href="veronica.Layout.html#change">change</a></li>
-            
-                <li data-name="veronica.Layout#get"><a href="veronica.Layout.html#get">get</a></li>
-            
-                <li data-name="veronica.Layout#init"><a href="veronica.Layout.html#init">init</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Logger">
-            <span class="title">
-                <a href="veronica.Logger.html">veronica.Logger</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Logger#_time"><a href="veronica.Logger.html#_time">_time</a></li>
-            
-                <li data-name="veronica.Logger#enable"><a href="veronica.Logger.html#enable">enable</a></li>
-            
-                <li data-name="veronica.Logger#error"><a href="veronica.Logger.html#error">error</a></li>
-            
-                <li data-name="veronica.Logger#info"><a href="veronica.Logger.html#info">info</a></li>
-            
-                <li data-name="veronica.Logger#log"><a href="veronica.Logger.html#log">log</a></li>
-            
-                <li data-name="veronica.Logger#setName"><a href="veronica.Logger.html#setName">setName</a></li>
-            
-                <li data-name="veronica.Logger#warn"><a href="veronica.Logger.html#warn">warn</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Module">
-            <span class="title">
-                <a href="veronica.Module.html">veronica.Module</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Module#addExtension"><a href="veronica.Module.html#addExtension">addExtension</a></li>
-            
-                <li data-name="veronica.Module#addLayout"><a href="veronica.Module.html#addLayout">addLayout</a></li>
-            
-                <li data-name="veronica.Module#addPage"><a href="veronica.Module.html#addPage">addPage</a></li>
-            
-                <li data-name="veronica.Module#addSource"><a href="veronica.Module.html#addSource">addSource</a></li>
-            
-                <li data-name="veronica.Module#apply"><a href="veronica.Module.html#apply">apply</a></li>
-            
-                <li data-name="veronica.Module#loadEntry"><a href="veronica.Module.html#loadEntry">loadEntry</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.ModuleHandler">
-            <span class="title">
-                <a href="veronica.ModuleHandler.html">veronica.ModuleHandler</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.ModuleHandler#add"><a href="veronica.ModuleHandler.html#add">add</a></li>
-            
-                <li data-name="veronica.ModuleHandler#apply"><a href="veronica.ModuleHandler.html#apply">apply</a></li>
-            
-                <li data-name="veronica.ModuleHandler#create"><a href="veronica.ModuleHandler.html#create">create</a></li>
-            
-                <li data-name="veronica.ModuleHandler#get"><a href="veronica.ModuleHandler.html#get">get</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Page">
-            <span class="title">
-                <a href="veronica.Page.html">veronica.Page</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Page#active"><a href="veronica.Page.html#active">active</a></li>
-            
-                <li data-name="veronica.Page#add"><a href="veronica.Page.html#add">add</a></li>
-            
-                <li data-name="veronica.Page#change"><a href="veronica.Page.html#change">change</a></li>
-            
-                <li data-name="veronica.Page#start"><a href="veronica.Page.html#start">start</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Parser">
-            <span class="title">
-                <a href="veronica.Parser.html">veronica.Parser</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Parser#parse"><a href="veronica.Parser.html#parse">parse</a></li>
-            
-                <li data-name="veronica.Parser#parseView"><a href="veronica.Parser.html#parseView">parseView</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.QueryString">
-            <span class="title">
-                <a href="veronica.QueryString.html">veronica.QueryString</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.QueryString#get"><a href="veronica.QueryString.html#get">get</a></li>
-            
-                <li data-name="veronica.QueryString#set"><a href="veronica.QueryString.html#set">set</a></li>
-            
-                <li data-name="veronica.QueryString#toJSON"><a href="veronica.QueryString.html#toJSON">toJSON</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Request">
-            <span class="title">
-                <a href="veronica.Request.html">veronica.Request</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Request#download"><a href="veronica.Request.html#download">download</a></li>
-            
-                <li data-name="veronica.Request#get"><a href="veronica.Request.html#get">get</a></li>
-            
-                <li data-name="veronica.Request#getBundle"><a href="veronica.Request.html#getBundle">getBundle</a></li>
-            
-                <li data-name="veronica.Request#getComplex"><a href="veronica.Request.html#getComplex">getComplex</a></li>
-            
-                <li data-name="veronica.Request#getJSON"><a href="veronica.Request.html#getJSON">getJSON</a></li>
-            
-                <li data-name="veronica.Request#post"><a href="veronica.Request.html#post">post</a></li>
-            
-                <li data-name="veronica.Request#postComplex"><a href="veronica.Request.html#postComplex">postComplex</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Router">
-            <span class="title">
-                <a href="veronica.Router.html">veronica.Router</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            <span class="subtitle">Members</span>
-            
-                <li data-name="veronica.Router#base"><a href="veronica.Router.html#base">base</a></li>
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Router#create"><a href="veronica.Router.html#create">create</a></li>
-            
-                <li data-name="veronica.Router#navigate"><a href="veronica.Router.html#navigate">navigate</a></li>
-            
-                <li data-name="veronica.Router#start"><a href="veronica.Router.html#start">start</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Sandbox">
-            <span class="title">
-                <a href="veronica.Sandbox.html">veronica.Sandbox</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Sandbox#emit"><a href="veronica.Sandbox.html#emit">emit</a></li>
-            
-                <li data-name="veronica.Sandbox#getConfig"><a href="veronica.Sandbox.html#getConfig">getConfig</a></li>
-            
-                <li data-name="veronica.Sandbox#getHost"><a href="veronica.Sandbox.html#getHost">getHost</a></li>
-            
-                <li data-name="veronica.Sandbox#log"><a href="veronica.Sandbox.html#log">log</a></li>
-            
-                <li data-name="veronica.Sandbox#off"><a href="veronica.Sandbox.html#off">off</a></li>
-            
-                <li data-name="veronica.Sandbox#on"><a href="veronica.Sandbox.html#on">on</a></li>
-            
-                <li data-name="veronica.Sandbox#once"><a href="veronica.Sandbox.html#once">once</a></li>
-            
-                <li data-name="veronica.Sandbox#startWidgets"><a href="veronica.Sandbox.html#startWidgets">startWidgets</a></li>
-            
-                <li data-name="veronica.Sandbox#stop"><a href="veronica.Sandbox.html#stop">stop</a></li>
-            
-                <li data-name="veronica.Sandbox#stopChildren"><a href="veronica.Sandbox.html#stopChildren">stopChildren</a></li>
-            
-                <li data-name="veronica.Sandbox#stopListening"><a href="veronica.Sandbox.html#stopListening">stopListening</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Sandboxes">
-            <span class="title">
-                <a href="veronica.Sandboxes.html">veronica.Sandboxes</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.Sandboxes#create"><a href="veronica.Sandboxes.html#create">create</a></li>
-            
-                <li data-name="veronica.Sandboxes#get"><a href="veronica.Sandboxes.html#get">get</a></li>
-            
-                <li data-name="veronica.Sandboxes#getByName"><a href="veronica.Sandboxes.html#getByName">getByName</a></li>
-            
-                <li data-name="veronica.Sandboxes#remove"><a href="veronica.Sandboxes.html#remove">remove</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.View">
-            <span class="title">
-                <a href="veronica.View.html">veronica.View</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            <span class="subtitle">Members</span>
-            
-                <li data-name="veronica.View#_bind"><a href="veronica.View.html#_bind">_bind</a></li>
-            
-                <li data-name="veronica.View#_customDestory"><a href="veronica.View.html#_customDestory">_customDestory</a></li>
-            
-                <li data-name="veronica.View#aspect"><a href="veronica.View.html#aspect">aspect</a></li>
-            
-                <li data-name="veronica.View#defaults"><a href="veronica.View.html#defaults">defaults</a></li>
-            
-                <li data-name="veronica.View#delegateModelEvents"><a href="veronica.View.html#delegateModelEvents">delegateModelEvents</a></li>
-            
-                <li data-name="veronica.View#enhance"><a href="veronica.View.html#enhance">enhance</a></li>
-            
-                <li data-name="veronica.View#init"><a href="veronica.View.html#init">init</a></li>
-            
-                <li data-name="veronica.View#instance"><a href="veronica.View.html#instance">instance</a></li>
-            
-                <li data-name="veronica.View#mixins"><a href="veronica.View.html#mixins">mixins</a></li>
-            
-                <li data-name="veronica.View#modelBound"><a href="veronica.View.html#modelBound">modelBound</a></li>
-            
-                <li data-name="veronica.View#modelChanged"><a href="veronica.View.html#modelChanged">modelChanged</a></li>
-            
-                <li data-name="veronica.View#rendered"><a href="veronica.View.html#rendered">rendered</a></li>
-            
-                <li data-name="veronica.View#staticModel"><a href="veronica.View.html#staticModel">staticModel</a></li>
-            
-                <li data-name="veronica.View#switchable"><a href="veronica.View.html#switchable">switchable</a></li>
-            
-                <li data-name="veronica.View#template"><a href="veronica.View.html#template">template</a></li>
-            
-                <li data-name="veronica.View#templateUrl"><a href="veronica.View.html#templateUrl">templateUrl</a></li>
-            
-                <li data-name="veronica.View#views"><a href="veronica.View.html#views">views</a></li>
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.View#_createViewModel"><a href="veronica.View.html#_createViewModel">_createViewModel</a></li>
-            
-                <li data-name="veronica.View#active"><a href="veronica.View.html#active">active</a></li>
-            
-                <li data-name="veronica.View#destroy"><a href="veronica.View.html#destroy">destroy</a></li>
-            
-                <li data-name="veronica.View#externalModel"><a href="veronica.View.html#externalModel">externalModel</a></li>
-            
-                <li data-name="veronica.View#hide"><a href="veronica.View.html#hide">hide</a></li>
-            
-                <li data-name="veronica.View#htmlWindow"><a href="veronica.View.html#htmlWindow">htmlWindow</a></li>
-            
-                <li data-name="veronica.View#initialize"><a href="veronica.View.html#initialize">initialize</a></li>
-            
-                <li data-name="veronica.View#model"><a href="veronica.View.html#model">model</a></li>
-            
-                <li data-name="veronica.View#render"><a href="veronica.View.html#render">render</a></li>
-            
-                <li data-name="veronica.View#show"><a href="veronica.View.html#show">show</a></li>
-            
-                <li data-name="veronica.View#startWidgets"><a href="veronica.View.html#startWidgets">startWidgets</a></li>
-            
-                <li data-name="veronica.View#uniqWindowName"><a href="veronica.View.html#uniqWindowName">uniqWindowName</a></li>
-            
-                <li data-name="veronica.View#url"><a href="veronica.View.html#url">url</a></li>
-            
-                <li data-name="veronica.View#view"><a href="veronica.View.html#view">view</a></li>
-            
-                <li data-name="veronica.View#viewWindow"><a href="veronica.View.html#viewWindow">viewWindow</a></li>
-            
-                <li data-name="veronica.View#widgetWindow"><a href="veronica.View.html#widgetWindow">widgetWindow</a></li>
-            
-                <li data-name="veronica.View#window"><a href="veronica.View.html#window">window</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.ViewHandler">
-            <span class="title">
-                <a href="veronica.ViewHandler.html">veronica.ViewHandler</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.ViewHandler#define"><a href="veronica.ViewHandler.html#define">define</a></li>
-            
-                <li data-name="veronica.ViewHandler#register"><a href="veronica.ViewHandler.html#register">register</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.Widget">
-            <span class="title">
-                <a href="veronica.Widget.html">veronica.Widget</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-        <li class="item" data-name="veronica.WidgetHandler">
-            <span class="title">
-                <a href="veronica.WidgetHandler.html">veronica.WidgetHandler</a>
-                
-            </span>
-            <ul class="members itemMembers">
-            
-            <span class="subtitle">Members</span>
-            
-                <li data-name="veronica.WidgetHandler#isLoading"><a href="veronica.WidgetHandler.html#isLoading">isLoading</a></li>
-            
-            </ul>
-            <ul class="typedefs itemMembers">
-            
-            </ul>
-            <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="veronica.WidgetHandler#clear"><a href="veronica.WidgetHandler.html#clear">clear</a></li>
-            
-                <li data-name="veronica.WidgetHandler#package"><a href="veronica.WidgetHandler.html#package">package</a></li>
-            
-                <li data-name="veronica.WidgetHandler#register"><a href="veronica.WidgetHandler.html#register">register</a></li>
-            
-                <li data-name="veronica.WidgetHandler#start"><a href="veronica.WidgetHandler.html#start">start</a></li>
-            
-                <li data-name="veronica.WidgetHandler#stop"><a href="veronica.WidgetHandler.html#stop">stop</a></li>
-            
-            </ul>
-            <ul class="events itemMembers">
-            
-            </ul>
-        </li>
-    
-    </ul>
-</div>
-    <div class="main">
-        <h1 class="page-title" data-filename="global.html">Global</h1>
-        
+
 
 
 
 <section>
-    
+
 <header>
-    <h2>
     
-    </h2>
+        <h2>
+        
+        </h2>
+        
     
-</header>  
+</header>
 
 <article>
     <div class="container-overview">
     
-    
-    
         
-        
-        
+
 <dl class="details">
-    
-        
-    
-    
+
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
 </dl>
 
+
+
+
         
+
         
     
     </div>
+
     
+
     
+
     
+
+     
+
     
+
     
+
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     
         <h3 class="subsection-title">Type Definitions</h3>
+
         
-        <dl>
                 
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="DialogChildOptions">DialogChildOptions</h4>
-    </div>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>对话框内容组件配置参数</p>
-    </div>
-    
-    
-    
+<h4 class="name" id="ApplicationOptions">ApplicationOptions</h4>
+
+
+
+
+
 <dl class="details">
+
     
-        
-        <h5 class="subsection-title">Properties:</h5>
-        
-        <dl>
-
-<table class="props">
-    <thead>
-	<tr>
-		
-		<th>名称</th>
-		
-		
-		<th>类型</th>
-		
-		
-		<th>参数</th>
-		
-		
-		
-		
-		<th class="last">描述</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>type</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">DlgChildType</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-            
-            <td class="description last"><p>类型（如果不设置则使用对话框配置参数中的内容组件类型）</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                </td>
-            
-            
-            
-            
-            <td class="description last"><p>组件名称（如果 type 是 &quot;widget&quot;，则指定 widget 名称）</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>initializer</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-            
-            <td class="description last"><p>组件初始化器（仅 type 为 &quot;view&quot; 时才有效）</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#ViewOptions">ViewOptions</a></span>
-|
-
-<span class="param-type"><a href="global.html#WidgetOptions">WidgetOptions</a></span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                </td>
-            
-            
-            
-            
-            <td class="description last"><p>组件的配置参数</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table></dl>
-        
-    
-        
-    
-    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="application_index.js.html">application/index.js</a>, <a href="application_index.js.html#line16">line 16</a>
+    </li></ul></dd>
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
 </dl>
 
-    
-    
-</dd>
 
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="DialogOptions">DialogOptions</h4>
-    </div>
+
+    <h5 class="subsection-title">Properties:</h5>
+
     
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>对话框配置参数</p>
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-        <h5 class="subsection-title">Properties:</h5>
-        
-        <dl>
 
 <table class="props">
     <thead>
-	<tr>
-		
-		<th>名称</th>
-		
-		
-		<th>类型</th>
-		
-		
-		<th>参数</th>
-		
-		
-		
-		<th>默认值</th>
-		
-		
-		<th class="last">描述</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>name</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -1155,138 +203,509 @@
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
                 </td>
             
-            
+
             
                 <td class="default">
                 
+                    <code>'app'</code>
+                
                 </td>
             
-            
-            <td class="description last"><p>对话框名称</p></td>
+
+            <td class="description last"><p>应用程序名</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
-                <td class="name"><code>type</code></td>
+                <td class="name"><code>global</code></td>
             
-            
+
             <td class="type">
             
                 
-<span class="param-type">DlgChildType</span>
+<span class="param-type">boolean</span>
 
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
                 </td>
             
-            
+
             
                 <td class="default">
                 
+                    <code>true</code>
+                
                 </td>
             
-            
-            <td class="description last"><p>默认的内容组件类型</p></td>
+
+            <td class="description last"><p>是否全局对象</p></td>
         </tr>
-	
-	
-	
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<div class="description">
+    <p>可传入部件的配置参数，以部件的名称作为键</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="ComponentDefManagerOptions">ComponentDefManagerOptions</h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="framework_componentDefManager.js.html">framework/componentDefManager.js</a>, <a href="framework_componentDefManager.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>defaultContext</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>null</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>组件的默认上下文</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>autoParseContext</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>自动从组件定义名称解析上下文</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="ComponentManagerOptions">ComponentManagerOptions</h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="framework_componentManager.js.html">framework/componentManager.js</a>, <a href="framework_componentManager.js.html#line34">line 34</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>defaultMountNode</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>'.v-component-root'</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>默认的宿主元素</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="ComponentOptions">ComponentOptions</h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="component_index.js.html">component/index.js</a>, <a href="component_index.js.html#line13">line 13</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>el</code></td>
             
-            
+
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">string</span>
+|
+
+<span class="param-type">DOM</span>
 
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
-                    &lt;optional><br>
-                
-                    
+
                 
                 </td>
             
-            
+
             
                 <td class="default">
                 
                 </td>
             
-            
-            <td class="description last"><p>对话框的内容元素</p></td>
+
+            <td class="description last"><p>挂载元素</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
-                <td class="name"><code>positionTo</code></td>
+                <td class="name"><code>replace</code></td>
             
-            
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
 
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>停靠的位置元素</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>center</code></td>
-            
-            
             <td class="type">
             
                 
@@ -1295,1163 +714,35 @@
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
                 </td>
             
-            
+
             
                 <td class="default">
                 
-                    true
+                    <code>true</code>
                 
                 </td>
             
-            
-            <td class="description last"><p>对话框是否居中</p></td>
+
+            <td class="description last"><p>是否替换</p></td>
         </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>footer</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
 
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-            
-            <td class="description last"><p>对话框是否具有页脚</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>destroyedOnClose</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    true
-                
-                </td>
-            
-            
-            <td class="description last"><p>是否在关闭后自动销毁</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#DialogUIOptions">DialogUIOptions</a></span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>对话框UI控件的配置参数</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>children</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;<a href="global.html#DialogChildOptions">DialogChildOptions</a>></span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>对话框内部的内容组件</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table></dl>
-        
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-</dd>
-
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="DialogUIOptions">DialogUIOptions</h4>
-    </div>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>对话框UI控件的配置参数（默认采用 artDialg）</p>
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a target="_blank" href="http://aui.github.io/artDialog/doc/index.html">http://aui.github.io/artDialog/doc/index.html</a></li>
-        </ul>
-    </dd>
-    
-    
-    
-</dl>
-
-    
-    
-</dd>
-
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="eventCallback">
-            
-            eventCallback<span class="signature">(param)</span>
-        </h4>
-    
-        
-        <div class="tag-source">
-            app/view.js, line 11
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>事件处理函数</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>param</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-            
-            
-            
-            <td class="description last">
-                
-                    
-                    
-                        
-                    
-                        <span class="repeatable">repeatable</span>
-                    
-                
-                <p>事件参数</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="layoutConfig">layoutConfig</h4>
-    </div>
-    
-    
-</dt>
-<dd>
-    
-    
-    
-<dl class="details">
-    
-        
-        <h5 class="subsection-title">Properties:</h5>
-        
-        <dl>
-
-<table class="props">
-    <thead>
-	<tr>
-		
-		<th>名称</th>
-		
-		
-		<th>类型</th>
-		
-		
-		
-		
-		
-		<th class="last">描述</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>html</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>布局的HTML</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>url</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>获取布局的地址</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table></dl>
-        
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-</dd>
-
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="messageCallback">
-            
-            messageCallback<span class="signature">(param)</span>
-        </h4>
-    
-        
-        <div class="tag-source">
-            app/view.js, line 17
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>消息订阅处理函数</p>
-    </div>
-    
-
-    
-    
-    
     
-    
-        
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>param</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-            
-            
-            
-            <td class="description last">
-                
-                    
-                    
-                        
-                    
-                        <span class="repeatable">repeatable</span>
-                    
-                
-                <p>消息传递的参数</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="moduleConfig">moduleConfig</h4>
-    </div>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>模块配置，有纯字符串的简写形式</p>
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-        <h5 class="subsection-title">Properties:</h5>
-        
-        <dl>
-
-<table class="props">
-    <thead>
-	<tr>
-		
-		<th>名称</th>
-		
-		
-		<th>类型</th>
-		
-		
-		<th>参数</th>
-		
-		
-		
-		<th>默认值</th>
-		
-		
-		<th class="last">描述</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>模块名称</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>source</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    'modules'
-                
-                </td>
-            
-            
-            <td class="description last"><p>模块源（地址）</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>hasEntry</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    true
-                
-                </td>
-            
-            
-            <td class="description last"><p>模块是否有入口方法</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>path</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    null
-                
-                </td>
-            
-            
-            <td class="description last"><p>模块路径，如果不设置，根据模块源和模块名称计算得出</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>multilevel</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-            
-            <td class="description last"><p>内部 widget 放置是否是多层级的</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>build</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    null
-                
-                </td>
-            
-            
-            <td class="description last"><p>打包后模块的路径，如果不指定则按照默认规则放置</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table></dl>
-        
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-</dd>
-
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="Promise">Promise</h4>
-    </div>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>jQuery 延迟对象</p>
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-</dd>
-
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="SandboxChildren">SandboxChildren</h4>
-    </div>
-    
-    
-</dt>
-<dd>
-    
-    
-    
-<dl class="details">
-    
-        
-        <h5 class="subsection-title">Properties:</h5>
-        
-        <dl>
-
-<table class="props">
-    <thead>
-	<tr>
-		
-		<th>名称</th>
-		
-		
-		<th>类型</th>
-		
-		
-		
-		
-		
-		<th class="last">描述</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>ref</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>sandbox的唯一标识符</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>caller</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>开启该sandbox的对象的唯一标识符</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table></dl>
-        
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-</dd>
-
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="ViewOptions">ViewOptions</h4>
-    </div>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>选项</p>
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-        <h5 class="subsection-title">Properties:</h5>
-        
-        <dl>
-
-<table class="props">
-    <thead>
-	<tr>
-		
-		<th>名称</th>
-		
-		
-		<th>类型</th>
-		
-		
-		<th>参数</th>
-		
-		
-		
-		<th>默认值</th>
-		
-		
-		<th class="last">描述</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>autoAction</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
 
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-            
-            <td class="description last"><p>自动绑定Action事件
-  当在模板中使用如下写法时</p>
-<pre class="prettyprint source lang-html"><code>  &lt;button data-action=&quot;add&quot;>添加&lt;/button></code></pre><p>  如果该属性为 <code>true</code> 将自动查找该视图的 <code>addHandler</code> 方法作为该按钮点击事件的处理函数</p></td>
-        </tr>
-	
-	
-	
         <tr>
             
                 <td class="name"><code>autoRender</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -2460,110 +751,35 @@
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
                 </td>
             
-            
+
             
                 <td class="default">
                 
-                    true
+                    <code>true</code>
                 
                 </td>
             
-            
-            <td class="description last"><p>自动渲染. 视图一初始化就进行渲染</p></td>
+
+            <td class="description last"><p>自动渲染</p></td>
         </tr>
-	
-	
-	
+
+    
+
         <tr>
             
-                <td class="name"><code>_place</code></td>
+                <td class="name"><code>autoChildren</code></td>
             
-            
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
 
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    0
-                
-                </td>
-            
-            
-            <td class="description last"><p>插入位置（0：append，1：prepend）</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>host</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">object</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>父元素，可以是选择器或jQuery对象</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>autoResize</code></td>
-            
-            
             <td class="type">
             
                 
@@ -2572,752 +788,123 @@
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
                 </td>
             
-            
+
             
                 <td class="default">
                 
-                    false
+                    <code>true</code>
                 
                 </td>
             
-            
-            <td class="description last"><p>自适应窗口变化. 该属性设为true后当窗口大小变化时会自动调用<code>resize</code>方法，因此需要重写该方法</p></td>
+
+            <td class="description last"><p>自动初始化子组件</p></td>
         </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>autoCreateSubview</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
 
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    true
-                
-                </td>
-            
-            
-            <td class="description last"><p>在视图渲染时，自动创建子视图，需设置 views 属性</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>activeView</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    null
-                
-                </td>
-            
-            
-            <td class="description last"><p>设置在switchable中默认活动的视图</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>autoST</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-            
-            <td class="description last"><p>自动设置触发器. 该属性为true后，会广播 <code>setTriggers</code> 消息可将该视图的工具条由defaultToolbarTpl 指定注入到其他widget，需要额外设置 <code>toolbar</code> 项指定该视图的注入到的widget名称</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>toolbar</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    'toolbar'
-                
-                </td>
-            
-            
-            <td class="description last"><p>触发器放置的 widget name</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>defaultToolbarTpl</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    '.tpl-toolbar'
-                
-                </td>
-            
-            
-            <td class="description last"><p>触发器默认模板的选择器</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>windowOptions</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-            
-            <td class="description last"><p>设置当视图单独位于窗口中时，窗口的选项</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>sharedModel</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    null
-                
-                </td>
-            
-            
-            <td class="description last"><p>视图没有自己的视图模型，来源于该属性共享的视图模型</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>sharedModelProp</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">array</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    null
-                
-                </td>
-            
-            
-            <td class="description last"><p>共享视图模型的属性集合</p>
-<pre class="prettyprint source"><code>  [['destPropName', 'originPropName'], 'propName2']</code></pre></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>langClass</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    null
-                
-                </td>
-            
-            
-            <td class="description last"><p>视图所属的 language class 在模板中，可通过<code>data.lang.xxx</code> 来访问特定的语言文本</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>bindEmptyModel</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-            
-            <td class="description last"><p>当视图模型没赋值时 是否也进行绑定</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>activeView</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                    null
-                
-                </td>
-            
-            
-            <td class="description last"><p>初始活动的子视图名称</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table></dl>
-        
     
-        
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="ComponentStartConfig">ComponentStartConfig</h4>
+
+
+
+
+
+<dl class="details">
+
     
-    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="framework_componentManager.js.html">framework/componentManager.js</a>, <a href="framework_componentManager.js.html#line19">line 19</a>
+    </li></ul></dd>
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
 </dl>
 
-    
-    
-</dd>
 
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="WidgetOptions">WidgetOptions</h4>
-    </div>
+
+    <h5 class="subsection-title">Properties:</h5>
+
     
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>widget 配置，他继承部分启动时配置，不需要自己创建</p>
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-        <h5 class="subsection-title">Properties:</h5>
-        
-        <dl>
 
 <table class="props">
     <thead>
-	<tr>
-		
-		<th>名称</th>
-		
-		
-		<th>类型</th>
-		
-		
-		
-		
-		
-		<th class="last">描述</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>_name</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>widget名称</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>_page</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>所属页面名称</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>_sandboxRef</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>沙箱标识符（自动生成）</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>sandbox</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Sandbox.html">Sandbox</a></span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>沙箱（自动生成）</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>_exclusive</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>是否独占host</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table></dl>
+    <tr>
         
-    
+        <th>Name</th>
         
-    
-    
-    
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="global.html#WidgetStartConfig"><code>WidgetStartConfig</code></a> 其他属性请查看启动时配置的 `options` 属性</li>
-        </ul>
-    </dd>
-    
-    
-    
-</dl>
+        <th>Type</th>
 
-    
-    
-</dd>
-
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="WidgetOptions">WidgetOptions</h4>
-    </div>
-    
-    
-</dt>
-<dd>
-    
-    
-    
-<dl class="details">
-    
         
-    
-    
-    
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-</dd>
-
-            
-                
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="WidgetStartConfig">WidgetStartConfig</h4>
-    </div>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        <p>widget 启动时配置</p>
-    </div>
-    
-    
-    
-<dl class="details">
-    
         
-        <h5 class="subsection-title">Properties:</h5>
-        
-        <dl>
 
-<table class="props">
-    <thead>
-	<tr>
-		
-		<th>名称</th>
-		
-		
-		<th>类型</th>
-		
-		
-		
-		
-		
-		<th class="last">描述</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
                 <td class="name"><code>name</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -3326,138 +913,85 @@
 
             
             </td>
+
             
+
             
-            
-            
-            
-            <td class="description last"><p>widget 名称（配置时名称）</p></td>
+
+            <td class="description last"><p>组件实例名称</p></td>
         </tr>
-	
-	
-	
+
+    
+
+        <tr>
+            
+                <td class="name"><code>xtype</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>组件定义类型名</p></td>
+        </tr>
+
+    
+
         <tr>
             
                 <td class="name"><code>options</code></td>
             
-            
+
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">Object</span>
 
 
             
             </td>
+
             
+
             
-            
-            
-            
-            <td class="description last"><p>选项</p>
+
+            <td class="description last"><p>组件参数</p>
                 <h6>Properties</h6>
 
 <table class="props">
     <thead>
-	<tr>
-		
-		<th>名称</th>
-		
-		
-		<th>类型</th>
-		
-		
-		<th>参数</th>
-		
-		
-		
-		<th>默认值</th>
-		
-		
-		<th class="last">描述</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>_source</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
+    <tr>
+        
+        <th>Name</th>
+        
 
+        <th>Type</th>
 
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>源</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>host</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
+        
 
-<span class="param-type">DOM</span>
-|
+        
 
-<span class="param-type">jQueryObject</span>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
 
+    <tbody>
+    
 
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>附加到该DOM元素的子集</p></td>
-        </tr>
-	
-	
-	
         <tr>
             
                 <td class="name"><code>el</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -3465,38 +999,126 @@
 |
 
 <span class="param-type">DOM</span>
-|
-
-<span class="param-type">jQueryObject</span>
 
 
             
             </td>
+
             
+
             
-                <td class="attributes">
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>附加到该DOM元素</p></td>
+
+            <td class="description last"><p>组件挂载元素</p></td>
         </tr>
-	
-	
-	
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<div class="description">
+    <p>组件启动时配置</p>
+</div>
+
+
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="Layout">Layout</h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="framework_layoutManager.js.html">framework/layoutManager.js</a>, <a href="framework_layoutManager.js.html#line11">line 11</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
         <tr>
             
-                <td class="name"><code>_exclusive</code></td>
+                <td class="name"><code>html</code></td>
             
-            
+
             <td class="type">
             
                 
@@ -3505,94 +1127,514 @@
 
             
             </td>
-            
+
             
                 <td class="attributes">
                 
                     &lt;optional><br>
                 
-                    
+
                 
                 </td>
             
+
             
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-            
-            <td class="description last"><p>是否独占式（为 true 时，则初始化该 widget 会导致相同 host 下的其他 widget 被卸载）</p></td>
+
+            <td class="description last"><p>布局的HTML</p></td>
         </tr>
-	
-	
-	</tbody>
-</table>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>url</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
             </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>获取布局的地址</p></td>
         </tr>
-	
-	
-	</tbody>
-</table></dl>
-        
+
     
-        
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="LayoutManagerOptions">LayoutManagerOptions</h4>
+
+
+
+
+
+<dl class="details">
+
     
-    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="framework_layoutManager.js.html">framework/layoutManager.js</a>, <a href="framework_layoutManager.js.html#line33">line 33</a>
+    </li></ul></dd>
     
 
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
+
     
 </dl>
 
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
     
-    
-        <h5>Example</h5>
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
         
 
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
     
-    <pre class="prettyprint"><code>{    name: 'widget1',    options: {      _source: 'basic',      host: 'body'    }  }</code></pre>
+
+        <tr>
+            
+                <td class="name"><code>rootNode</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>'.v-layout-root'</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>布局根节点选择器</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="Page">Page</h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="framework_pageManager.js.html">framework/pageManager.js</a>, <a href="framework_pageManager.js.html#line31">line 31</a>
+    </li></ul></dd>
     
 
     
-</dd>
 
-            </dl>
     
+
     
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>页面名称</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>layout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>布局</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>components</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="global.html#ComponentStartConfig">ComponentStartConfig</a>></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>组件启动配置</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="PageManagerOptions">PageManagerOptions</h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="framework_pageManager.js.html">framework/pageManager.js</a>, <a href="framework_pageManager.js.html#line40">line 40</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>autoResolvePage</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>当找不到页面配置时，自动解析页面配置</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+            
+    
+
     
 </article>
 
-</section>  
+</section>
 
 
 
 
-
-        
-
-        <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Wed May 04 2016 22:09:20 GMT+0800 (China Standard Time)
-        </footer>
-    </div>
 </div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
 <script>prettyPrint();</script>
 <script src="scripts/linenumber.js"></script>
-<script src="scripts/main.js"></script>
 </body>
 </html>

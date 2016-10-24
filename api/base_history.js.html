@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>base/history.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Application.html">Application</a><ul class='methods'><li data-type='method'><a href="Application.html#busy">busy</a></li><li data-type='method'><a href="Application.html#start">start</a></li><li data-type='method'><a href="Application.html#stop">stop</a></li><li data-type='method'><a href="Application.html#use">use</a></li></ul></li><li><a href="QueryString.html">QueryString</a><ul class='methods'><li data-type='method'><a href="QueryString.html#get">get</a></li><li data-type='method'><a href="QueryString.html#set">set</a></li><li data-type='method'><a href="QueryString.html#toJSON">toJSON</a></li></ul></li><li><a href="Router.html">Router</a><ul class='methods'></ul></li><li><a href="veronica.AppPart.html">AppPart</a><ul class='methods'><li data-type='method'><a href="veronica.AppPart.html#app">app</a></li><li data-type='method'><a href="veronica.AppPart.html#loader">loader</a></li><li data-type='method'><a href="veronica.AppPart.html#logger">logger</a></li></ul></li><li><a href="veronica.AppProvider.html">AppProvider</a><ul class='methods'><li data-type='method'><a href="veronica.AppProvider.html#add">add</a></li><li data-type='method'><a href="veronica.AppProvider.html#get">get</a></li><li data-type='method'><a href="veronica.AppProvider.html#has">has</a></li><li data-type='method'><a href="veronica.AppProvider.html#remove">remove</a></li><li data-type='method'><a href="veronica.AppProvider.html#setDefault">setDefault</a></li></ul></li><li><a href="veronica.AppRouter.html">AppRouter</a><ul class='methods'></ul></li><li><a href="veronica.BaseClass.html">BaseClass</a><ul class='methods'><li data-type='method'><a href="veronica.BaseClass.html#.members">members</a></li><li data-type='method'><a href="veronica.BaseClass.html#.methods">methods</a></li><li data-type='method'><a href="veronica.BaseClass.html#.statics">statics</a></li><li data-type='method'><a href="veronica.BaseClass.html#implement">implement</a></li></ul></li><li><a href="veronica.Component.html">Component</a><ul class='methods'><li data-type='method'><a href="veronica.Component.html#$">$</a></li><li data-type='method'><a href="veronica.Component.html#active">active</a></li><li data-type='method'><a href="veronica.Component.html#children">children</a></li><li data-type='method'><a href="veronica.Component.html#destroy">destroy</a></li><li data-type='method'><a href="veronica.Component.html#hide">hide</a></li><li data-type='method'><a href="veronica.Component.html#parent">parent</a></li><li data-type='method'><a href="veronica.Component.html#parents">parents</a></li><li data-type='method'><a href="veronica.Component.html#parse">parse</a></li><li data-type='method'><a href="veronica.Component.html#render">render</a></li><li data-type='method'><a href="veronica.Component.html#reset">reset</a></li><li data-type='method'><a href="veronica.Component.html#show">show</a></li><li data-type='method'><a href="veronica.Component.html#startChildren">startChildren</a></li><li data-type='method'><a href="veronica.Component.html#stop">stop</a></li><li data-type='method'><a href="veronica.Component.html#stopChildren">stopChildren</a></li><li data-type='method'><a href="veronica.Component.html#ui">ui</a></li></ul></li><li><a href="veronica.ComponentDefManager.html">ComponentDefManager</a><ul class='methods'><li data-type='method'><a href="veronica.ComponentDefManager.html#resolve">resolve</a></li></ul></li><li><a href="veronica.ComponentManager.html">ComponentManager</a><ul class='methods'><li data-type='method'><a href="veronica.ComponentManager.html#findDom">findDom</a></li><li data-type='method'><a href="veronica.ComponentManager.html#getByDom">getByDom</a></li><li data-type='method'><a href="veronica.ComponentManager.html#isCurrBatch">isCurrBatch</a></li><li data-type='method'><a href="veronica.ComponentManager.html#register">register</a></li><li data-type='method'><a href="veronica.ComponentManager.html#start">start</a></li><li data-type='method'><a href="veronica.ComponentManager.html#stop">stop</a></li><li data-type='method'><a href="veronica.ComponentManager.html#stopAll">stopAll</a></li><li data-type='method'><a href="veronica.ComponentManager.html#stopByDom">stopByDom</a></li></ul></li><li><a href="veronica.History.html">History</a><ul class='methods'></ul></li><li><a href="veronica.LayoutManager.html">LayoutManager</a><ul class='methods'><li data-type='method'><a href="veronica.LayoutManager.html#change">change</a></li><li data-type='method'><a href="veronica.LayoutManager.html#init">init</a></li></ul></li><li><a href="veronica.Logger.html">Logger</a><ul class='methods'><li data-type='method'><a href="veronica.Logger.html#enable">enable</a></li><li data-type='method'><a href="veronica.Logger.html#error">error</a></li><li data-type='method'><a href="veronica.Logger.html#info">info</a></li><li data-type='method'><a href="veronica.Logger.html#log">log</a></li><li data-type='method'><a href="veronica.Logger.html#setName">setName</a></li><li data-type='method'><a href="veronica.Logger.html#time">time</a></li><li data-type='method'><a href="veronica.Logger.html#warn">warn</a></li></ul></li><li><a href="veronica.Observable.html">Observable</a><ul class='methods'><li data-type='method'><a href="veronica.Observable.html#after">after</a></li><li data-type='method'><a href="veronica.Observable.html#before">before</a></li><li data-type='method'><a href="veronica.Observable.html#listenTo">listenTo</a></li><li data-type='method'><a href="veronica.Observable.html#listenToOnce">listenToOnce</a></li><li data-type='method'><a href="veronica.Observable.html#off">off</a></li><li data-type='method'><a href="veronica.Observable.html#on">on</a></li><li data-type='method'><a href="veronica.Observable.html#once">once</a></li><li data-type='method'><a href="veronica.Observable.html#onFirst">onFirst</a></li><li data-type='method'><a href="veronica.Observable.html#stopListen">stopListen</a></li><li data-type='method'><a href="veronica.Observable.html#trigger">trigger</a></li></ul></li><li><a href="veronica.PageManager.html">PageManager</a><ul class='methods'><li data-type='method'><a href="veronica.PageManager.html#change">change</a></li><li data-type='method'><a href="veronica.PageManager.html#getCurrName">getCurrName</a></li><li data-type='method'><a href="veronica.PageManager.html#resolve">resolve</a></li></ul></li></ul><h3>Externals</h3><ul><li><a href="external-Lodash.html">Lodash</a><ul class='methods'><li data-type='method'><a href="external-Lodash.html#.decamelize">decamelize</a></li><li data-type='method'><a href="external-Lodash.html#.ensureArray">ensureArray</a></li><li data-type='method'><a href="external-Lodash.html#.getParameterNames">getParameterNames</a></li><li data-type='method'><a href="external-Lodash.html#.mapArrayOrSingle">mapArrayOrSingle</a></li><li data-type='method'><a href="external-Lodash.html#.normalizePath">normalizePath</a></li><li data-type='method'><a href="external-Lodash.html#.safeInvoke">safeInvoke</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="Application.html#event:appStarted">appStarted</a></li><li><a href="Application.html#event:componentsLoaded">componentsLoaded</a></li><li><a href="Application.html#event:layoutChanged">layoutChanged</a></li><li><a href="Application.html#event:layoutChanging">layoutChanging</a></li><li><a href="Application.html#event:pageLoaded">pageLoaded</a></li><li><a href="Application.html#event:pageLoading">pageLoading</a></li><li><a href="Application.html#event:pageNotFound">pageNotFound</a></li></ul><h3>Namespaces</h3><ul><li><a href="veronica.html">veronica</a><ul class='methods'><li data-type='method'><a href="veronica.html#.createClass">createClass</a></li></ul></li></ul><h3>Interfaces</h3><ul><li><a href="Module.html">Module</a><ul class='methods'><li data-type='method'><a href="Module.html#resolveLocation">resolveLocation</a></li><li data-type='method'><a href="Module.html#resolvePath">resolvePath</a></li></ul></li><li><a href="TemplateEngine.html">TemplateEngine</a><ul class='methods'><li data-type='method'><a href="TemplateEngine.html#compile">compile</a></li><li data-type='method'><a href="TemplateEngine.html#options">options</a></li></ul></li><li><a href="UIKit.html">UIKit</a><ul class='methods'><li data-type='method'><a href="UIKit.html#create">create</a></li><li data-type='method'><a href="UIKit.html#getInstance">getInstance</a></li><li data-type='method'><a href="UIKit.html#init">init</a></li></ul></li><li><a href="ViewEngine.html">ViewEngine</a><ul class='methods'><li data-type='method'><a href="ViewEngine.html#bind">bind</a></li><li data-type='method'><a href="ViewEngine.html#bindEvents">bindEvents</a></li><li data-type='method'><a href="ViewEngine.html#create">create</a></li><li data-type='method'><a href="ViewEngine.html#get">get</a></li><li data-type='method'><a href="ViewEngine.html#set">set</a></li><li data-type='method'><a href="ViewEngine.html#toJSON">toJSON</a></li><li data-type='method'><a href="ViewEngine.html#unbind">unbind</a></li></ul></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">base/history.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Router
+// borrow frome Backbone 1.1.2
+define([
+    './observable',
+    'jquery'
+], function (Observable, $) {
+    'use strict';
+
+    // Cached regex for stripping a leading hash/slash and trailing space.
+    var routeStripper = /^[#\/]|\s+$/g;
+
+    // Cached regex for stripping leading and trailing slashes.
+    var rootStripper = /^\/+|\/+$/g;
+
+    // Cached regex for detecting MSIE.
+    var isExplorer = /msie [\w.]+/;
+
+    // Cached regex for removing a trailing slash.
+    var trailingSlash = /\/$/;
+
+    // Cached regex for stripping urls of hash.
+    var pathStripper = /#.*$/;
+
+    // Handles cross-browser history management, based on either
+    // [pushState](http://diveintohtml5.info/history.html) and real URLs, or
+    // [onhashchange](https://developer.mozilla.org/en-US/docs/DOM/window.onhashchange)
+    // and URL fragments. If the browser supports neither (old IE, natch),
+    // falls back to polling.
+
+    /**
+     * 历史管理
+     * @class
+     * @augments {veronica.Observable}
+     * @memberOf veronica
+     * @see {@link http://backbonejs.org/#History Backbone.History}
+     */
+    // Set up all inheritable **Backbone.History** properties and methods.
+    var History = Observable.extend({
+        initialize: function () {
+            this.handlers = [];
+            _.bindAll(this, 'checkUrl');
+
+            // Ensure that `History` can be used outside of the browser.
+            if (typeof window !== 'undefined') {
+                this.location = window.location;
+                this.history = window.history;
+            }
+        },
+        // The default interval to poll for hash changes, if necessary, is
+        // twenty times a second.
+        interval: 50,
+
+        // Are we at the app root?
+        atRoot: function () {
+            return this.location.pathname.replace(/[^\/]$/, '$&amp;/') === this.root;
+        },
+
+        // Gets the true hash value. Cannot use location.hash directly due to bug
+        // in Firefox where location.hash will always be decoded.
+        getHash: function (window) {
+            var match = (window || this).location.href.match(/#(.*)$/);
+            return match ? match[1] : '';
+        },
+
+        // Get the cross-browser normalized URL fragment, either from the URL,
+        // the hash, or the override.
+        getFragment: function (fragment, forcePushState) {
+            if (fragment == null) {
+                if (this._hasPushState || !this._wantsHashChange || forcePushState) {
+                    fragment = decodeURI(this.location.pathname + this.location.search);
+                    var root = this.root.replace(trailingSlash, '');
+                    if (!fragment.indexOf(root)) fragment = fragment.slice(root.length);
+                } else {
+                    fragment = this.getHash();
+                }
+            }
+            return fragment.replace(routeStripper, '');
+        },
+
+        // Start the hash change handling, returning `true` if the current URL matches
+        // an existing route, and `false` otherwise.
+        start: function (options) {
+            if (History.started) throw new Error("Backbone.history has already been started");
+            History.started = true;
+
+            // Figure out the initial configuration. Do we need an iframe?
+            // Is pushState desired ... is it available?
+            this.options = _.extend({root: '/'}, this.options, options);
+            this.root = this.options.root;
+            this._wantsHashChange = this.options.hashChange !== false;
+            this._wantsPushState = !!this.options.pushState;
+            this._hasPushState = !!(this.options.pushState &amp;&amp; this.history &amp;&amp; this.history.pushState);
+            var fragment = this.getFragment();
+            var docMode = document.documentMode;
+            var oldIE = (isExplorer.exec(navigator.userAgent.toLowerCase()) &amp;&amp; (!docMode || docMode &lt;= 7));
+
+            // Normalize root to always include a leading and trailing slash.
+            this.root = ('/' + this.root + '/').replace(rootStripper, '/');
+
+            if (oldIE &amp;&amp; this._wantsHashChange) {
+                var frame = $('&lt;iframe src="javascript:0" tabindex="-1">');
+                this.iframe = frame.hide().appendTo('body')[0].contentWindow;
+                this.navigate(fragment);
+            }
+
+            // Depending on whether we're using pushState or hashes, and whether
+            // 'onhashchange' is supported, determine how we check the URL state.
+            if (this._hasPushState) {
+                $(window).on('popstate', this.checkUrl);
+            } else if (this._wantsHashChange &amp;&amp; ('onhashchange' in window) &amp;&amp; !oldIE) {
+                $(window).on('hashchange', this.checkUrl);
+            } else if (this._wantsHashChange) {
+                this._checkUrlInterval = setInterval(this.checkUrl, this.interval);
+            }
+
+            // Determine if we need to change the base url, for a pushState link
+            // opened by a non-pushState browser.
+            this.fragment = fragment;
+            var loc = this.location;
+
+            // Transition from hashChange to pushState or vice versa if both are
+            // requested.
+            if (this._wantsHashChange &amp;&amp; this._wantsPushState) {
+
+                // If we've started off with a route from a `pushState`-enabled
+                // browser, but we're currently in a browser that doesn't support it...
+                if (!this._hasPushState &amp;&amp; !this.atRoot()) {
+                    this.fragment = this.getFragment(null, true);
+                    this.location.replace(this.root + '#' + this.fragment);
+                    // Return immediately as browser will do redirect to new url
+                    return true;
+
+                    // Or if we've started out with a hash-based route, but we're currently
+                    // in a browser where it could be `pushState`-based instead...
+                } else if (this._hasPushState &amp;&amp; this.atRoot() &amp;&amp; loc.hash) {
+                    this.fragment = this.getHash().replace(routeStripper, '');
+                    this.history.replaceState({}, document.title, this.root + this.fragment);
+                }
+
+            }
+
+            if (!this.options.silent) return this.loadUrl();
+        },
+
+        // Disable Backbone.history, perhaps temporarily. Not useful in a real app,
+        // but possibly useful for unit testing Routers.
+        stop: function () {
+            $(window).off('popstate', this.checkUrl).off('hashchange', this.checkUrl);
+            if (this._checkUrlInterval) clearInterval(this._checkUrlInterval);
+            History.started = false;
+        },
+
+        // Add a route to be tested when the fragment changes. Routes added later
+        // may override previous routes.
+        route: function (route, callback) {
+            this.handlers.unshift({route: route, callback: callback});
+        },
+
+        // Checks the current URL to see if it has changed, and if it has,
+        // calls `loadUrl`, normalizing across the hidden iframe.
+        checkUrl: function (e) {
+            var current = this.getFragment();
+            if (current === this.fragment &amp;&amp; this.iframe) {
+                current = this.getFragment(this.getHash(this.iframe));
+            }
+            if (current === this.fragment) return false;
+            if (this.iframe) this.navigate(current);
+            this.loadUrl();
+        },
+
+        // Attempt to load the current URL fragment. If a route succeeds with a
+        // match, returns `true`. If no defined routes matches the fragment,
+        // returns `false`.
+        loadUrl: function (fragment) {
+            fragment = this.fragment = this.getFragment(fragment);
+            return _.some(this.handlers, function (handler) {
+                if (handler.route.test(fragment)) {
+                    handler.callback(fragment);
+                    return true;
+                }
+            });
+        },
+
+        // Save a fragment into the hash history, or replace the URL state if the
+        // 'replace' option is passed. You are responsible for properly URL-encoding
+        // the fragment in advance.
+        //
+        // The options object can contain `trigger: true` if you wish to have the
+        // route callback be fired (not usually desirable), or `replace: true`, if
+        // you wish to modify the current URL without adding an entry to the history.
+        navigate: function (fragment, options) {
+            if (!History.started) return false;
+            if (!options || options === true) options = {trigger: !!options};
+
+            var url = this.root + (fragment = this.getFragment(fragment || ''));
+
+            // Strip the hash for matching.
+            fragment = fragment.replace(pathStripper, '');
+
+            if (this.fragment === fragment) return;
+            this.fragment = fragment;
+
+            // Don't include a trailing slash on the root.
+            if (fragment === '' &amp;&amp; url !== '/') url = url.slice(0, -1);
+
+            // If pushState is available, we use it to set the fragment as a real URL.
+            if (this._hasPushState) {
+                this.history[options.replace ? 'replaceState' : 'pushState']({}, document.title, url);
+
+                // If hash changes haven't been explicitly disabled, update the hash
+                // fragment to store history.
+            } else if (this._wantsHashChange) {
+                this._updateHash(this.location, fragment, options.replace);
+                if (this.iframe &amp;&amp; (fragment !== this.getFragment(this.getHash(this.iframe)))) {
+                    // Opening and closing the iframe tricks IE7 and earlier to push a
+                    // history entry on hash-tag change.  When replace is true, we don't
+                    // want this.
+                    if (!options.replace) this.iframe.document.open().close();
+                    this._updateHash(this.iframe.location, fragment, options.replace);
+                }
+
+                // If you've told us that you explicitly don't want fallback hashchange-
+                // based history, then `navigate` becomes a page refresh.
+            } else {
+                return this.location.assign(url);
+            }
+            if (options.trigger) return this.loadUrl(fragment);
+        },
+
+        // Update the hash location, either replacing the current entry, or adding
+        // a new one to the browser history.
+        _updateHash: function (location, fragment, replace) {
+            if (replace) {
+                var href = location.href.replace(/(javascript:|#).*$/, '');
+                location.replace(href + '#' + fragment);
+            } else {
+                // Some browsers require that `hash` contains a leading #.
+                location.hash = '#' + fragment;
+            }
+        }
+
+    });
+
+    // Has the history handling already been started?
+    History.started = false;
+
+    return History;
+
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

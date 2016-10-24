@@ -1,4 +1,4 @@
-ccc.DS_Store
+.DS_Store
 node_modules
 bower_components
 db.json
@@ -18,3 +18,4 @@ npm-debug.log
 .out
 *.user
 packages
+.idea

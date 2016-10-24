@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>base/klass.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="-_anonymous_-extend-fn.html">fn</a><ul class='methods'><li data-type='method'><a href="-_anonymous_-extend-fn.html#.members">members</a></li><li data-type='method'><a href="-_anonymous_-extend-fn.html#.statics">statics</a></li></ul></li><li><a href="Application.html">Application</a><ul class='methods'><li data-type='method'><a href="Application.html#_descendant">_descendant</a></li><li data-type='method'><a href="Application.html#_initProps">_initProps</a></li><li data-type='method'><a href="Application.html#active">active</a></li><li data-type='method'><a href="Application.html#app">app</a></li><li data-type='method'><a href="Application.html#busy">busy</a></li><li data-type='method'><a href="Application.html#children">children</a></li><li data-type='method'><a href="Application.html#create">create</a></li><li data-type='method'><a href="Application.html#createPart">createPart</a></li><li data-type='method'><a href="Application.html#createProvider">createProvider</a></li><li data-type='method'><a href="Application.html#defaultModel">defaultModel</a></li><li data-type='method'><a href="Application.html#destroy">destroy</a></li><li data-type='method'><a href="Application.html#get">get</a></li><li data-type='method'><a href="Application.html#listen">listen</a></li><li data-type='method'><a href="Application.html#loader">loader</a></li><li data-type='method'><a href="Application.html#log">log</a></li><li data-type='method'><a href="Application.html#logger">logger</a></li><li data-type='method'><a href="Application.html#model">model</a></li><li data-type='method'><a href="Application.html#parent">parent</a></li><li data-type='method'><a href="Application.html#parents">parents</a></li><li data-type='method'><a href="Application.html#parseChildren">parseChildren</a></li><li data-type='method'><a href="Application.html#part">part</a></li><li data-type='method'><a href="Application.html#reset">reset</a></li><li data-type='method'><a href="Application.html#start">start</a></li><li data-type='method'><a href="Application.html#startChildren">startChildren</a></li><li data-type='method'><a href="Application.html#stop">stop</a></li><li data-type='method'><a href="Application.html#stopChildren">stopChildren</a></li><li data-type='method'><a href="Application.html#url">url</a></li><li data-type='method'><a href="Application.html#use">use</a></li></ul></li><li><a href="AppPart.html">AppPart</a><ul class='methods'><li data-type='method'><a href="AppPart.html#app">app</a></li><li data-type='method'><a href="AppPart.html#loader">loader</a></li><li data-type='method'><a href="AppPart.html#logger">logger</a></li></ul></li><li><a href="AppProvider.html">AppProvider</a><ul class='methods'><li data-type='method'><a href="AppProvider.html#add">add</a></li><li data-type='method'><a href="AppProvider.html#app">app</a></li><li data-type='method'><a href="AppProvider.html#get">get</a></li><li data-type='method'><a href="AppProvider.html#has">has</a></li><li data-type='method'><a href="AppProvider.html#loader">loader</a></li><li data-type='method'><a href="AppProvider.html#logger">logger</a></li><li data-type='method'><a href="AppProvider.html#remove">remove</a></li><li data-type='method'><a href="AppProvider.html#setDefault">setDefault</a></li></ul></li><li><a href="Component.html">Component</a><ul class='methods'><li data-type='method'><a href="Component.html#_descendant">_descendant</a></li><li data-type='method'><a href="Component.html#_initProps">_initProps</a></li><li data-type='method'><a href="Component.html#active">active</a></li><li data-type='method'><a href="Component.html#app">app</a></li><li data-type='method'><a href="Component.html#children">children</a></li><li data-type='method'><a href="Component.html#create">create</a></li><li data-type='method'><a href="Component.html#createPart">createPart</a></li><li data-type='method'><a href="Component.html#createProvider">createProvider</a></li><li data-type='method'><a href="Component.html#defaultModel">defaultModel</a></li><li data-type='method'><a href="Component.html#destroy">destroy</a></li><li data-type='method'><a href="Component.html#get">get</a></li><li data-type='method'><a href="Component.html#listen">listen</a></li><li data-type='method'><a href="Component.html#loader">loader</a></li><li data-type='method'><a href="Component.html#log">log</a></li><li data-type='method'><a href="Component.html#logger">logger</a></li><li data-type='method'><a href="Component.html#model">model</a></li><li data-type='method'><a href="Component.html#parent">parent</a></li><li data-type='method'><a href="Component.html#parents">parents</a></li><li data-type='method'><a href="Component.html#parseChildren">parseChildren</a></li><li data-type='method'><a href="Component.html#part">part</a></li><li data-type='method'><a href="Component.html#reset">reset</a></li><li data-type='method'><a href="Component.html#startChildren">startChildren</a></li><li data-type='method'><a href="Component.html#stop">stop</a></li><li data-type='method'><a href="Component.html#stopChildren">stopChildren</a></li><li data-type='method'><a href="Component.html#url">url</a></li></ul></li><li><a href="ComponentManager.html">ComponentManager</a><ul class='methods'><li data-type='method'><a href="ComponentManager.html#_updateCurrConfigList">_updateCurrConfigList</a></li><li data-type='method'><a href="ComponentManager.html#clearDom">clearDom</a></li><li data-type='method'><a href="ComponentManager.html#findDom">findDom</a></li><li data-type='method'><a href="ComponentManager.html#getByDom">getByDom</a></li><li data-type='method'><a href="ComponentManager.html#normalizeBatchConfig">normalizeBatchConfig</a></li><li data-type='method'><a href="ComponentManager.html#normalizeConfig">normalizeConfig</a></li><li data-type='method'><a href="ComponentManager.html#register">register</a></li><li data-type='method'><a href="ComponentManager.html#start">start</a></li><li data-type='method'><a href="ComponentManager.html#stop">stop</a></li></ul></li><li><a href="LayoutManager.html">LayoutManager</a><ul class='methods'><li data-type='method'><a href="LayoutManager.html#add">add</a></li><li data-type='method'><a href="LayoutManager.html#app">app</a></li><li data-type='method'><a href="LayoutManager.html#change">change</a></li><li data-type='method'><a href="LayoutManager.html#get">get</a></li><li data-type='method'><a href="LayoutManager.html#has">has</a></li><li data-type='method'><a href="LayoutManager.html#init">init</a></li><li data-type='method'><a href="LayoutManager.html#loader">loader</a></li><li data-type='method'><a href="LayoutManager.html#logger">logger</a></li><li data-type='method'><a href="LayoutManager.html#remove">remove</a></li><li data-type='method'><a href="LayoutManager.html#setDefault">setDefault</a></li></ul></li><li><a href="Logger.html">Logger</a><ul class='methods'><li data-type='method'><a href="Logger.html#enable">enable</a></li><li data-type='method'><a href="Logger.html#error">error</a></li><li data-type='method'><a href="Logger.html#info">info</a></li><li data-type='method'><a href="Logger.html#log">log</a></li><li data-type='method'><a href="Logger.html#setName">setName</a></li><li data-type='method'><a href="Logger.html#time">time</a></li><li data-type='method'><a href="Logger.html#warn">warn</a></li></ul></li><li><a href="Observable.html">Observable</a><ul class='methods'><li data-type='method'><a href="Observable.html#on">on</a></li></ul></li><li><a href="PageManager.html">PageManager</a><ul class='methods'><li data-type='method'><a href="PageManager.html#change">change</a></li><li data-type='method'><a href="PageManager.html#getCurrName">getCurrName</a></li></ul></li><li><a href="veronica.Page.html">Page</a></li><li><a href="veronica.QueryString.html">QueryString</a></li></ul><h3>Events</h3><ul><li><a href="Application.html#event:appStarted">appStarted</a></li><li><a href="Application.html#event:pageLoaded">pageLoaded</a></li><li><a href="Application.html#event:pageLoading">pageLoading</a></li><li><a href="Application.html#event:pageNotFound">pageNotFound</a></li><li><a href="Application_layout.html#.event:layoutChanged">layoutChanged</a></li><li><a href="Application_layout.html#.event:layoutChanging">layoutChanging</a></li><li><a href="Component.html#.event:componentsLoaded">componentsLoaded</a></li></ul><h3>Interfaces</h3><ul><li><a href="UIKit.html">UIKit</a><ul class='methods'><li data-type='method'><a href="UIKit.html#create">create</a></li><li data-type='method'><a href="UIKit.html#getInstance">getInstance</a></li><li data-type='method'><a href="UIKit.html#init">init</a></li></ul></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">base/klass.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * 修改的 klass 类
+ * 修改内容：
+ *   - 添加继承相同属性的深拷贝合并
+ *   - 添加继承函数的可选操作（可扩展可覆盖）
+ *   -
+ */
+
+/*!
+ * klass: a classical JS OOP façade
+ * https://github.com/ded/klass
+ * License MIT (c) Dustin Diaz 2014
+ */
+
+!function (name, context, definition) {
+    if (typeof define == 'function') define(definition)
+    else if (typeof module != 'undefined') module.exports = definition()
+    else context[name] = definition()
+}('klass', this, function () {
+
+    function isSpecificValue(val) {
+        return (
+            val instanceof Date
+            || val instanceof RegExp
+        ) ? true : false;
+    }
+
+    function cloneSpecificValue(val) {
+        if (val instanceof Buffer) {
+            var x = new Buffer(val.length);
+            val.copy(x);
+            return x;
+        } else if (val instanceof Date) {
+            return new Date(val.getTime());
+        } else if (val instanceof RegExp) {
+            return new RegExp(val);
+        } else {
+            throw new Error('Unexpected situation');
+        }
+    }
+
+    /**
+     * Recursive cloning array.
+     */
+    function deepCloneArray(arr) {
+        var clone = [];
+        arr.forEach(function (item, index) {
+            if (typeof item === 'object' &amp;&amp; item !== null) {
+                if (Array.isArray(item)) {
+                    clone[index] = deepCloneArray(item);
+                } else if (isSpecificValue(item)) {
+                    clone[index] = cloneSpecificValue(item);
+                } else {
+                    clone[index] = deepExtend({}, item);
+                }
+            } else {
+                clone[index] = item;
+            }
+        });
+        return clone;
+    }
+
+    /**
+     * Extening object that entered in first argument.
+     *
+     * Returns extended object or false if have no target object or incorrect type.
+     *
+     * If you wish to clone source object (without modify it), just use empty new
+     * object as first argument, like this:
+     *   deepExtend({}, yourObj_1, [yourObj_N]);
+     */
+    var deepExtend = function (/*obj_1, [obj_2], [obj_N]*/) {
+        if (arguments.length &lt; 1 || typeof arguments[0] !== 'object') {
+            return false;
+        }
+
+        if (arguments.length &lt; 2) {
+            return arguments[0];
+        }
+
+        var target = arguments[0];
+
+        // convert arguments to array and cut off target object
+        var args = Array.prototype.slice.call(arguments, 1);
+
+        var val, src, clone;
+
+        args.forEach(function (obj) {
+            // skip argument if it is array or isn't object
+            if (typeof obj !== 'object' || Array.isArray(obj)) {
+                return;
+            }
+
+            Object.keys(obj).forEach(function (key) {
+                src = target[key]; // source value
+                val = obj[key]; // new value
+
+                // recursion prevention
+                if (val === target) {
+                    return;
+
+                    /**
+                     * if new value isn't object then just overwrite by new value
+                     * instead of extending.
+                     */
+                } else if (typeof val !== 'object' || val === null) {
+                    target[key] = val;
+                    return;
+
+                    // just clone arrays (and recursive clone objects inside)
+                } else if (Array.isArray(val)) {
+                    target[key] = deepCloneArray(val);
+                    return;
+
+                    // custom cloning and overwrite for specific objects
+                } else if (isSpecificValue(val)) {
+                    target[key] = cloneSpecificValue(val);
+                    return;
+
+                    // overwrite by new value if source isn't object or array
+                } else if (typeof src !== 'object' || src === null || Array.isArray(src)) {
+                    target[key] = deepExtend({}, val);
+                    return;
+
+                    // source value and new value is objects both, extending...
+                } else {
+                    target[key] = deepExtend(src, val);
+                    return;
+                }
+            });
+        });
+
+        return target;
+    }
+
+    var context = this
+        , f = 'function'
+        , fnTest = /xyz/.test(function () {
+        xyz
+    }) ? /\bsupr\b/ : /.*/
+        , proto = 'prototype'
+
+    function klass(o) {
+        return extend.call(isFn(o) ? o : function () {
+        }, o, 1)
+    }
+
+    function isFn(o) {
+        return typeof o === f
+    }
+
+    function wrap(k, fn, supr) {
+        return function () {
+            var tmp = this.supr
+            this.supr = supr[proto][k]
+            var undef = {}.fabricatedUndefined
+            var ret = undef
+            try {
+                ret = fn.apply(this, arguments)
+            } finally {
+                this.supr = tmp
+            }
+            return ret
+        }
+    }
+
+    function mergeMethod(original, newMethod){
+        return function () {
+            original.apply(this, Array.prototype.slice.call(arguments));
+            newMethod.apply(this, Array.prototype.slice.call(arguments));
+        }
+    }
+
+    function mixins(obj, prototype, supr, ext, opt){
+        opt || (opt = {})
+        opt.merge || (opt.merge = [])
+        opt.initPropsMethod || (opt.initPropsMethod = '_initProps')
+
+        if(ext.options){
+            deepExtend(obj.options, ext.options)
+        }
+        if(ext.configs){
+            deepExtend(obj, ext.configs)
+        }
+        if(ext.methods){
+            process(prototype, ext.methods, supr, opt.merge)
+        }
+
+        // 加入运行时属性
+        if (ext.props) {
+            var propMethods = {}
+            var props = ext.props
+            propMethods[opt.initPropsMethod] = function () {
+                var me = this;
+                for(var name in props){
+                    me[name] = props[name]
+                }
+            }
+            process(prototype, propMethods, supr, [opt.initPropsMethod])
+        }
+    }
+
+    function process(what, o, supr, merge) {
+        merge || (merge = [])
+
+        for (var k in o) {
+            if (o.hasOwnProperty(k)) {
+                if (o[k] != null &amp;&amp; typeof o[k] === 'object') {
+                    // 深拷贝合并对象成员
+                    what[k] = deepExtend({}, supr[proto][k], what[k], o[k])
+                } else {
+                    var member = o[k]
+                    if(isFn(o[k])){
+                        if(isFn(supr[proto][k]) &amp;&amp; fnTest.test(o[k])){
+                            member = wrap(k, o[k], supr)
+                        }
+
+                        if(isFn(what[k]) &amp;&amp; merge.indexOf(k) >= 0){
+                            // 合并 function
+                            member = mergeMethod(what[k], member)
+                        }
+                    }
+
+                    what[k] = member
+                }
+            }
+        }
+    }
+
+
+
+    function extend(o, fromSub) {
+        // must redefine noop each time so it doesn't inherit from previous arbitrary classes
+        function noop() {
+        }
+
+        noop[proto] = this[proto]
+        var supr = this
+            , prototype = new noop()
+            , isFunction = isFn(o)
+            , _constructor = isFunction ? o : this
+            , _methods = isFunction ? {} : o
+
+        /**
+         * 基础类
+         * @class
+         */
+        function fn() {
+            if (this.initialize) this.initialize.apply(this, arguments)
+            else {
+                fromSub || isFunction &amp;&amp; supr.apply(this, arguments)
+                _constructor.apply(this, arguments)
+            }
+        }
+
+        /**
+         * 扩展方法
+         * @param {Object} o - 方法对象
+         * @param {Array.&lt;string>} merge - 需要进行合并的方法
+         * @returns {BaseClass}
+         * @memberOf BaseClass
+         * @static
+         */
+        fn.methods = function (o, merge) {
+            process(prototype, o, supr, merge)
+            fn[proto] = prototype
+            return this
+        }
+
+        fn.methods.call(fn, _methods).prototype.constructor = fn
+
+        /**
+         * 扩展子类
+         * @type {function}
+         * @static
+         * @memberOf BaseClass
+         * @example
+         *  var Sub = Parent.extend({
+         *    initialize: function(){
+         *      this.supr()
+         *    }
+         *  })
+         */
+        fn.extend = arguments.callee
+
+
+        /**
+         * 添加静态属性/方法
+         * @type {function}
+         * @static
+         */
+        fn.statics = function (o, optFn) {
+            o = typeof o == 'string' ? (function () {
+                var obj = {}
+                obj[o] = optFn
+                return obj
+            }()) : o
+            process(this, o, supr)
+            return this
+        }
+
+        /**
+         * 混入
+         * @type {any}
+         */
+        fn[proto].implement = fn.statics
+
+        /**
+         * 添加成员
+         * @static
+         * @param {Object} ext - 扩展对象
+         * @param {Object} options - 扩展参数
+         * @returns {BaseClass}
+         */
+        fn.members = function(ext, options){
+            mixins(prototype, prototype, supr, ext, options)
+            fn[proto] = prototype
+            return this
+        }
+
+        return fn
+    }
+
+    klass.mixins = function(target, ext, options){
+        mixins(target, target, target, ext, options)
+    }
+
+
+    return klass
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Oct 21 2016 23:39:08 GMT+0800 (China Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
